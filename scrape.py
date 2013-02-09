@@ -4,7 +4,7 @@ import json
 import re
 import subprocess
 
-from pathery import Graph
+import pathery
 
 TYPE_MAP = {
     'a': 'A',
@@ -34,7 +34,7 @@ def get_problems(days_before=0):
   return [(board['data'], board['walls']) for board in get_boards(days_before)]
 
 def get_graphs(days_before=0):
-  return [Graph(board['data']) for board in get_boards(days_before)]
+  return [pathery.Graph(board['data']) for board in get_boards(days_before)]
 
 def get_boards(days_before=0):
   if days_before:
