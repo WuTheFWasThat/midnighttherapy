@@ -30,6 +30,9 @@ def call(command):
   print 'Calling "%s"' % (command,)
   return subprocess.Popen(command, stdout=subprocess.PIPE, shell=True).stdout.read()[:-1]
 
+def get_problems(days_before=0):
+  return [(board['data'], board['walls']) for board in get_boards(days_before)]
+
 def get_graphs(days_before=0):
   return [Graph(board['data']) for board in get_boards(days_before)]
 
