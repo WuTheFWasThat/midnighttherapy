@@ -44,8 +44,7 @@ class Graph:
     d = 1
     while str(d) in boardstuff:
       assert len(boardstuff[str(d)]) == 1
-      assert len(boardstuff[teleports_map[str(d)]]) == 1
-      self.teleports[boardstuff[str(d)][0]] = boardstuff[teleports_map[str(d)]][0]
+      self.teleports[boardstuff[str(d)][0]] = boardstuff[teleports_map[str(d)]]
       d+=1
 
   def can_place(self, i, j):
@@ -130,6 +129,7 @@ def find_full_path(graph,
   fullpath = []
   cur = None
 
+  t = time.time()
   while index < len(graph.milestones) - 1:
     best_path = None
     for target in graph.milestones[index+1]:
@@ -138,15 +138,18 @@ def find_full_path(graph,
         best_path = path
     if best_path is None:
       return None, -float("Inf")
-    out_block = None
+    out_blocks = None
     for block in best_path[(index != 0):]:
       fullpath.append(block)
-      out_block = graph.teleport(block, used_teleports)
-      if out_block is not None:
-        cur = out_block
+      out_blocks = graph.teleport(block, used_teleports)
+      if out_blocks is not None:
+        # TODO: MULTIPLE OUTS
+        cur = out_blocks[0]
         break
-    if out_block is None:
+    if out_blocks is None:
       index += 1
       cur = block
+  #print "time.time() - t"
+  #print time.time() - t
   return fullpath, len(fullpath) - len(used_teleports) - 1
   

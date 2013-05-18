@@ -2,6 +2,7 @@ import pathery
 import time
 import mcmc_solve
 import exact_solve
+import scrape
 
 board = ['s   X      XXX    t',
          's            1 **Xt',
@@ -39,15 +40,12 @@ board = ['s     X     t',
          'sX X        t']
 num_to_place = 9
 
-graph = pathery.Graph(board)
+problems = scrape.get_problems(0)
+(board, num_to_place) = problems[4]
+  
 
 if __name__ == '__main__':
-  print graph
-  print
-  print "------------------------------------------------------------------------------"
-  print
-  
-  
+  graph = pathery.Graph(board)
   print "SOLVING MONTE CARLO"
   t = time.time()
   path, blocks = mcmc_solve.mcmc_solve(board, num_to_place)
@@ -55,10 +53,6 @@ if __name__ == '__main__':
   print len(path)
   t = time.time() - t
   print t, "seconds"
-  
-  print
-  print "------------------------------------------------------------------------------"
-  print
   
   # print "SOLVING EXACT"
   # t = time.time()
