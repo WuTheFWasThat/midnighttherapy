@@ -286,20 +286,7 @@ function find_full_path(graph, blocks ){
 }
 
 
-var bm_values = {};
-var bm_old_old_solution = null;
-var bm_old_solution = null;
-
-function draw_values(mapcode, solution) {
-    if (bm_old_solution == solution) {
-      return;
-    } else if (bm_old_old_solution != bm_old_solution) {
-      bm_old_old_solution = bm_old_solution;
-      return;
-    }
-    bm_old_old_solution = bm_old_solution;
-    bm_old_solution = solution;
-
+function compute_values(mapcode, solution) {
     bm_board= parse_board(mapcode);
     bm_graph = Graph(bm_board);
     //BFS(bm_graph, {}, null, {'[2,2]':true})
@@ -345,7 +332,7 @@ function draw_values(mapcode, solution) {
                            'text-align': 'center'
                           };
                 }
-                values_list.push({mapid: bm_mapid, i: i, j: j, val: diff, css: css});
+                values_list.push({i: i, j: j, val: diff, css: css});
             }
         }
     }
@@ -366,10 +353,10 @@ app.configure(function() {
   app.use(app.router);
 });
 
-app.post('/get_solution', function(req, res){
-  console.log(req.body);
+app.post('/compute_values', function(req, res){
+  var result = compute_values(req.body.mapcode, req.body.solution);
   res.header("Access-Control-Allow-Origin", "*");
-  res.end(JSON.stringify());
+  res.end(JSON.stringify(result));
 });
 
 app.listen(7234);
