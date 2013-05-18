@@ -93,7 +93,10 @@ $(document).ready(function() {
     )
   };
 
-  $(window).click(refresh_score)
+  $(window).click(function() {
+    refresh_score();
+    setTimeout(refresh_score, 500);
+  })
   refresh_score();
 
   

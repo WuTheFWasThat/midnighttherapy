@@ -238,6 +238,7 @@ function find_full_path(graph, blocks ){
   var index = 0;
   var fullpath = new Array();
   var cur = null;
+  var num_teleports_used = 0;
 
   while (index < graph.milestones.length - 1) {
     var best_path = null;
@@ -255,12 +256,13 @@ function find_full_path(graph, blocks ){
     }
     var out_blocks = null;
 
-    var path_blocks = best_path.slice((index == 0 ? 0 : 1));
+    var path_blocks = best_path.slice((index + num_teleports_used == 0 ? 0 : 1));
     for (var k in path_blocks) {
       var block = path_blocks[k];
       fullpath.push(block);
       var out_blocks = graph.teleport(block, used_teleports);
       if (out_blocks != null) {
+        num_teleports_used += 1;
         cur = out_blocks[0];
         fullpath.push(cur);
         if (out_blocks.length > 1) {
@@ -276,15 +278,9 @@ function find_full_path(graph, blocks ){
     }
   }
 
-  var solution_length = fullpath.length - 1;
-  for (var k in used_teleports) {
-    if (used_teleports.hasOwnProperty(k)) {
-      solution_length -=1;
-    }
-  }
+  var solution_length = fullpath.length - 1 - num_teleports_used;
   return [fullpath, solution_length ];
 }
-
 
 function compute_value(mapcode, solution) {
     bm_board= parse_board(mapcode);
