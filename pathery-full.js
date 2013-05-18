@@ -1,3 +1,6 @@
+///////////////////////////////////////
+// SERVER
+///////////////////////////////////////
 
 teleports_map = {
   '1': '!',
@@ -286,41 +289,26 @@ function find_full_path(graph, blocks ){
 }
 
 
-var bm_values = {};
-var bm_old_old_solution = null;
-var bm_old_solution = null;
-
-function draw_single_value(mapid, i, j, value, css) {
-    if (Math.abs(value) > 200000000) {
-      value = '';
-    }
-    var elt = $('[id="child_' + mapid + ',' + (i+1) + ',' + j + '"]');
-    for (var attr in css) {
-      if (css.hasOwnProperty(attr)) {
-        elt.css(attr, css[attr]);
-      }
-    }
-    elt.text(value);
-    bm_values[JSON.stringify([i,j])] = value;
-}
-
-function draw_values() {
-    bm_mapid = parseInt($('.shown-maps .grid_outer').attr('id').split(',')[0]);
-
-    if (bm_old_solution == solution[bm_mapid]) {
-      return;
-    } else if (bm_old_old_solution != bm_old_solution) {
-      bm_old_old_solution = bm_old_solution;
-      return;
-    }
-    bm_old_old_solution = bm_old_solution;
-    bm_old_solution = solution[bm_mapid];
-
-    bm_board= parse_board(mapdata[bm_mapid].code);
+function compute_value(mapcode, solution) {
+    bm_board= parse_board(mapcode);
     bm_graph = Graph(bm_board);
     //BFS(bm_graph, {}, null, {'[2,2]':true})
 
-    bm_current_blocks = parse_blocks(solution[bm_mapid]);
+    bm_current_blocks = parse_blocks(solution);
+    bm_solution = find_full_path(bm_graph, bm_current_blocks);
+
+    bm_solution_path = bm_solution[0];
+    bm_solution_value = bm_solution[1];
+    if (bm_solution_value < 0)  { return -1; }
+    return bm_solution_value;
+}
+
+function compute_values(mapcode, solution) {
+    bm_board= parse_board(mapcode);
+    bm_graph = Graph(bm_board);
+    //BFS(bm_graph, {}, null, {'[2,2]':true})
+
+    bm_current_blocks = parse_blocks(solution);
     bm_solution = find_full_path(bm_graph, bm_current_blocks);
 
     bm_solution_path = bm_solution[0];
@@ -329,17 +317,12 @@ function draw_values() {
     //var t = new Date().getTime();
     //console.log("TIME ELAPSED")
     //console.log(new Date().getTime() - t)
-    if (!$('#' + bm_mapid + 'client_score').length) {
-      var my_score = $('<span id="' + bm_mapid + 'client_score"></span>');
-      $('[id="' + bm_mapid + ',dspbl"]').append(my_score);
-    }
-    $('#' + bm_mapid + 'client_score').text(bm_solution_value + ' moves');
-
     
     //console.log("bm_current_blocks", bm_current_blocks);
     //console.log("fullpath, length", bm_solution_path);
     //console.log(bm_current_blocks)
     
+    var values_list = [];
     for (var i in bm_board) {
         i = parseInt(i);
         for (var j in bm_board[i]) {
@@ -366,10 +349,60 @@ function draw_values() {
                            'text-align': 'center'
                           };
                 }
-                draw_single_value(bm_mapid, i, j, diff, css);
+                values_list.push({i: i, j: j, val: diff, css: css});
             }
         }
     }
+    return {value: bm_solution_value, values_list: values_list};
+}
+
+
+
+
+
+
+
+///////////////////////////////////////
+// CLIENT
+///////////////////////////////////////
+
+var bm_mapid = null;
+var bm_old_solution = null;
+
+function draw_single_value(mapid, i, j, value, css) {
+    if (Math.abs(value) > 200000000) {
+      value = '';
+    }
+    var elt = $('[id="child_' + mapid + ',' + (i+1) + ',' + j + '"]');
+    for (var attr in css) {
+      if (css.hasOwnProperty(attr)) {
+        elt.css(attr, css[attr]);
+      }
+    }
+    elt.text(value);
+}
+
+function get_current_map_id() {
+    return parseInt($('.shown-maps .grid_outer').attr('id').split(',')[0]);
+}
+
+function draw_values() {
+  bm_mapid = get_current_map_id();
+
+  if (bm_old_solution == solution[bm_mapid]) {
+    return;
+  }
+
+  bm_old_solution = solution[bm_mapid];
+
+  var result = compute_values(mapdata[bm_mapid].code, solution[bm_mapid]) 
+  var value  = result.value;
+  var values_list  = result.values_list;
+
+  for (var k in values_list) {
+    var values_dict = values_list[k];
+    draw_single_value(bm_mapid, values_dict.i, values_dict.j, values_dict.val, values_dict.css);
+  }
 }
 
 var interval_var;
@@ -379,21 +412,43 @@ function bm_toggle() {
     clearInterval(interval_var);
     interval_var = null;
     $('.map .child').text('');
-    $('#bm_button').text('Turn bookmarklet on')
+    $('.client_score').text('');
+    $('#bm_button').text('Show values')
   } else {
     interval_var = setInterval(draw_values, 1000);
-    $('#bm_button').text('Turn bookmarklet off')
+    $('#bm_button').text('Hide values')
   }
+  bm_old_solution = null;
 }
 
+function write_score_value(value) {
+  if (parseInt(value) < 0) {
+    value = 'Path blocked!';
+  } else {
+    value = value + ' moves';
+  }
+  if (!$('#' + mapid + 'client_score').length) {
+    var my_score = $('<span id="' + mapid + 'client_score" class="client_score"></span>');
+    $('[id="' + mapid + ',dspbl"]').append(my_score);
+  }
+  $('#' + mapid + 'client_score').text(value);
+}
 
 $(document).ready(function() {
   var my_button;
   if ($('#bm_button').length == 0) {
-    my_button = $('<button id="bm_button">Turn bookmarklet on</button>');
+    my_button = $('<button id="bm_button">Show values</button>');
     $('#difficulties').append(my_button);
     my_button.click(bm_toggle);
-    bm_toggle();
   }
+
+  function refresh_score() {
+    var mapid = get_current_map_id();
+    write_score_value(compute_value(mapdata[mapid].code, solution[mapid]));
+  };
+
+  $(window).click(refresh_score)
+  refresh_score();
+
   
 });

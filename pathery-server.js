@@ -286,6 +286,20 @@ function find_full_path(graph, blocks ){
 }
 
 
+function compute_value(mapcode, solution) {
+    bm_board= parse_board(mapcode);
+    bm_graph = Graph(bm_board);
+    //BFS(bm_graph, {}, null, {'[2,2]':true})
+
+    bm_current_blocks = parse_blocks(solution);
+    bm_solution = find_full_path(bm_graph, bm_current_blocks);
+
+    bm_solution_path = bm_solution[0];
+    bm_solution_value = bm_solution[1];
+    if (bm_solution_value < 0)  { return -1; }
+    return bm_solution_value;
+}
+
 function compute_values(mapcode, solution) {
     bm_board= parse_board(mapcode);
     bm_graph = Graph(bm_board);
@@ -353,10 +367,16 @@ app.configure(function() {
   app.use(app.router);
 });
 
+app.post('/compute_value', function(req, res){
+  var result = compute_value(req.body.mapcode, req.body.solution);
+  res.header("Access-Control-Allow-Origin", "*");
+  res.end(JSON.stringify(result));
+});
+
 app.post('/compute_values', function(req, res){
   var result = compute_values(req.body.mapcode, req.body.solution);
   res.header("Access-Control-Allow-Origin", "*");
   res.end(JSON.stringify(result));
 });
 
-app.listen(7234);
+app.listen(2222);
