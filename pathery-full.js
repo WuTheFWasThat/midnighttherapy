@@ -5,10 +5,12 @@ bm_local = false;
 ///////////////////////////////////////
 
 // SHARED WITH PATHERY-CLIENT
-if (bm_local) {
-  $.getScript('file://localhost/Users/jeffwu/Dropbox/Projects/midnighttherapy/pathery-server-shared.js')
-} else {
-  $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-server-shared.js')
+function get_shared_server(cb) {
+  if (bm_local) {
+    $.getScript('file://localhost/Users/jeffwu/Dropbox/Projects/midnighttherapy/pathery-server-shared.js', cb)
+  } else {
+    $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-server-shared.js', cb)
+  }
 }
 
 ///////////////////////////////////////
@@ -16,10 +18,12 @@ if (bm_local) {
 ///////////////////////////////////////
 
 // SHARED WITH PATHERY-CLIENT
-if (bm_local) {
-  $.getScript('file://localhost/Users/jeffwu/Dropbox/Projects/midnighttherapy/pathery-client-shared.js')
-} else {
-  $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-client-shared.js')
+function get_shared_client(cb) {
+  if (bm_local) {
+    $.getScript('file://localhost/Users/jeffwu/Dropbox/Projects/midnighttherapy/pathery-client-shared.js', cb)
+  } else {
+    $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-client-shared.js', cb)
+  }
 }
 
 function draw_values() {
@@ -47,9 +51,15 @@ function refresh_score() {
 };
 
 
-$(document).ready(function() {
-  $(window).click(function() {
+function start_up() {
+  $(document).ready(function() {
+  
+   console.log('here')
+    $(window).click(function() {
+      refresh_score();
+    })
     refresh_score();
-  })
-  refresh_score();
-});
+  });
+}
+
+get_shared_server(function() { get_shared_client(start_up)});

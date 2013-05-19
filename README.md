@@ -21,7 +21,9 @@ SIMPLE:
 
 1. Go to Pathery
 2. Paste:
-$.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-full.js')
+
+`$.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-full.js')`
+
 into the Javascript console
 
 BETTER PERFORMANCE (recommended if using "show values"):
@@ -32,7 +34,9 @@ https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-server.js
 node pathery-server.js
 3. Go to Pathery
 4. Paste
-$.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-client.js')
+
+`$.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-client.js')`
+
 into the Javascript console
 
 ----------------

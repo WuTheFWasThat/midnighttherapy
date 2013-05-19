@@ -307,8 +307,6 @@ function compute_value(mapcode, solution) {
     bm_current_blocks = parse_blocks(solution);
     bm_solution = find_full_path(bm_graph, bm_current_blocks);
 
-    bm_solution_path = bm_solution[0];
-    console.log(bm_solution_path)
     bm_solution_value = bm_solution[1];
     if (bm_solution_value < 0)  { return -1; }
     return bm_solution_value;
@@ -372,3 +370,7 @@ function compute_values(mapcode, solution) {
 }
 
 
+try {
+  exports.compute_value = compute_value;
+  exports.compute_values = compute_values;
+} catch (e) {}
