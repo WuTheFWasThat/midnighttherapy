@@ -36,6 +36,15 @@ TYPE_MAP = {
     'l': '%',
 }
 
+// TODO: switch to i * m + n
+function keyify_block(block) {
+  return JSON.stringify(block)
+}
+
+function unkeyify_block(block) {
+  return JSON.parse(block)
+}
+
 function parse_blocks(blocksstring) {
   var blocks = {};
   var str_blocks = blocksstring.split('.');
@@ -145,7 +154,6 @@ function Graph(board) {
     d+=1;
   }
         
-/////////
   self.can_place = function(i, j) {
     return (this.board[i][j] == ' ');
   }
@@ -242,6 +250,7 @@ function find_full_path(graph, blocks ){
   var fullpath = new Array();
   var cur = null;
   var num_teleports_used = 0;
+  var relevant_blocks = new Array(); // The set of blocks which blocking may help
 
   while (index < graph.milestones.length - 1) {
     var best_path = null;
@@ -260,6 +269,14 @@ function find_full_path(graph, blocks ){
     var out_blocks = null;
 
     var path_blocks = best_path.slice((index + num_teleports_used == 0 ? 0 : 1));
+
+    // blocking these could affect things
+    for (var k in path_blocks) {
+      var block = path_blocks[k];
+      relevant_blocks[keyify_block(block)] = true;
+    }
+
+    // push things onto actual path, until we hit a teleport
     for (var k in path_blocks) {
       var block = path_blocks[k];
       fullpath.push(block);
@@ -282,7 +299,7 @@ function find_full_path(graph, blocks ){
   }
 
   var solution_length = fullpath.length - 1 - num_teleports_used;
-  return [fullpath, solution_length ];
+  return [fullpath, solution_length, relevant_blocks];
 }
 
 
@@ -311,6 +328,7 @@ function compute_values(mapcode, solution) {
 
     bm_solution_path = bm_solution[0];
     bm_solution_value = bm_solution[1];
+    bm_relevant_blocks = bm_solution[2];
 
     //var t = new Date().getTime();
     //console.log("TIME ELAPSED")
@@ -338,7 +356,7 @@ function compute_values(mapcode, solution) {
                     css = {'color': 'white',
                            'text-align': 'center'
                           };
-                } else {
+                } else if (blockstring in bm_relevant_blocks) {
                     bm_current_blocks[blockstring] = true;
                     value = find_full_path(bm_graph, bm_current_blocks)[1];
                     diff = value - bm_solution_value;
@@ -346,6 +364,9 @@ function compute_values(mapcode, solution) {
                     css = {'color': 'black',
                            'text-align': 'center'
                           };
+                } else {
+                    diff = 0;
+                    css = {};
                 }
                 values_list.push({i: i, j: j, val: diff, css: css});
             }
@@ -369,6 +390,8 @@ var bm_old_solution = null;
 
 function draw_single_value(mapid, i, j, value, css) {
     if (Math.abs(value) > 200000000) {
+      value = '-';
+    } else if (value == 0) {
       value = '';
     }
     var elt = $('[id="child_' + mapid + ',' + (i+1) + ',' + j + '"]');
