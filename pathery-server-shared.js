@@ -371,30 +371,4 @@ function compute_values(mapcode, solution) {
     return {value: bm_solution_value, values_list: values_list};
 }
 
-/////////////////////////////////////////////////////
-// SERVER ONLY
-/////////////////////////////////////////////////////
 
-var express = require('express');
-
-var app = express();
-
-// configure Express
-app.configure(function() {
-  app.use(express.bodyParser()); 
-  app.use(app.router);
-});
-
-app.post('/compute_value', function(req, res){
-  var result = compute_value(req.body.mapcode, req.body.solution);
-  res.header("Access-Control-Allow-Origin", "*");
-  res.end(JSON.stringify(result));
-});
-
-app.post('/compute_values', function(req, res){
-  var result = compute_values(req.body.mapcode, req.body.solution);
-  res.header("Access-Control-Allow-Origin", "*");
-  res.end(JSON.stringify(result));
-});
-
-app.listen(2222);
