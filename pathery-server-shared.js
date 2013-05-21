@@ -270,7 +270,6 @@ function BFS(graph, // graph description, as an array
 }
 
 function find_full_path(graph, blocks ){
-                   
   var used_teleports = {};
   var index = 0;
   var fullpath = [];
