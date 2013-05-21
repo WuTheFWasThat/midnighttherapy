@@ -12,42 +12,50 @@ teleports_map = {
 }
 
 TYPE_MAP = {
+    // CHECKPOINTS
     'a': 'A',
     'b': 'B',
     'c': 'C',
     'd': 'D',
     'e': 'E',
+
+    // start
     's': 's',
+    // finish
     'f': 't',
+
+    // block
     'r': 'X',
+    //'x': ' ', // colored red, blocks green
+    //'X': ' ', // colored green, blocks red
+    //'p': ' ', // PATCH.  Can't block here!
+
+    // TELEPORTS
+    // dark blue
     't': '1',
     'u': '!',
+    // 
     'm': '2',
     'n': '@',
+    // 
     'g': '3',
     'h': '#',
+    // 
     'i': '4',
     'j': '$',
+    // 
     'k': '5',
     'l': '%',
 }
 
 // TODO: switch to i * m + n
 function keyify_block(block) {
-  if (block == null) {
-    return -1;
-  } else {
-    return block[0] * 1000 + block[1];
-  }
+  return block[0] * 1000 + block[1];
   //return JSON.stringify(block)
 }
 
 function unkeyify_block(blockkey) {
-  if (blockkey == -1) {
-    return null;
-  } else {
-    return [Math.floor(blockkey / 1000), blockkey % 1000];
-  }
+  return [Math.floor(blockkey / 1000), blockkey % 1000];
   //return JSON.parse(blockkey)
 }
 
@@ -71,16 +79,16 @@ function parse_board(code) {
     
     var head = head.split('.');
     var dims = head[0].split('x');
-    var width = parseInt(dims[0], 10);
-    var height = parseInt(dims[1], 10);
+    var width = parseInt(dims[0]);
+    var height = parseInt(dims[1]);
     if (head[1][0] != 'c') {console.log('head[1][0] was ' + head[1][0] + ' expected c');}
-    var targets = parseInt(head[1].slice(1), 10);
+    var targets = parseInt(head[1].slice(1));
     if (head[2][0] != 'r') {console.log('head[2][0] was ' + head[2][0] + ' expected r');}
     if (head[3][0] != 'w') {console.log('head[3][0] was ' + head[3][0] + ' expected w');}
     //if (board['walls'] != parseInt(head[3].slice(1))) {console.log('board.walls is different from walls in header');}
     if (head[4][0] != 't') {console.log('head[4][0] was ' + head[4][0] + ' expected t');}
     
-    var teleports = parseInt(head[4].slice(1), 10)
+    var teleports = parseInt(head[4].slice(1))
     
     var data = new Array();
     for (i = 0; i < height; i++) {
@@ -97,7 +105,7 @@ function parse_board(code) {
     
     for (var k = 0; k < body_split.length; k++) {
         var item = body_split[k];
-        for (var l = 0; l < parseInt(item.slice(0, -1), 10) + 1; l++) {
+        for (var l = 0; l < parseInt(item.slice(0, -1)) + 1; l++) {
             j += 1;
             if (j >= width) {
                 j = 0;
@@ -108,6 +116,7 @@ function parse_board(code) {
         if (!TYPE_MAP.hasOwnProperty(type)) {console.log('Unexpected type ' + type);}
         data[i][j] = TYPE_MAP[type];
     }
+
     //board['data'] = [''.join(row) for row in data]
     //board['data'] = new Array();
     //return board
@@ -171,26 +180,23 @@ function Graph(board) {
     return this.board[block[0]][block[1]];
   }
 
-  // DETERMINES MOVE PRIORITIES
+  // NOTE: Order is important.  DETERMINES MOVE PRIORITIES
   self.moves = [[-1, 0], [0, 1], [1, 0], [0, -1]];
 
   self.get_neighbors = function(blocks, u) {
-    if (u == null) { //# invisible 'meta-start' vertex
-      return this.milestones[0].slice(0); // return the start vertices
-    }
     var x = u[0];
     var y = u[1];
+    var xp;
+    var yp;
+    var val;
     var neighbors = [];
-    // order here is important, as per pathery rules
-    // Loop through the pairs:
-    // (-1, 0), (0, 1), (1, 0), (0, -1)
     for (var i = 0; i < self.moves.length; i++) {
-      var dx = self.moves[i][0];
-      var dy = self.moves[i][1];
-      var xp = x + dx;
-      var yp = y + dy;
+      xp = x + self.moves[i][0];
+      yp = y + self.moves[i][1];
+
+      // fill edge with 'X' so we don't need this check?
       if (((0 <= xp) && (xp < this.n)) && ((0 <= yp) && (yp < this.m))) {
-        var val = this.board[xp][yp];
+        val = this.board[xp][yp];
         if (val == 'X') {continue;}
         if (val == 'x') {continue;}
         if (val == '*') {continue;}
@@ -268,36 +274,33 @@ function find_full_path(graph, blocks ){
   var used_teleports = {};
   var index = 0;
   var fullpath = [];
-  var cur = [null]; // current list of start points
+  var cur = graph.milestones[0].slice(0); // current list of start points
   var num_teleports_used = 0;
   var relevant_blocks = {}; // The set of blocks which blocking may help
 
   while (index < graph.milestones.length - 1) {
-    var best_path = null;
     var target_dict = {};
     for (var i in graph.milestones[index+1]) {
       var target = graph.milestones[index+1][i];
       target_dict[keyify_block(target)] = true;
     }
     var path = BFS(graph, blocks, cur, target_dict);
-    if ((best_path == null)  || ((path != null) && (path.length < best_path.length))) {
-      best_path = path;
-    }
-    if (best_path == null) {
+    if (path == null) {
       return [null, -Number.MAX_VALUE, {}];
     }
     var out_blocks = null;
 
+    var block;
     // blocking these could affect things
-    for (var k in best_path) {
-      var block = best_path[k];
+    for (var k in path) {
+      block = path[k];
       relevant_blocks[keyify_block(block)] = true;
     }
 
     // push things onto actual path, until we hit a teleport
-    for (var k in best_path) {
-      var block = best_path[k];
-      var out_blocks = graph.teleport(block, used_teleports);
+    for (var k in path) {
+      block = path[k];
+      out_blocks = graph.teleport(block, used_teleports);
       if (out_blocks != null) {
         fullpath.push(block);
         num_teleports_used += 1;
@@ -305,7 +308,7 @@ function find_full_path(graph, blocks ){
         break;
       }
       // if no teleport, and last block of not last leg, skip (to avoid overcount)
-      if ((k < best_path.length - 1) || (index == graph.milestones.length - 2)) {
+      if ((k < path.length - 1) || (index == graph.milestones.length - 2)) {
         fullpath.push(block);
       }
     }
