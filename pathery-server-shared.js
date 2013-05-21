@@ -34,11 +34,21 @@ TYPE_MAP = {
 
 // TODO: switch to i * m + n
 function keyify_block(block) {
-  return JSON.stringify(block)
+  if (block == null) {
+    return -1;
+  } else {
+    return block[0] * 1000 + block[1];
+  }
+  //return JSON.stringify(block)
 }
 
-function unkeyify_block(block) {
-  return JSON.parse(block)
+function unkeyify_block(blockkey) {
+  if (blockkey == -1) {
+    return null;
+  } else {
+    return [Math.floor(blockkey / 1000), blockkey % 1000];
+  }
+  //return JSON.parse(blockkey)
 }
 
 function parse_blocks(blocksstring) {
@@ -145,8 +155,9 @@ function Graph(board) {
   self.teleports = {};
   var d = 1
   while (boardstuff.hasOwnProperty('' + d)) {
+    // TODO: NOT TRUE IN GENERAL!!!
     if ( boardstuff['' + d].length != 1) {console.log("LENGTH SHOULDVE BEEN 1 FOR TELEPORT " + d);}
-    self.teleports[JSON.stringify(boardstuff['' + d][0])] = boardstuff[teleports_map['' + d]];
+    self.teleports[keyify_block(boardstuff['' + d][0])] = boardstuff[teleports_map['' + d]];
     d+=1;
   }
         
@@ -174,7 +185,7 @@ function Graph(board) {
       var xp = x + dx;
       var yp = y + dy;
       if (((0 <= xp) && (xp < this.n)) && ((0 <= yp) && (yp < this.m))) {
-        if ((! blocks.hasOwnProperty(JSON.stringify([xp, yp]))) && (['X', 'x', '*'].indexOf(this.board[xp][yp]) == -1)) {
+        if ((! blocks.hasOwnProperty(keyify_block([xp, yp]))) && (['X', 'x', '*'].indexOf(this.board[xp][yp]) == -1)) {
           neighbors.push([xp, yp]);
         }
       }
@@ -185,9 +196,9 @@ function Graph(board) {
   self.teleport = function(block, used_teleports) {
     var stuff = this.get(block);
     if ( teleports_map.hasOwnProperty(stuff) ) {
-      if (!(used_teleports.hasOwnProperty(JSON.stringify(block)))) {
-        used_teleports[JSON.stringify(block)] = true;
-        return this.teleports[JSON.stringify(block)]
+      if (!(used_teleports.hasOwnProperty(keyify_block(block)))) {
+        used_teleports[keyify_block(block)] = true;
+        return this.teleports[keyify_block(block)]
       }
     }
     return null;
@@ -202,14 +213,14 @@ function BFS(graph, // graph description, as an array
              targets // set of target vertices
             ) {
   parent_dict = {};
-  parent_dict[JSON.stringify(source)] = null;
+  parent_dict[keyify_block(source)] = null;
   var queue = [source];
 
   var get_path = function(v){
     var path = [];
     while (v !== null) {
       path.push(v);
-      v = parent_dict[JSON.stringify(v)];
+      v = parent_dict[keyify_block(v)];
     }
     reversed_path = [];
     for (var i = 0; i < path.length; i ++ ) {
@@ -225,11 +236,11 @@ function BFS(graph, // graph description, as an array
       var neighbors = graph.get_neighbors(blocks, u);
       for (var k = 0; k < neighbors.length; k++) {
         var v = neighbors[k];
-        if (!parent_dict.hasOwnProperty(JSON.stringify(v))) {
+        if (!parent_dict.hasOwnProperty(keyify_block(v))) {
           newqueue.push(v)
-          parent_dict[JSON.stringify(v)] = u;
+          parent_dict[keyify_block(v)] = u;
         }
-        if (targets.hasOwnProperty(JSON.stringify(v))) {
+        if (targets.hasOwnProperty(keyify_block(v))) {
           return get_path(v);
         }
       }
@@ -253,7 +264,7 @@ function find_full_path(graph, blocks ){
     var target_dict = {};
     for (var i in graph.milestones[index+1]) {
       var target = graph.milestones[index+1][i];
-      target_dict[JSON.stringify(target)] = true;
+      target_dict[keyify_block(target)] = true;
     }
     var path = BFS(graph, blocks, cur, target_dict);
     if ((best_path == null)  || ((path != null) && (path.length < best_path.length))) {
@@ -338,7 +349,7 @@ function compute_values(mapcode, solution) {
         for (var j in bm_board[i]) {
             j = parseInt(j);
             if (bm_graph.get([i,j]) == ' ') {
-                var blockstring = JSON.stringify([i, j]);
+                var blockstring = keyify_block([i, j]);
                 var value;
                 var diff;
                 var css;
