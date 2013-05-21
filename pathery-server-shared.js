@@ -21,14 +21,15 @@ TYPE_MAP = {
 
     // start
     's': 's',
+    //'S': 'S', // red start
     // finish
     'f': 't',
 
     // block
     'r': 'X',
-    //'x': ' ', // colored red, blocks green
-    //'X': ' ', // colored green, blocks red
-    //'p': ' ', // PATCH.  Can't block here!
+    //'x': 'r', // colored red, blocks green
+    //'X': 'g', // colored green, blocks red
+    'p': 'p', // PATCH.  Can't block here!
 
     // TELEPORTS
     // dark blue
@@ -92,11 +93,12 @@ function parse_board(code) {
     
     var data = new Array();
     for (i = 0; i < height; i++) {
-        var row = new Array();
-        for (j = 0; j < width; j++) {
-            row.push(' ');
-        }
-        data.push(row);
+    //    var row = new Array();
+    //    for (j = 0; j < width; j++) {
+    //        row.push(' ');
+    //    }
+    //    data.push(row);
+          data.push(Array(width + 1).join(' '));
     }
     
     var i = -1;
