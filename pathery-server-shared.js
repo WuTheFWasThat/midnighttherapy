@@ -55,11 +55,11 @@ function parse_blocks(blocksstring) {
   var blocks = {};
   var str_blocks = blocksstring.split('.');
   for (var k in str_blocks) {
-    var block = str_blocks[k];
+    var str_block = str_blocks[k];
     if (str_blocks[k]) {
-      var x = parseInt(block.split(',')[0]);
-      var y = parseInt(block.split(',')[1]);
-      blocks['[' + (x-1) + ',' + y + ']'] = true;
+      var x = parseInt(str_block.split(',')[0]);
+      var y = parseInt(str_block.split(',')[1]);
+      blocks[keyify_block([x-1 , y ])] = true;
     }
   }
   return blocks;
