@@ -254,10 +254,10 @@ function find_full_path(graph, blocks ){
                    
   var used_teleports = {};
   var index = 0;
-  var fullpath = new Array();
+  var fullpath = [];
   var cur = null;
   var num_teleports_used = 0;
-  var relevant_blocks = new Array(); // The set of blocks which blocking may help
+  var relevant_blocks = {}; // The set of blocks which blocking may help
 
   while (index < graph.milestones.length - 1) {
     var best_path = null;
@@ -374,7 +374,7 @@ function compute_values(mapcode, solution) {
                            'text-align': 'center'
                           };
                 } else {
-                    diff = 0;
+                    diff = '';
                     css = {};
                 }
                 values_list.push({i: i, j: j, val: diff, css: css});
