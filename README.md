@@ -1,5 +1,8 @@
-CLIENT-SIDE PATHING
+MIDNIGHT THERAPY
 ====================
+
+CLIENT-SIDE PATHING
+--------------------
 
 Check this out:
 
@@ -13,10 +16,9 @@ If you press "show values", you'll see block values for every block.  However, t
 ![client side pathing](images/show-values-on.png)
 
 INSTRUCTIONS FOR USE
-====================
-
-SIMPLE:
 --------------------
+
+### SIMPLE:
 
 
 1. Go to Pathery
@@ -26,8 +28,7 @@ SIMPLE:
 
 into the Javascript console.
 
-OUTSOURCING COMPUTATION TO A SERVER (recommended if using "show values"):
---------------------
+### OUTSOURCING COMPUTATION TO A SERVER (recommended if using "show values"):
 
 
 1. Clone this repo and cd into it
@@ -41,14 +42,14 @@ node pathery-server.js
 into the Javascript console
 
 KNOWN ISSUES:
-====================
+--------------------
 
 - Pather doesn't deal with red start arrows and specialized blocker blocks (dualing paths/reverse order/32)
 - Pather doesn't deal with multiple INs or multiple OUTs
 - Slow
 
 FUTURE WORK:
-====================
+--------------------
 
 1. An API to support solvers that actually suggest (potentially major) changes, takes suggestions, etc. (and an accompanying prototype)
 2. Saving different solutions
