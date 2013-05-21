@@ -2,11 +2,6 @@ var bm_mapid = null;
 var bm_old_solution = null;
 
 function draw_single_value(mapid, i, j, value, css) {
-    if (Math.abs(value) > 200000000) {
-      value = '-';
-    } else if (value == 0) {
-      value = '';
-    }
     var elt = $('[id="child_' + mapid + ',' + (i+1) + ',' + j + '"]');
     for (var attr in css) {
       if (css.hasOwnProperty(attr)) {

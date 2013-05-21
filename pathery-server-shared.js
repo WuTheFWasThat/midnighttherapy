@@ -366,6 +366,10 @@ function compute_values(mapcode, solution) {
                     value = find_full_path(bm_graph, bm_current_blocks)[1];
                     diff = value - bm_solution_value;
                     delete bm_current_blocks[blockstring];
+
+                    if (Math.abs(diff) > 2222222222) {diff = '-';}
+                    else if (diff == 0) {diff = '';}
+
                     css = {'color': 'black',
                            'text-align': 'center'
                           };
