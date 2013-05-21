@@ -95,6 +95,7 @@ def BFS(graph, # graph description, as an array
         source, # source vertex
         targets # set of target vertices
         ):
+  t = time.time()
   blocks = set(blocks)
   parent = {}
   parent[source] = None
@@ -118,6 +119,7 @@ def BFS(graph, # graph description, as an array
         if v in targets:
           return get_path(v)
     queue = newqueue
+  print time.time() - t
   return None 
 
 def find_full_path(graph, 

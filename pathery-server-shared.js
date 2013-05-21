@@ -126,6 +126,7 @@ function Graph(board) {
   var boardstuff = {};
   // Note that these lists start from top-left and go right, then down
   // In particular, starts and finishes are ordered top to bottom
+  // Also when there are multiple outs for teleports, same ordering is used
   for (i = 0; i < self.n; i++) {
     for (j = 0; j < self.m; j++) {
       var stuff = self.board[i][j];
@@ -203,9 +204,10 @@ function Graph(board) {
   self.teleport = function(block, used_teleports) {
     var stuff = this.get(block);
     if ( teleports_map.hasOwnProperty(stuff) ) {
-      if (!(used_teleports.hasOwnProperty(keyify_block(block)))) {
-        used_teleports[keyify_block(block)] = true;
-        return this.teleports[keyify_block(block)]
+      var block_key = keyify_block(block);
+      if (!(used_teleports.hasOwnProperty(block_key))) {
+        used_teleports[block_key] = true;
+        return this.teleports[block_key]
       }
     }
     return null;
@@ -216,12 +218,15 @@ function Graph(board) {
 
 function BFS(graph, // graph description, as an array
              blocks, // currently placed blocks
-             source, // source vertex
+             sources, // list of source vertices, in order of priority
              targets // set of target vertices
             ) {
   parent_dict = {};
-  parent_dict[keyify_block(source)] = null;
-  var queue = [source];
+  for (var k in sources) {
+    var source = sources[k];
+    parent_dict[keyify_block(source)] = null;
+  }
+  var queue = sources;
 
   var get_path = function(v){
     var path = [];
@@ -263,7 +268,7 @@ function find_full_path(graph, blocks ){
   var used_teleports = {};
   var index = 0;
   var fullpath = [];
-  var cur = null;
+  var cur = [null]; // current list of start points
   var num_teleports_used = 0;
   var relevant_blocks = {}; // The set of blocks which blocking may help
 
@@ -279,7 +284,7 @@ function find_full_path(graph, blocks ){
       best_path = path;
     }
     if (best_path == null) {
-      return [null, -Number.MAX_VALUE];
+      return [null, -Number.MAX_VALUE, {}];
     }
     var out_blocks = null;
 
@@ -289,30 +294,24 @@ function find_full_path(graph, blocks ){
       relevant_blocks[keyify_block(block)] = true;
     }
 
-    var skip_first = (index + num_teleports_used != 0);
-    var skipped = false;
-
-
     // push things onto actual path, until we hit a teleport
     for (var k in best_path) {
-      if ((skip_first) && (!skipped)) {skipped = true; continue;}
       var block = best_path[k];
-      fullpath.push(block);
       var out_blocks = graph.teleport(block, used_teleports);
       if (out_blocks != null) {
+        fullpath.push(block);
         num_teleports_used += 1;
-        cur = out_blocks[0];
-        fullpath.push(cur);
-        if (out_blocks.length > 1) {
-          // TODO: MULTIPLE OUTS
-          console.log("CAN'T DEAL WITH MULTIPLE OUTS YET");
-        }
+        cur = out_blocks.slice(0);
         break;
+      }
+      // if no teleport, and last block of not last leg, skip (to avoid overcount)
+      if ((k < best_path.length - 1) || (index == graph.milestones.length - 2)) {
+        fullpath.push(block);
       }
     }
     if (out_blocks == null) {
       index += 1;
-      cur = block;
+      cur = [block];
     }
   }
 
@@ -324,7 +323,7 @@ function find_full_path(graph, blocks ){
 function compute_value(mapcode, solution) {
     bm_board= parse_board(mapcode);
     bm_graph = Graph(bm_board);
-    //BFS(bm_graph, {}, null, {'[2,2]':true})
+    //BFS(bm_graph, {}, [null], {'[2,2]':true})
 
     bm_current_blocks = parse_blocks(solution);
     bm_solution = find_full_path(bm_graph, bm_current_blocks);
@@ -337,7 +336,7 @@ function compute_value(mapcode, solution) {
 function compute_values(mapcode, solution) {
     bm_board= parse_board(mapcode);
     bm_graph = Graph(bm_board);
-    //BFS(bm_graph, {}, null, {'[2,2]':true})
+    //BFS(bm_graph, {}, [null], {'[2,2]':true})
 
     bm_current_blocks = parse_blocks(solution);
     bm_solution = find_full_path(bm_graph, bm_current_blocks);
