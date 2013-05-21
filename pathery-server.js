@@ -22,9 +22,14 @@ app.post('/compute_value', function(req, res){
 });
 
 app.post('/compute_values', function(req, res){
+  var t = new Date().getTime();
+    
   var result = pathery.compute_values(req.body.mapcode, req.body.solution);
   res.header("Access-Control-Allow-Origin", "*");
   res.end(JSON.stringify(result));
+
+  console.log("COMPUTE VALUES, TIME ELAPSED")
+  console.log(new Date().getTime() - t)
 });
 
 app.listen(2222);

@@ -170,6 +170,9 @@ function Graph(board) {
     return this.board[block[0]][block[1]];
   }
 
+  // DETERMINES MOVE PRIORITIES
+  self.moves = [[-1, 0], [0, 1], [1, 0], [0, -1]];
+
   self.get_neighbors = function(blocks, u) {
     if (u == null) { //# invisible 'meta-start' vertex
       return this.milestones[0].slice(0); // return the start vertices
@@ -178,16 +181,20 @@ function Graph(board) {
     var y = u[1];
     var neighbors = [];
     // order here is important, as per pathery rules
-    var ds =  [[-1, 0], [0, 1], [1, 0], [0, -1]];
-    for (var i = 0; i < 4; i++) {
-      var dx = ds[i][0];
-      var dy = ds[i][1];
+    // Loop through the pairs:
+    // (-1, 0), (0, 1), (1, 0), (0, -1)
+    for (var i = 0; i < self.moves.length; i++) {
+      var dx = self.moves[i][0];
+      var dy = self.moves[i][1];
       var xp = x + dx;
       var yp = y + dy;
       if (((0 <= xp) && (xp < this.n)) && ((0 <= yp) && (yp < this.m))) {
-        if ((! blocks.hasOwnProperty(keyify_block([xp, yp]))) && (['X', 'x', '*'].indexOf(this.board[xp][yp]) == -1)) {
-          neighbors.push([xp, yp]);
-        }
+        var val = this.board[xp][yp];
+        if (val == 'X') {continue;}
+        if (val == 'x') {continue;}
+        if (val == '*') {continue;}
+        if (blocks.hasOwnProperty(keyify_block([xp, yp]))) {continue;}
+        neighbors.push([xp, yp]);
       }
     }
     return neighbors;
@@ -236,11 +243,12 @@ function BFS(graph, // graph description, as an array
       var neighbors = graph.get_neighbors(blocks, u);
       for (var k = 0; k < neighbors.length; k++) {
         var v = neighbors[k];
-        if (!parent_dict.hasOwnProperty(keyify_block(v))) {
+        var v_key = keyify_block(v);
+        if (!parent_dict.hasOwnProperty(v_key)) {
           newqueue.push(v)
-          parent_dict[keyify_block(v)] = u;
+          parent_dict[v_key] = u;
         }
-        if (targets.hasOwnProperty(keyify_block(v))) {
+        if (targets.hasOwnProperty(v_key)) {
           return get_path(v);
         }
       }
@@ -275,17 +283,20 @@ function find_full_path(graph, blocks ){
     }
     var out_blocks = null;
 
-    var path_blocks = best_path.slice((index + num_teleports_used == 0 ? 0 : 1));
-
     // blocking these could affect things
-    for (var k in path_blocks) {
-      var block = path_blocks[k];
+    for (var k in best_path) {
+      var block = best_path[k];
       relevant_blocks[keyify_block(block)] = true;
     }
 
+    var skip_first = (index + num_teleports_used != 0);
+    var skipped = false;
+
+
     // push things onto actual path, until we hit a teleport
-    for (var k in path_blocks) {
-      var block = path_blocks[k];
+    for (var k in best_path) {
+      if ((skip_first) && (!skipped)) {skipped = true; continue;}
+      var block = best_path[k];
       fullpath.push(block);
       var out_blocks = graph.teleport(block, used_teleports);
       if (out_blocks != null) {
@@ -335,14 +346,6 @@ function compute_values(mapcode, solution) {
     bm_solution_value = bm_solution[1];
     bm_relevant_blocks = bm_solution[2];
 
-    //var t = new Date().getTime();
-    //console.log("TIME ELAPSED")
-    //console.log(new Date().getTime() - t)
-    
-    //console.log("bm_current_blocks", bm_current_blocks);
-    //console.log("fullpath, length", bm_solution_path);
-    //console.log(bm_current_blocks)
-    
     var values_list = [];
     for (var i in bm_board) {
         i = parseInt(i);
