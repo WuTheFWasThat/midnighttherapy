@@ -86,19 +86,17 @@ function parse_board(code) {
     var targets = parseInt(head[1].slice(1));
     if (head[2][0] != 'r') {console.log('head[2][0] was ' + head[2][0] + ' expected r');}
     if (head[3][0] != 'w') {console.log('head[3][0] was ' + head[3][0] + ' expected w');}
-    //if (board['walls'] != parseInt(head[3].slice(1))) {console.log('board.walls is different from walls in header');}
     if (head[4][0] != 't') {console.log('head[4][0] was ' + head[4][0] + ' expected t');}
     
     var teleports = parseInt(head[4].slice(1))
     
     var data = new Array();
     for (i = 0; i < height; i++) {
-    //    var row = new Array();
-    //    for (j = 0; j < width; j++) {
-    //        row.push(' ');
-    //    }
-    //    data.push(row);
-          data.push(Array(width + 1).join(' '));
+        var row = new Array();
+        for (j = 0; j < width; j++) {
+            row.push(' ');
+        }
+        data.push(row);
     }
     
     var i = -1;
@@ -119,9 +117,12 @@ function parse_board(code) {
         data[i][j] = TYPE_MAP[type];
     }
 
-    //board['data'] = [''.join(row) for row in data]
-    //board['data'] = new Array();
+    //var board = [];
+    //for (var i in data) {
+    //  board.push(data[i].join(''));
+    //}
     //return board
+    
     return data;
 }
 
@@ -360,21 +361,30 @@ function compute_values(mapcode, solution) {
                 var diff;
                 var css;
                 if (blockstring in bm_current_blocks) {
-                    delete bm_current_blocks[blockstring];
-                    value = find_full_path(bm_graph, bm_current_blocks)[1];
-                    diff = bm_solution_value - value;
-                    bm_current_blocks[blockstring] = true;
+                    if (bm_solution_value < 0) { 
+                      diff = '-';
+                    } else {
+                      delete bm_current_blocks[blockstring];
+                      value = find_full_path(bm_graph, bm_current_blocks)[1];
+                      diff = bm_solution_value - value;
+                      bm_current_blocks[blockstring] = true;
+                    }
                     css = {'color': 'white',
                            'text-align': 'center'
                           };
                 } else if (blockstring in bm_relevant_blocks) {
-                    bm_current_blocks[blockstring] = true;
-                    value = find_full_path(bm_graph, bm_current_blocks)[1];
-                    diff = value - bm_solution_value;
-                    delete bm_current_blocks[blockstring];
+                    if (bm_solution_value < 0) { 
+                      diff = '';
+                    } else {
+                      bm_current_blocks[blockstring] = true;
+                      value = find_full_path(bm_graph, bm_current_blocks)[1];
+                      diff = value - bm_solution_value;
+                      delete bm_current_blocks[blockstring];
 
-                    if (Math.abs(diff) > 2222222222) {diff = '-';}
-                    else if (diff == 0) {diff = '';}
+                      if (Math.abs(diff) > 2222222222) {diff = '-';}
+                      else if (diff == 0) {diff = '';}
+
+                    }
 
                     css = {'color': 'black',
                            'text-align': 'center'

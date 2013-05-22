@@ -18,6 +18,12 @@ If you press "show values", you'll see block values for every block.  However, t
 INSTRUCTIONS FOR USE
 --------------------
 
+This code is meant to be an interface between the Pathery website and a server.  
+Besides interacting with the server, the client (browser) does things like client-side pathing and display, and in the future, load/save of solutions, 
+However, for those of us who aren't tech savvy, or don't want to run a server, I've provided an in-browser "server".
+
+This works best with pure black blocks.  (I'll make the font color better/customizable in the future.)
+
 ### SIMPLE:
 
 
@@ -33,7 +39,9 @@ into the Javascript console.
 
 1. Clone this repo and cd into it
 2. Run locally:
-node pathery-server.js
+
+`node pathery-server.js`
+
 3. Go to Pathery
 4. Paste
 
@@ -44,15 +52,15 @@ into the Javascript console
 KNOWN ISSUES:
 --------------------
 
-- Pather doesn't deal with red start arrows and specialized blocker blocks (dualing paths/reverse order/32)
-- Pather doesn't deal with multiple INs or multiple OUTs
-- Slow
+- Doesn't deal with red start arrows and specialized blocker blocks (dualing paths/reverse order/32)
+- Doesn't deal with multiple INs
 
 FUTURE WORK:
 --------------------
 
-1. An API to support solvers that actually suggest (potentially major) changes, takes suggestions, etc. (and an accompanying prototype)
-2. Saving different solutions
-3. Undo
+- An API to support solvers that actually suggest (potentially major) changes, takes suggestions, etc. (and an accompanying prototype)
+- Saving and loading different solutions
+- Undo
+- Make shit faster
 
 Feel free to contribute, of course :)
