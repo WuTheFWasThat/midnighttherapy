@@ -30,6 +30,7 @@ TYPE_MAP = {
     //'x': 'r', // colored red, blocks green
     //'X': 'g', // colored green, blocks red
     'p': 'p', // PATCH.  Can't block here!
+    'q': 'X', // empty space, used in seeing double.  Same as regular block?
 
     // TELEPORTS
     // dark blue
