@@ -44,7 +44,7 @@ function refresh_score() {
   var mapid = get_current_map_id();
   $.post('http://127.0.0.1:2222/compute_value', 
         {'mapcode': mapdata[mapid].code, 'solution': solution[mapid]}, 
-        write_score_value
+        function(values) {write_score_value(JSON.parse(values))}
   )
 };
 

@@ -32,17 +32,28 @@ function bm_toggle() {
   bm_old_solution = null;
 }
 
-function write_score_value(value) {
-  if (parseInt(value) < 0) {
-    value = 'Path blocked!';
+function write_score_value(values) {
+  var sum = 0;
+  for (var i in values) {
+    if (values[i] == null) {values[i] = NaN;}
+    sum = sum + values[i];
+  }
+
+  var txt = ''
+  if (values.length > 1) {
+    txt = values.join(' + ') + ' = ';
+  }
+
+  if (isNaN(sum)) {
+    txt += 'Path blocked!';
   } else {
-    value = value + ' moves';
+    txt += sum + ' moves';
   }
   if (!$('#' + mapid + 'client_score').length) {
     var my_score = $('<span id="' + mapid + 'client_score" class="client_score"></span>');
     $('[id="' + mapid + ',dspbl"]').append(my_score);
   }
-  $('#' + mapid + 'client_score').text(value);
+  $('#' + mapid + 'client_score').text(txt);
 }
 
 $(document).ready(function() {

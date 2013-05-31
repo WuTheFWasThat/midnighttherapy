@@ -21,14 +21,14 @@ TYPE_MAP = {
 
     // start
     's': 's',
-    //'S': 'S', // red start
+    'S': 'S', // red start
     // finish
     'f': 't',
 
     // block
     'r': 'X',
-    //'x': 'r', // colored red, blocks green
-    //'X': 'g', // colored green, blocks red
+    'x': 'r', // colored red, blocks green
+    'X': 'g', // colored green, blocks red
     'p': 'p', // PATCH.  Can't block here!
     'q': 'X', // empty space, used in seeing double.  Same as regular block?
 
@@ -153,8 +153,13 @@ function Graph(board) {
     }
   }
 
-  self.milestones = []; // list of lists of intermediate targets, including starts and ends
-  self.milestones.push(boardstuff['s']);
+  self.checkpoints = []; // list of lists of intermediate targets, including starts and ends
+
+  self.starts = boardstuff['s'];
+  self.has_regular = (self.starts !== undefined);
+
+  self.alt_starts = boardstuff['S'];
+  self.has_reverse = (self.alt_starts !== undefined);
 
   var letters = ['A', 'B', 'C', 'D', 'E'];
   for (var i = 0; i < 5; i++) {
@@ -162,9 +167,10 @@ function Graph(board) {
     if (!(boardstuff.hasOwnProperty(letter))) {
       break;
     }
-    self.milestones.push(boardstuff[letter]);
+    self.checkpoints.push(boardstuff[letter]);
   }
-  self.milestones.push(boardstuff['t']);
+
+  self.finishes = boardstuff['t'];
 
   self.teleports = {};
   var d = 1
@@ -187,6 +193,8 @@ function Graph(board) {
   // NOTE: Order is important.  DETERMINES MOVE PRIORITIES
   self.moves = [[-1, 0], [0, 1], [1, 0], [0, -1]];
 
+  self.extra_block = '?';
+
   self.get_neighbors = function(blocks, u) {
     var x = u[0];
     var y = u[1];
@@ -204,6 +212,7 @@ function Graph(board) {
         if (val == 'X') {continue;}
         if (val == 'x') {continue;}
         if (val == '*') {continue;}
+        if (val == self.extra_block) {continue;}
         if (blocks.hasOwnProperty(keyify_block([xp, yp]))) {continue;}
         neighbors.push([xp, yp]);
       }
@@ -273,23 +282,37 @@ function BFS(graph, // graph description, as an array
   return null;
 }
 
-function find_full_path(graph, blocks ){
+function find_half_path(graph, blocks, reversed){
   var used_teleports = {};
   var index = 0;
   var fullpath = [];
-  var cur = graph.milestones[0].slice(0); // current list of start points
+  var cur;
+  if (reversed) {     // red path
+    cur = graph.alt_starts.slice(0); // current list of start points
+    graph.extra_block = 'g';
+  } else {            // green path
+    cur = graph.starts.slice(0); // current list of start points
+    graph.extra_block = 'r';
+  }
   var num_teleports_used = 0;
   var relevant_blocks = {}; // The set of blocks which blocking may help
 
-  while (index < graph.milestones.length - 1) {
-    var target_dict = {};
-    for (var i in graph.milestones[index+1]) {
-      var target = graph.milestones[index+1][i];
+  while (index < graph.checkpoints.length  + 1) {
+    var target_dict = {}
+    if (index == graph.checkpoints.length) {
+      var targets = graph.finishes;
+    } else if (reversed)  {
+      var targets = graph.checkpoints[graph.checkpoints.length - 1 - index];
+    } else {
+      var targets = graph.checkpoints[index];
+    }
+    for (var i in targets) {
+      var target = targets[i];
       target_dict[keyify_block(target)] = true;
     }
     var path = BFS(graph, blocks, cur, target_dict);
     if (path == null) {
-      return [null, -Number.MAX_VALUE, {}];
+      return {path: null, value: NaN, relevant_blocks: {}};
     }
     var out_blocks = null;
 
@@ -311,7 +334,7 @@ function find_full_path(graph, blocks ){
         break;
       }
       // if no teleport, and last block of not last leg, skip (to avoid overcount)
-      if ((k < path.length - 1) || (index == graph.milestones.length - 2)) {
+      if ((k < path.length - 1) || (index == graph.checkpoints.length)) {
         fullpath.push(block);
       }
     }
@@ -322,7 +345,30 @@ function find_full_path(graph, blocks ){
   }
 
   var solution_length = fullpath.length - 1 - num_teleports_used;
-  return [fullpath, solution_length, relevant_blocks];
+  return {path: fullpath, value: solution_length, relevant_blocks: relevant_blocks};
+}
+
+function find_full_path(graph, blocks){
+  var relevant_blocks = {};
+  var paths = [];
+  var values = [];
+
+  if (graph.has_regular) {
+    solution_green = find_half_path(graph, blocks);
+    paths.push(solution_green.path);
+    values.push(solution_green.value);
+    for (var block in solution_green.relevant_blocks) {relevant_blocks[block] = true;}
+  }
+
+  if (graph.has_reverse) {
+    solution_red = find_half_path(graph, blocks, true);
+    paths.push(solution_red.path);
+    values.push(solution_red.value);
+    for (var block in solution_red.relevant_blocks) {relevant_blocks[block] = true;}
+  }
+  return {paths: paths, 
+          values: values, 
+          relevant_blocks: relevant_blocks};
 }
 
 
@@ -334,9 +380,15 @@ function compute_value(mapcode, solution) {
     bm_current_blocks = parse_blocks(solution);
     bm_solution = find_full_path(bm_graph, bm_current_blocks);
 
-    bm_solution_value = bm_solution[1];
-    if (bm_solution_value < 0)  { return -1; }
-    return bm_solution_value;
+    return bm_solution.values;
+}
+
+function sum_values(array) {
+  var sum = 0;
+  for (var i in array)  {
+    sum += array[i];
+  }
+  return sum;
 }
 
 function compute_values(mapcode, solution) {
@@ -347,9 +399,9 @@ function compute_values(mapcode, solution) {
     bm_current_blocks = parse_blocks(solution);
     bm_solution = find_full_path(bm_graph, bm_current_blocks);
 
-    bm_solution_path = bm_solution[0];
-    bm_solution_value = bm_solution[1];
-    bm_relevant_blocks = bm_solution[2];
+    bm_solution_path = bm_solution.paths;
+    bm_solution_value = sum_values(bm_solution.values);
+    bm_relevant_blocks = bm_solution.relevant_blocks;
 
     var values_list = [];
     for (var i in bm_board) {
@@ -362,11 +414,11 @@ function compute_values(mapcode, solution) {
                 var diff;
                 var css;
                 if (blockstring in bm_current_blocks) {
-                    if (bm_solution_value < 0) { 
+                    if (isNaN(bm_solution_value)) { 
                       diff = '-';
                     } else {
                       delete bm_current_blocks[blockstring];
-                      value = find_full_path(bm_graph, bm_current_blocks)[1];
+                      value = sum_values(find_full_path(bm_graph, bm_current_blocks).values);
                       diff = bm_solution_value - value;
                       bm_current_blocks[blockstring] = true;
                     }
@@ -374,17 +426,17 @@ function compute_values(mapcode, solution) {
                            'text-align': 'center'
                           };
                 } else if (blockstring in bm_relevant_blocks) {
-                    if (bm_solution_value < 0) { 
+                    if (isNaN(bm_solution_value)) { 
                       diff = '';
                     } else {
                       bm_current_blocks[blockstring] = true;
-                      value = find_full_path(bm_graph, bm_current_blocks)[1];
+                      value = sum_values(find_full_path(bm_graph, bm_current_blocks).values);
                       diff = value - bm_solution_value;
+                      if (isNaN(diff)) {diff = '-';}
                       delete bm_current_blocks[blockstring];
 
                       if (Math.abs(diff) > 2222222222) {diff = '-';}
                       else if (diff == 0) {diff = '';}
-
                     }
 
                     css = {'color': 'black',

@@ -52,8 +52,6 @@ into the Javascript console
 KNOWN ISSUES:
 --------------------
 
-- Doesn't deal with red start arrows and specialized blocker blocks (dualing paths/reverse order/32)
-- Doesn't work for seeing double
 - Doesn't deal with multiple INs
 
 FUTURE WORK:
