@@ -1,8 +1,17 @@
-MIDNIGHT THERAPY
-====================
+# MIDNIGHT THERAPY #
 
-CLIENT-SIDE PATHING
---------------------
+## OVERVIEW ##
+
+This code is meant to be an interface between the Pathery website and a server.  
+With a human interacting with the browser, it effectively facilitates human-computer interaction.
+Besides interacting with the server, the client (browser) does things like client-side pathing and display, and in the future, load/save of solutions, and more.
+However, for those of us who aren't tech savvy, or don't want to run a server, I've provided an in-browser "server".
+
+The values on the blocks is currently white, so it works best with darker blocks.  (I'll make the font color better/customizable in the future.)
+
+## FEATURES ##
+
+### CLIENT-SIDE PATHING ###
 
 Check this out:
 
@@ -11,21 +20,16 @@ Check this out:
 You can have something which updates your score as you place blocks!
 The score is shown next to the speed dropdown.  Remember, the score IS NOT SUBMITTED FOR YOU.
 
-If you press "show values", you'll see block values for every block.  However, this will feel laggy and is not recommended for play.
+If you press "show values", you'll see block values for every block.  
+However, this may feel laggy if you're letting the browser do the computation.
 
 ![client side pathing](images/show-values-on.png)
 
-INSTRUCTIONS FOR USE
---------------------
 
-This code is meant to be an interface between the Pathery website and a server.  
-Besides interacting with the server, the client (browser) does things like client-side pathing and display, and in the future, load/save of solutions, 
-However, for those of us who aren't tech savvy, or don't want to run a server, I've provided an in-browser "server".
+## INSTRUCTIONS FOR USE ##
 
-This works best with pure black blocks.  (I'll make the font color better/customizable in the future.)
 
-### SIMPLE:
-
+### SIMPLE: ###
 
 1. Go to Pathery
 2. Paste:
@@ -34,8 +38,14 @@ This works best with pure black blocks.  (I'll make the font color better/custom
 
 into the Javascript console.
 
-### OUTSOURCING COMPUTATION TO A SERVER (recommended if using "show values"):
+To make this even easier, make it a bookmarklet.  That is, create a bookmark with the address:
 
+`javascript: $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-full.js')`
+
+You can then just visit this bookmark while you're at Pathery.
+
+
+### OUTSOURCING COMPUTATION TO A SERVER (recommended if using "show values", and necessary if interfacing with your own solver): ###
 
 1. Clone this repo and cd into it
 2. Run locally:
@@ -47,15 +57,15 @@ into the Javascript console.
 
 `$.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-client.js')`
 
-into the Javascript console
+into the Javascript console.  Again, you can make this easier for yourself by saving bookmark with address:
 
-KNOWN ISSUES:
---------------------
+`javascript: $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-client.js')`
+
+## KNOWN ISSUES: ##
 
 - Doesn't deal with multiple INs
 
-FUTURE WORK:
---------------------
+## FUTURE WORK: ##
 
 - An API to support solvers that actually suggest (potentially major) changes, takes suggestions, etc. (and an accompanying prototype)
 - Saving and loading different solutions
