@@ -2,7 +2,7 @@ var bm_mapid = null;
 var bm_old_solution = null;
 
 function draw_single_value(mapid, i, j, value, css) {
-    var elt = $('[id="child_' + mapid + ',' + (i+1) + ',' + j + '"]');
+    var elt = $('#child_' + mapid + '\\,' + (i+1) + '\\,' + j);
     for (var attr in css) {
       if (css.hasOwnProperty(attr)) {
         elt.css(attr, css[attr]);
