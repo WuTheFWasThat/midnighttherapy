@@ -54,11 +54,11 @@ function write_score_value(values) {
   } else {
     txt += sum + ' moves';
   }
-  if (!$('#' + mapid + 'client_score').length) {
-    var my_score = $('<span id="' + mapid + 'client_score" class="client_score"></span>');
-    $('[id="' + mapid + ',dspbl"]').append(my_score);
+  if (!$('#' + bm_mapid + 'client_score').length) {
+    var my_score = $('<span id="' + bm_mapid + 'client_score" class="client_score"></span>');
+    $('[id="' + bm_mapid + ',dspbl"]').append(my_score);
   }
-  $('#' + mapid + 'client_score').text(txt);
+  $('#' + bm_mapid + 'client_score').text(txt);
 }
 
 $(document).ready(function() {
