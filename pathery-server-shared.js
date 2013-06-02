@@ -140,8 +140,8 @@ function Graph(board) {
   // Note that these lists start from top-left and go right, then down
   // In particular, starts and finishes are ordered top to bottom
   // Also when there are multiple outs for teleports, same ordering is used
-  for (i = 0; i < self.n; i++) {
-    for (j = 0; j < self.m; j++) {
+  for (var i = 0; i < self.n; i++) {
+    for (var j = 0; j < self.m; j++) {
       var stuff = self.board[i][j];
       if (stuff != ' ') {
         if (boardstuff.hasOwnProperty(stuff)) {
@@ -193,6 +193,34 @@ function Graph(board) {
   // NOTE: Order is important.  DETERMINES MOVE PRIORITIES
   self.moves = [[-1, 0], [0, 1], [1, 0], [0, -1]];
 
+  // Preprocess neighbors
+  self.neighbors = [];
+  var neighbors_row;
+  var neighbors_list;
+  var xp;
+  var yp;
+  for (var x = 0; x < self.n; x++) {
+    neighbors_row = [];
+    for (var y = 0; y < self.m; y++) {
+      neighbors_list = [];
+      for (var i = 0; i < self.moves.length; i++) {
+        xp = x + self.moves[i][0];
+        yp = y + self.moves[i][1];
+
+        // fill edge with 'X' so we don't need this check?
+        if (((0 <= xp) && (xp < self.n)) && ((0 <= yp) && (yp < self.m))) {
+          val = self.board[xp][yp];
+          if (val == 'X') {continue;}
+          if (val == 'x') {continue;}
+          if (val == '*') {continue;}
+          neighbors_list.push([xp, yp]);
+        }
+      }
+      neighbors_row.push(neighbors_list);
+    }
+    self.neighbors.push(neighbors_row);
+  }
+
   self.extra_block = '?';
 
   self.get_neighbors = function(blocks, u) {
@@ -202,29 +230,24 @@ function Graph(board) {
     var yp;
     var val;
     var neighbors = [];
-    for (var i = 0; i < self.moves.length; i++) {
-      xp = x + self.moves[i][0];
-      yp = y + self.moves[i][1];
+    var potential_neighbors = self.neighbors[x][y];
+    for (var i = 0; i < potential_neighbors.length; i++) {
+      xp = potential_neighbors[i][0];
+      yp = potential_neighbors[i][1];
 
-      // fill edge with 'X' so we don't need this check?
-      if (((0 <= xp) && (xp < this.n)) && ((0 <= yp) && (yp < this.m))) {
-        val = this.board[xp][yp];
-        if (val == 'X') {continue;}
-        if (val == 'x') {continue;}
-        if (val == '*') {continue;}
-        if (val == self.extra_block) {continue;}
-        if (blocks.hasOwnProperty(keyify_block([xp, yp]))) {continue;}
-        neighbors.push([xp, yp]);
-      }
+      val = this.board[xp][yp];
+      if (val == self.extra_block) {continue;}
+      if (blocks[keyify_block([xp, yp])]) {continue;}
+      neighbors.push([xp, yp]);
     }
     return neighbors;
   }
 
   self.teleport = function(block, used_teleports) {
     var stuff = this.get(block);
-    if ( teleports_map.hasOwnProperty(stuff) ) {
+    if ( teleports_map[stuff] ) {
       var block_key = keyify_block(block);
-      if (!(used_teleports.hasOwnProperty(block_key))) {
+      if (!(used_teleports[block_key])) {
         used_teleports[block_key] = true;
         return this.teleports[block_key]
       }
@@ -243,21 +266,17 @@ function BFS(graph, // graph description, as an array
   parent_dict = {};
   for (var k in sources) {
     var source = sources[k];
-    parent_dict[keyify_block(source)] = null;
+    parent_dict[keyify_block(source)] = true;
   }
   var queue = sources;
 
   var get_path = function(v){
     var path = [];
-    while (v !== null) {
+    while (v != true) {
       path.push(v);
       v = parent_dict[keyify_block(v)];
     }
-    reversed_path = [];
-    for (var i = 0; i < path.length; i ++ ) {
-      reversed_path.push(path[path.length - 1 - i]);
-    }
-    return reversed_path
+    return path.reverse();
   }
 
   while (queue.length > 0) {
@@ -268,11 +287,11 @@ function BFS(graph, // graph description, as an array
       for (var k = 0; k < neighbors.length; k++) {
         var v = neighbors[k];
         var v_key = keyify_block(v);
-        if (!parent_dict.hasOwnProperty(v_key)) {
+        if (!parent_dict[v_key]) {
           newqueue.push(v)
           parent_dict[v_key] = u;
         }
-        if (targets.hasOwnProperty(v_key)) {
+        if (targets[v_key]) {
           return get_path(v);
         }
       }
