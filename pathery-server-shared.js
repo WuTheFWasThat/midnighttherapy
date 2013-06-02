@@ -112,10 +112,14 @@ function Graph(board) {
   self.n = board.length;
   self.m = board[0].length;
 
-  self.keyify_block = function(block) {
-    return block[0] * self.m + block[1];
+  self.keyify_coordinates = function(x, y) {
+    return x * self.m + y;
   }
   
+  self.keyify_block = function(block) {
+    return self.keyify_coordinates(block[0] , block[1]);
+  }
+
   self.unkeyify_block = function(blockkey) {
     return [Math.floor(blockkey / self.m), blockkey % self.m];
   }
@@ -128,7 +132,7 @@ function Graph(board) {
       if (str_blocks[k]) {
         var x = parseInt(str_block.split(',')[0]);
         var y = parseInt(str_block.split(',')[1]);
-        blocks[self.keyify_block([x-1 , y ])] = true;
+        blocks[self.keyify_coordinates(x-1 , y)] = true;
       }
     }
     return blocks;
@@ -136,12 +140,16 @@ function Graph(board) {
 
 
   var boardstuff = {};
+
+  self.serial_board = []; // same as board, but uses keyified index
+
   // Note that these lists start from top-left and go right, then down
   // In particular, starts and finishes are ordered top to bottom
   // Also when there are multiple outs for teleports, same ordering is used
   for (var i = 0; i < self.n; i++) {
     for (var j = 0; j < self.m; j++) {
       var stuff = self.board[i][j];
+      self.serial_board.push(stuff);
       if (stuff != ' ') {
         if (boardstuff.hasOwnProperty(stuff)) {
           boardstuff[stuff].push([i, j]);
@@ -196,13 +204,12 @@ function Graph(board) {
   self.moves = [[-1, 0], [0, 1], [1, 0], [0, -1]];
 
   // Preprocess neighbors
+  // Index is the keyified block
   self.neighbors = [];
-  var neighbors_row;
   var neighbors_list;
   var xp;
   var yp;
   for (var x = 0; x < self.n; x++) {
-    neighbors_row = [];
     for (var y = 0; y < self.m; y++) {
       neighbors_list = [];
       for (var i = 0; i < self.moves.length; i++) {
@@ -215,32 +222,26 @@ function Graph(board) {
           if (val == 'X') {continue;}
           if (val == 'x') {continue;}
           if (val == '*') {continue;}
-          neighbors_list.push([xp, yp]);
+          neighbors_list.push(self.keyify_coordinates(xp, yp));
         }
       }
-      neighbors_row.push(neighbors_list);
+      self.neighbors.push(neighbors_list);
     }
-    self.neighbors.push(neighbors_row);
   }
 
   self.extra_block = '?';
 
   self.get_neighbors = function(blocks, u) {
-    var x = u[0];
-    var y = u[1];
-    var xp;
-    var yp;
     var val;
     var neighbors = [];
-    var potential_neighbors = self.neighbors[x][y];
+    var potential_neighbors = self.neighbors[u];
+    var potential_neighbor;
     for (var i = 0; i < potential_neighbors.length; i++) {
-      xp = potential_neighbors[i][0];
-      yp = potential_neighbors[i][1];
-
-      val = this.board[xp][yp];
+      potential_neighbor = potential_neighbors[i];
+      val = this.serial_board[potential_neighbor];
       if (val == self.extra_block) {continue;}
-      if (blocks[self.keyify_block([xp, yp])]) {continue;}
-      neighbors.push([xp, yp]);
+      if (blocks[potential_neighbor]) {continue;}
+      neighbors.push(potential_neighbor);
     }
     return neighbors;
   }
@@ -266,17 +267,19 @@ function BFS(graph, // graph description, as an array
              targets // set of target vertices
             ) {
   parent_dict = {};
+  var queue = [];
   for (var k in sources) {
     var source = sources[k];
-    parent_dict[graph.keyify_block(source)] = true;
+    var source_key = graph.keyify_block(source);
+    queue.push(source_key);
+    parent_dict[source_key] = true;
   }
-  var queue = sources;
 
   var get_path = function(v){
     var path = [];
-    while (v != true) {
-      path.push(v);
-      v = parent_dict[graph.keyify_block(v)];
+    while (v !== true) {
+      path.push(graph.unkeyify_block(v));
+      v = parent_dict[v];
     }
     return path.reverse();
   }
@@ -288,12 +291,11 @@ function BFS(graph, // graph description, as an array
       var neighbors = graph.get_neighbors(blocks, u);
       for (var k = 0; k < neighbors.length; k++) {
         var v = neighbors[k];
-        var v_key = graph.keyify_block(v);
-        if (!parent_dict[v_key]) {
+        if (!parent_dict.hasOwnProperty(v)) {
           newqueue.push(v)
-          parent_dict[v_key] = u;
+          parent_dict[v] = u;
         }
-        if (targets[v_key]) {
+        if (targets[v]) {
           return get_path(v);
         }
       }
@@ -430,7 +432,7 @@ function compute_values(mapcode, solution) {
         for (var j in bm_board[i]) {
             j = parseInt(j);
             if (bm_graph.get([i,j]) == ' ') {
-                var blockstring = bm_graph.keyify_block([i, j]);
+                var blockstring = bm_graph.keyify_coordinates(i, j);
                 var value;
                 var diff;
                 var css;
