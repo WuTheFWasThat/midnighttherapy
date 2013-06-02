@@ -51,32 +51,6 @@ TYPE_MAP = {
 }
 
 
-var keyify_base = 100;
-
-function keyify_block(block) {
-  return block[0] * keyify_base + block[1];
-  //return JSON.stringify(block)
-}
-
-function unkeyify_block(blockkey) {
-  return [Math.floor(blockkey / keyify_base), blockkey % keyify_base];
-  //return JSON.parse(blockkey)
-}
-
-function parse_blocks(blocksstring) {
-  var blocks = {};
-  var str_blocks = blocksstring.split('.');
-  for (var k in str_blocks) {
-    var str_block = str_blocks[k];
-    if (str_blocks[k]) {
-      var x = parseInt(str_block.split(',')[0]);
-      var y = parseInt(str_block.split(',')[1]);
-      blocks[keyify_block([x-1 , y ])] = true;
-    }
-  }
-  return blocks;
-}
-
 function parse_board(code) {
     var head = code.split(':')[0];
     var body = code.split(':')[1];
@@ -138,6 +112,29 @@ function Graph(board) {
   self.n = board.length;
   self.m = board[0].length;
 
+  self.keyify_block = function(block) {
+    return block[0] * self.m + block[1];
+  }
+  
+  self.unkeyify_block = function(blockkey) {
+    return [Math.floor(blockkey / self.m), blockkey % self.m];
+  }
+  
+  self.parse_blocks = function(blocksstring) {
+    var blocks = {};
+    var str_blocks = blocksstring.split('.');
+    for (var k in str_blocks) {
+      var str_block = str_blocks[k];
+      if (str_blocks[k]) {
+        var x = parseInt(str_block.split(',')[0]);
+        var y = parseInt(str_block.split(',')[1]);
+        blocks[self.keyify_block([x-1 , y ])] = true;
+      }
+    }
+    return blocks;
+  }
+
+
   var boardstuff = {};
   // Note that these lists start from top-left and go right, then down
   // In particular, starts and finishes are ordered top to bottom
@@ -182,7 +179,7 @@ function Graph(board) {
     var teleport_outs = boardstuff[teleports_map[teleport_key]];
 
     for (var i = 0; i < teleport_ins.length; i++) {
-      self.teleports[keyify_block(teleport_ins[i])] = teleport_outs;
+      self.teleports[self.keyify_block(teleport_ins[i])] = teleport_outs;
     }
   }
         
@@ -242,7 +239,7 @@ function Graph(board) {
 
       val = this.board[xp][yp];
       if (val == self.extra_block) {continue;}
-      if (blocks[keyify_block([xp, yp])]) {continue;}
+      if (blocks[self.keyify_block([xp, yp])]) {continue;}
       neighbors.push([xp, yp]);
     }
     return neighbors;
@@ -251,7 +248,7 @@ function Graph(board) {
   self.teleport = function(block, used_teleports) {
     var stuff = this.get(block);
     if ( teleports_map[stuff] ) {
-      var block_key = keyify_block(block);
+      var block_key = self.keyify_block(block);
       if (!(used_teleports[stuff])) {
         used_teleports[stuff] = true;
         return this.teleports[block_key]
@@ -271,7 +268,7 @@ function BFS(graph, // graph description, as an array
   parent_dict = {};
   for (var k in sources) {
     var source = sources[k];
-    parent_dict[keyify_block(source)] = true;
+    parent_dict[graph.keyify_block(source)] = true;
   }
   var queue = sources;
 
@@ -279,7 +276,7 @@ function BFS(graph, // graph description, as an array
     var path = [];
     while (v != true) {
       path.push(v);
-      v = parent_dict[keyify_block(v)];
+      v = parent_dict[graph.keyify_block(v)];
     }
     return path.reverse();
   }
@@ -291,7 +288,7 @@ function BFS(graph, // graph description, as an array
       var neighbors = graph.get_neighbors(blocks, u);
       for (var k = 0; k < neighbors.length; k++) {
         var v = neighbors[k];
-        var v_key = keyify_block(v);
+        var v_key = graph.keyify_block(v);
         if (!parent_dict[v_key]) {
           newqueue.push(v)
           parent_dict[v_key] = u;
@@ -332,7 +329,7 @@ function find_half_path(graph, blocks, reversed){
     }
     for (var i in targets) {
       var target = targets[i];
-      target_dict[keyify_block(target)] = true;
+      target_dict[graph.keyify_block(target)] = true;
     }
     var path = BFS(graph, blocks, cur, target_dict);
     if (path == null) {
@@ -344,7 +341,7 @@ function find_half_path(graph, blocks, reversed){
     // blocking these could affect things
     for (var k in path) {
       block = path[k];
-      relevant_blocks[keyify_block(block)] = true;
+      relevant_blocks[graph.keyify_block(block)] = true;
     }
 
     // push things onto actual path, until we hit a teleport
@@ -401,7 +398,7 @@ function compute_value(mapcode, solution) {
     bm_graph = Graph(bm_board);
     //BFS(bm_graph, {}, [null], {'[2,2]':true})
 
-    bm_current_blocks = parse_blocks(solution);
+    bm_current_blocks = bm_graph.parse_blocks(solution);
     bm_solution = find_full_path(bm_graph, bm_current_blocks);
 
     return bm_solution.values;
@@ -420,7 +417,7 @@ function compute_values(mapcode, solution) {
     bm_graph = Graph(bm_board);
     //BFS(bm_graph, {}, [null], {'[2,2]':true})
 
-    bm_current_blocks = parse_blocks(solution);
+    bm_current_blocks = bm_graph.parse_blocks(solution);
     bm_solution = find_full_path(bm_graph, bm_current_blocks);
 
     bm_solution_path = bm_solution.paths;
@@ -433,7 +430,7 @@ function compute_values(mapcode, solution) {
         for (var j in bm_board[i]) {
             j = parseInt(j);
             if (bm_graph.get([i,j]) == ' ') {
-                var blockstring = keyify_block([i, j]);
+                var blockstring = bm_graph.keyify_block([i, j]);
                 var value;
                 var diff;
                 var css;
