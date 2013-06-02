@@ -116,12 +116,28 @@ function Graph(board) {
     return x * self.m + y;
   }
   
-  self.keyify_block = function(block) {
+  self.keyify = function(block) {
     return self.keyify_coordinates(block[0] , block[1]);
   }
 
-  self.unkeyify_block = function(blockkey) {
+  self.keyify_list = function(blocklist) {
+    var list = [];
+    for (var i = 0; i < blocklist.length; i++ ) {
+      list.push(self.keyify(blocklist[i]));
+    }
+    return list;
+  }
+
+  self.unkeyify = function(blockkey) {
     return [Math.floor(blockkey / self.m), blockkey % self.m];
+  }
+
+  self.unkeyify_list = function(blocklist) {
+    var list = [];
+    for (var i = 0; i < blocklist.length; i++ ) {
+      list.push(self.unkeyify(blocklist[i]));
+    }
+    return list;
   }
   
   self.parse_blocks = function(blocksstring) {
@@ -138,8 +154,7 @@ function Graph(board) {
     return blocks;
   }
 
-
-  var boardstuff = {};
+  self.boardstuff = {};
 
   self.serial_board = []; // same as board, but uses keyified index
 
@@ -149,12 +164,13 @@ function Graph(board) {
   for (var i = 0; i < self.n; i++) {
     for (var j = 0; j < self.m; j++) {
       var stuff = self.board[i][j];
+      var key = self.keyify_coordinates(i,j);
       self.serial_board.push(stuff);
       if (stuff != ' ') {
-        if (boardstuff.hasOwnProperty(stuff)) {
-          boardstuff[stuff].push([i, j]);
+        if (self.boardstuff.hasOwnProperty(stuff)) {
+          self.boardstuff[stuff].push(key);
         } else {
-          boardstuff[stuff] = [[i, j]]
+          self.boardstuff[stuff] = [key]
         }
       }
     }
@@ -162,42 +178,42 @@ function Graph(board) {
 
   self.checkpoints = []; // list of lists of intermediate targets, including starts and ends
 
-  self.starts = boardstuff['s'];
+  self.starts = self.boardstuff['s'];
   self.has_regular = (self.starts !== undefined);
 
-  self.alt_starts = boardstuff['S'];
+  self.alt_starts = self.boardstuff['S'];
   self.has_reverse = (self.alt_starts !== undefined);
 
   var letters = ['A', 'B', 'C', 'D', 'E'];
   for (var i = 0; i < 5; i++) {
     var letter = letters[i];
-    if (!(boardstuff.hasOwnProperty(letter))) {
+    if (!(self.boardstuff.hasOwnProperty(letter))) {
       break;
     }
-    self.checkpoints.push(boardstuff[letter]);
+    self.checkpoints.push(self.boardstuff[letter]);
   }
 
-  self.finishes = boardstuff['t'];
+  self.finishes = self.boardstuff['t'];
 
   self.teleports = {};
   for (teleport_key in teleports_map) {
     // TODO: NOT TRUE IN GENERAL!!!
-    var teleport_ins = boardstuff[teleport_key];
+    var teleport_ins = self.boardstuff[teleport_key];
     if (! teleport_ins) {continue;}
-    var teleport_outs = boardstuff[teleports_map[teleport_key]];
+    var teleport_outs = self.boardstuff[teleports_map[teleport_key]];
 
     for (var i = 0; i < teleport_ins.length; i++) {
-      self.teleports[self.keyify_block(teleport_ins[i])] = teleport_outs;
+      self.teleports[teleport_ins[i]] = teleport_outs;
     }
   }
         
   self.can_place = function(i, j) {
-    return (this.board[i][j] == ' ');
+    return (self.board[i][j] == ' ');
   }
 
 
   self.get = function(block) {
-    return this.board[block[0]][block[1]];
+    return self.board[block[0]][block[1]];
   }
 
   // NOTE: Order is important.  DETERMINES MOVE PRIORITIES
@@ -238,7 +254,7 @@ function Graph(board) {
     var potential_neighbor;
     for (var i = 0; i < potential_neighbors.length; i++) {
       potential_neighbor = potential_neighbors[i];
-      val = this.serial_board[potential_neighbor];
+      val = self.serial_board[potential_neighbor];
       if (val == self.extra_block) {continue;}
       if (blocks[potential_neighbor]) {continue;}
       neighbors.push(potential_neighbor);
@@ -247,12 +263,11 @@ function Graph(board) {
   }
 
   self.teleport = function(block, used_teleports) {
-    var stuff = this.get(block);
+    var stuff = self.serial_board[block];
     if ( teleports_map[stuff] ) {
-      var block_key = self.keyify_block(block);
       if (!(used_teleports[stuff])) {
         used_teleports[stuff] = true;
-        return this.teleports[block_key]
+        return self.teleports[block]
       }
     }
     return null;
@@ -267,18 +282,16 @@ function BFS(graph, // graph description, as an array
              targets // set of target vertices
             ) {
   parent_dict = {};
-  var queue = [];
+  var queue = sources;
   for (var k in sources) {
     var source = sources[k];
-    var source_key = graph.keyify_block(source);
-    queue.push(source_key);
-    parent_dict[source_key] = true;
+    parent_dict[source] = true;
   }
 
   var get_path = function(v){
     var path = [];
     while (v !== true) {
-      path.push(graph.unkeyify_block(v));
+      path.push(v);
       v = parent_dict[v];
     }
     return path.reverse();
@@ -311,10 +324,10 @@ function find_half_path(graph, blocks, reversed){
   var fullpath = [];
   var cur;
   if (reversed) {     // red path
-    cur = graph.alt_starts.slice(0); // current list of start points
+    cur = graph.alt_starts; // current list of start points
     graph.extra_block = 'g';
   } else {            // green path
-    cur = graph.starts.slice(0); // current list of start points
+    cur = graph.starts; // current list of start points
     graph.extra_block = 'r';
   }
   var num_teleports_used = 0;
@@ -331,7 +344,7 @@ function find_half_path(graph, blocks, reversed){
     }
     for (var i in targets) {
       var target = targets[i];
-      target_dict[graph.keyify_block(target)] = true;
+      target_dict[target] = true;
     }
     var path = BFS(graph, blocks, cur, target_dict);
     if (path == null) {
@@ -343,7 +356,7 @@ function find_half_path(graph, blocks, reversed){
     // blocking these could affect things
     for (var k in path) {
       block = path[k];
-      relevant_blocks[graph.keyify_block(block)] = true;
+      relevant_blocks[block] = true;
     }
 
     // push things onto actual path, until we hit a teleport
@@ -353,7 +366,7 @@ function find_half_path(graph, blocks, reversed){
       if (out_blocks != null) {
         fullpath.push(block);
         num_teleports_used += 1;
-        cur = out_blocks.slice(0);
+        cur = out_blocks;
         break;
       }
       // if no teleport, and last block of not last leg, skip (to avoid overcount)
@@ -368,7 +381,12 @@ function find_half_path(graph, blocks, reversed){
   }
 
   var solution_length = fullpath.length - 1 - num_teleports_used;
-  return {path: fullpath, value: solution_length, relevant_blocks: relevant_blocks};
+  return {
+    //path: graph.unkeyify_list(fullpath), 
+    path: fullpath, 
+    value: solution_length, 
+    relevant_blocks: relevant_blocks
+  };
 }
 
 function find_full_path(graph, blocks){
@@ -431,32 +449,32 @@ function compute_values(mapcode, solution) {
         i = parseInt(i);
         for (var j in bm_board[i]) {
             j = parseInt(j);
-            if (bm_graph.get([i,j]) == ' ') {
-                var blockstring = bm_graph.keyify_coordinates(i, j);
+            var block = bm_graph.keyify_coordinates(i, j);
+            if (bm_graph.serial_board[block] == ' ') {
                 var value;
                 var diff;
                 var css;
-                if (blockstring in bm_current_blocks) {
+                if (block in bm_current_blocks) {
                     if (isNaN(bm_solution_value)) { 
                       diff = '-';
                     } else {
-                      delete bm_current_blocks[blockstring];
+                      delete bm_current_blocks[block];
                       value = sum_values(find_full_path(bm_graph, bm_current_blocks).values);
                       diff = bm_solution_value - value;
-                      bm_current_blocks[blockstring] = true;
+                      bm_current_blocks[block] = true;
                     }
                     css = {'color': 'white',
                            'text-align': 'center'
                           };
-                } else if (blockstring in bm_relevant_blocks) {
+                } else if (block in bm_relevant_blocks) {
                     if (isNaN(bm_solution_value)) { 
                       diff = '';
                     } else {
-                      bm_current_blocks[blockstring] = true;
+                      bm_current_blocks[block] = true;
                       value = sum_values(find_full_path(bm_graph, bm_current_blocks).values);
                       diff = value - bm_solution_value;
                       if (isNaN(diff)) {diff = '-';}
-                      delete bm_current_blocks[blockstring];
+                      delete bm_current_blocks[block];
 
                       if (Math.abs(diff) > 2222222222) {diff = '-';}
                       else if (diff == 0) {diff = '';}
