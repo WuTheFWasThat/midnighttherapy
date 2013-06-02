@@ -70,6 +70,6 @@ None, at the moment.  Let me know if you find any!
 - An API to support solvers that actually suggest (potentially major) changes, takes suggestions, etc. (and an accompanying prototype)
 - Saving and loading different solutions
 - Undo
-- Make shit faster
+- Make the [dumb] thing faster (currently does 400 full UC calculations per second... )
 
 Feel free to contribute, of course :)

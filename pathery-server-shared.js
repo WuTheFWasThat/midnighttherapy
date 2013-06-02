@@ -444,6 +444,8 @@ function compute_values(mapcode, solution) {
     bm_solution_value = sum_values(bm_solution.values);
     bm_relevant_blocks = bm_solution.relevant_blocks;
 
+    var find_full_path_count = 0;
+
     var values_list = [];
     for (var i in bm_board) {
         i = parseInt(i);
@@ -460,6 +462,7 @@ function compute_values(mapcode, solution) {
                     } else {
                       delete bm_current_blocks[block];
                       value = sum_values(find_full_path(bm_graph, bm_current_blocks).values);
+                      find_full_path_count++;
                       diff = bm_solution_value - value;
                       bm_current_blocks[block] = true;
                     }
@@ -472,6 +475,7 @@ function compute_values(mapcode, solution) {
                     } else {
                       bm_current_blocks[block] = true;
                       value = sum_values(find_full_path(bm_graph, bm_current_blocks).values);
+                      find_full_path_count++;
                       diff = value - bm_solution_value;
                       if (isNaN(diff)) {diff = '-';}
                       delete bm_current_blocks[block];
@@ -491,6 +495,7 @@ function compute_values(mapcode, solution) {
             }
         }
     }
+    console.log("find_full_path count: " + find_full_path_count);
     return {value: bm_solution_value, values_list: values_list};
 }
 
