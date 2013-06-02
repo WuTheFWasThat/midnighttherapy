@@ -61,6 +61,11 @@ function write_score_value(values) {
 }
 
 $(document).ready(function() {
+  $(window).click(function() {
+    bm_mapid = get_current_map_id();
+  });
+  bm_mapid = get_current_map_id();
+
   var my_button;
   if ($('#bm_button').length == 0) {
     my_button = $('<button id="bm_button">Show values</button>');
