@@ -63,7 +63,7 @@ into the Javascript console.  Again, you can make this easier for yourself by sa
 
 ## KNOWN ISSUES: ##
 
-- Doesn't deal with multiple INs
+None, at the moment.  Let me know if you find any! 
 
 ## FUTURE WORK: ##
 

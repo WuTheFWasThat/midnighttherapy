@@ -20,7 +20,6 @@ function get_current_map_id() {
     }
 }
 
-
 var interval_var;
 
 function bm_toggle() {

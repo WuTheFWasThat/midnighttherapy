@@ -175,12 +175,15 @@ function Graph(board) {
   self.finishes = boardstuff['t'];
 
   self.teleports = {};
-  var d = 1
-  while (boardstuff.hasOwnProperty('' + d)) {
+  for (teleport_key in teleports_map) {
     // TODO: NOT TRUE IN GENERAL!!!
-    if ( boardstuff['' + d].length != 1) {console.log("LENGTH SHOULDVE BEEN 1 FOR TELEPORT " + d);}
-    self.teleports[keyify_block(boardstuff['' + d][0])] = boardstuff[teleports_map['' + d]];
-    d+=1;
+    var teleport_ins = boardstuff[teleport_key];
+    if (! teleport_ins) {continue;}
+    var teleport_outs = boardstuff[teleports_map[teleport_key]];
+
+    for (var i = 0; i < teleport_ins.length; i++) {
+      self.teleports[keyify_block(teleport_ins[i])] = teleport_outs;
+    }
   }
         
   self.can_place = function(i, j) {
@@ -249,8 +252,8 @@ function Graph(board) {
     var stuff = this.get(block);
     if ( teleports_map[stuff] ) {
       var block_key = keyify_block(block);
-      if (!(used_teleports[block_key])) {
-        used_teleports[block_key] = true;
+      if (!(used_teleports[stuff])) {
+        used_teleports[stuff] = true;
         return this.teleports[block_key]
       }
     }
