@@ -50,14 +50,17 @@ TYPE_MAP = {
     'l': '%',
 }
 
+
+var keyify_base = 100;
+
 // TODO: switch to i * m + n
 function keyify_block(block) {
-  return block[0] * 1000 + block[1];
+  return block[0] * keyify_base + block[1];
   //return JSON.stringify(block)
 }
 
 function unkeyify_block(blockkey) {
-  return [Math.floor(blockkey / 1000), blockkey % 1000];
+  return [Math.floor(blockkey / keyify_base), blockkey % keyify_base];
   //return JSON.parse(blockkey)
 }
 
