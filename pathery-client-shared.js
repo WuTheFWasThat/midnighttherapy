@@ -12,7 +12,12 @@ function draw_single_value(mapid, i, j, value, css) {
 }
 
 function get_current_map_id() {
-    return parseInt($('.shown-maps .grid_outer').attr('id').split(',')[0]);
+    var outer_grid = $('.shown-maps .grid_outer');
+    if (outer_grid.length > 0) {
+      return parseInt(outer_grid.attr('id').split(',')[0]);
+    } else {
+      return -1;
+    }
 }
 
 

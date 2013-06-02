@@ -4,11 +4,11 @@ teleports_map = {
   '3': '#',
   '4': '$',
   '5': '%',
-  '6': '^',
-  '7': '&',
-  '8': '*',
-  '9': '(',
-  '0': ')',
+  //'6': '^',
+  //'7': '&',
+  //'8': '*',
+  //'9': '(',
+  //'0': ')',
 }
 
 TYPE_MAP = {
@@ -36,16 +36,16 @@ TYPE_MAP = {
     // dark blue
     't': '1',
     'u': '!',
-    // 
+    // green
     'm': '2',
     'n': '@',
-    // 
+    // red
     'g': '3',
     'h': '#',
-    // 
+    // light blue
     'i': '4',
     'j': '$',
-    // 
+    // light green
     'k': '5',
     'l': '%',
 }
@@ -53,7 +53,6 @@ TYPE_MAP = {
 
 var keyify_base = 100;
 
-// TODO: switch to i * m + n
 function keyify_block(block) {
   return block[0] * keyify_base + block[1];
   //return JSON.stringify(block)
