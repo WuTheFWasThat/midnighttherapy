@@ -455,8 +455,9 @@ function compute_values(mapcode, solution) {
             if (bm_graph.serial_board[block] == ' ') {
                 var value;
                 var diff;
-                var css;
+                var blocking;
                 if (block in bm_current_blocks) {
+                    blocking = true;
                     if (isNaN(bm_solution_value)) { 
                       diff = '-';
                     } else {
@@ -466,10 +467,8 @@ function compute_values(mapcode, solution) {
                       diff = bm_solution_value - value;
                       bm_current_blocks[block] = true;
                     }
-                    css = {'color': 'white',
-                           'text-align': 'center'
-                          };
                 } else if (block in bm_relevant_blocks) {
+                    blocking = false;
                     if (isNaN(bm_solution_value)) { 
                       diff = '';
                     } else {
@@ -483,15 +482,11 @@ function compute_values(mapcode, solution) {
                       if (Math.abs(diff) > 2222222222) {diff = '-';}
                       else if (diff == 0) {diff = '';}
                     }
-
-                    css = {'color': 'black',
-                           'text-align': 'center'
-                          };
                 } else {
                     diff = '';
-                    css = {};
+                    blocking = false;
                 }
-                values_list.push({i: i, j: j, val: diff, css: css});
+                values_list.push({i: i, j: j, val: diff, blocking: blocking});
             }
         }
     }

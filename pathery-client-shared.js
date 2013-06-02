@@ -1,8 +1,18 @@
 var bm_mapid = null;
 var bm_old_solution = null;
 
-function draw_single_value(mapid, i, j, value, css) {
+function draw_single_value(mapid, i, j, value, blocking) {
     var elt = $('#child_' + mapid + '\\,' + (i+1) + '\\,' + j);
+    var css;
+    if (blocking) {
+      css = {'color': 'white',
+             'text-align': 'center'
+            };
+    } else {
+      css = {'color': 'black',
+             'text-align': 'center'
+            };
+    }
     for (var attr in css) {
       if (css.hasOwnProperty(attr)) {
         elt.css(attr, css[attr]);

@@ -33,7 +33,7 @@ function draw_values() {
 
               for (var k in values_list) {
                 var values_dict = values_list[k];
-                draw_single_value(old_mapid, values_dict.i, values_dict.j, values_dict.val, values_dict.css);
+                draw_single_value(old_mapid, values_dict.i, values_dict.j, values_dict.val, values_dict.blocking);
               }
             }
           } (bm_mapid, bm_old_solution)
