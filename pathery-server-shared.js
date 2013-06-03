@@ -71,9 +71,9 @@ function parse_board(code) {
     for (i = 0; i < height; i++) {
         var row = new Array();
         for (j = 0; j < width; j++) {
-            row.push(' ');
+            row[j] = ' ';
         }
-        data.push(row);
+        data[i] = row;
     }
     
     var i = -1;
@@ -123,7 +123,7 @@ function Graph(board) {
   self.keyify_list = function(blocklist) {
     var list = [];
     for (var i = 0; i < blocklist.length; i++ ) {
-      list.push(self.keyify(blocklist[i]));
+      list[i] = self.keyify(blocklist[i]);
     }
     return list;
   }
@@ -135,7 +135,7 @@ function Graph(board) {
   self.unkeyify_list = function(blocklist) {
     var list = [];
     for (var i = 0; i < blocklist.length; i++ ) {
-      list.push(self.unkeyify(blocklist[i]));
+      list[i] = self.unkeyify(blocklist[i]);
     }
     return list;
   }
@@ -276,15 +276,37 @@ function Graph(board) {
   return self;
 }
 
+function Queue(n) {
+  var self = {};
+  self.n = n;
+  self.q = new Array(n); // guaranteed max size of queue
+  self.start = 0;
+  self.end = 0;
+  self.push = function(el) {
+    self.q[self.end] = el;
+    self.end = (self.end + 1) % self.n;
+  }
+  self.pop = function() {
+    self.start = (self.start + 1) % self.n;
+    return self.q[self.start - 1];
+  }
+  self.empty = function() {
+    return (self.start == self.end);
+  }
+  return self;
+}
+
 function BFS(graph, // graph description, as an array
              blocks, // currently placed blocks
              sources, // list of source vertices, in order of priority
              targets // set of target vertices
             ) {
   parent_dict = {};
-  var queue = sources;
+  var queue = Queue(graph.m * graph.n);
+
   for (var k in sources) {
     var source = sources[k];
+    queue.push(source);
     parent_dict[source] = true;
   }
 
@@ -297,23 +319,19 @@ function BFS(graph, // graph description, as an array
     return path.reverse();
   }
 
-  while (queue.length > 0) {
-    var newqueue = []
-    for (var i = 0; i < queue.length; i++) {
-      var u = queue[i];
-      var neighbors = graph.get_neighbors(blocks, u);
-      for (var k = 0; k < neighbors.length; k++) {
-        var v = neighbors[k];
-        if (!parent_dict.hasOwnProperty(v)) {
-          newqueue.push(v)
-          parent_dict[v] = u;
-        }
-        if (targets[v]) {
-          return get_path(v);
-        }
+  while (!queue.empty()) {
+    var u = queue.pop();
+    var neighbors = graph.get_neighbors(blocks, u);
+    for (var k = 0; k < neighbors.length; k++) {
+      var v = neighbors[k];
+      if (!parent_dict.hasOwnProperty(v)) {
+        queue.push(v)
+        parent_dict[v] = u;
+      }
+      if (targets[v]) {
+        return get_path(v);
       }
     }
-    queue = newqueue;
   }
   return null;
 }
@@ -426,10 +444,24 @@ function compute_value(mapcode, solution) {
 
 function sum_values(array) {
   var sum = 0;
-  for (var i in array)  {
+  for (var i = 0; i < array.length; i++)  {
     sum += array[i];
   }
   return sum;
+}
+
+function improve_solution(graph, blocks) {
+  var solution = find_full_path(graph, blocks);
+  var cur_val = sum_values(solution.values);
+  for (var block in blocks) {
+    delete blocks[block];
+
+    solution = find_full_path(graph, blocks);
+
+    var relevant_blocks = solution.relevant_blocks;
+
+    blocks[block] = true;
+  }
 }
 
 function compute_values(mapcode, solution) {
@@ -438,19 +470,17 @@ function compute_values(mapcode, solution) {
     //BFS(bm_graph, {}, [null], {'[2,2]':true})
 
     bm_current_blocks = bm_graph.parse_blocks(solution);
-    bm_solution = find_full_path(bm_graph, bm_current_blocks);
+    var bm_solution = find_full_path(bm_graph, bm_current_blocks);
 
-    bm_solution_path = bm_solution.paths;
-    bm_solution_value = sum_values(bm_solution.values);
-    bm_relevant_blocks = bm_solution.relevant_blocks;
+    var bm_solution_path = bm_solution.paths;
+    var bm_solution_value = sum_values(bm_solution.values);
+    var bm_relevant_blocks = bm_solution.relevant_blocks;
 
     var find_full_path_count = 0;
 
     var values_list = [];
-    for (var i in bm_board) {
-        i = parseInt(i);
-        for (var j in bm_board[i]) {
-            j = parseInt(j);
+    for (var i = 0; i < bm_graph.n; i ++) {
+        for (var j = 0; j < bm_graph.m; j++) {
             var block = bm_graph.keyify_coordinates(i, j);
             if (bm_graph.serial_board[block] == ' ') {
                 var value;

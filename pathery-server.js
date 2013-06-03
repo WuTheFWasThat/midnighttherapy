@@ -20,8 +20,8 @@ app.post('/compute_value', function(req, res){
 
   var t = new Date().getTime();
   var result = pathery.compute_value(req.body.mapcode, req.body.solution);
-  console.log("\nCOMPUTE VALUE, TIME ELAPSED")
-  console.log(new Date().getTime() - t)
+  //console.log("\nCOMPUTE VALUE:")
+  //console.log("ms elapsed: " , new Date().getTime() - t)
 
   res.end(JSON.stringify(result));
 
@@ -32,8 +32,8 @@ app.post('/compute_values', function(req, res){
 
   var t = new Date().getTime();
   var result = pathery.compute_values(req.body.mapcode, req.body.solution);
-  console.log("\nCOMPUTE VALUES, TIME ELAPSED")
-  console.log(new Date().getTime() - t)
+  console.log("\nCOMPUTE VALUES:ELAPSED")
+  console.log("ms elapsed: " , new Date().getTime() - t)
 
   res.end(JSON.stringify(result));
 });

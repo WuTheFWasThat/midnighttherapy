@@ -10,7 +10,7 @@ function get_shared_server(cb) {
     $.getScript('file://localhost/Users/jeffwu/Dropbox/Projects/midnighttherapy/pathery-server-shared.js', cb)
   } else {
     $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-server-shared.js', cb)
-  }
+  }4
 }
 
 ///////////////////////////////////////
