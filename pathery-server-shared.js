@@ -234,7 +234,7 @@ function Graph(board) {
     }
   }
 
-  this.extra_block = '?';
+  this.extra_block = '?'; // dummy variable, initially
 
   this.get_neighbors = function(blocks, u) {
     var val;
@@ -264,35 +264,20 @@ function Graph(board) {
 
 }
 
-function Queue(n) {
-  this.n = n;
-  this.q = new Array(n); // guaranteed max size of queue
-  this.start = 0;
-  this.end = 0;
-  this.push = function(el) {
-    this.q[this.end] = el;
-    this.end = (this.end + 1) % this.n;
-  }
-  this.pop = function() {
-    this.start = (this.start + 1) % this.n;
-    return this.q[this.start - 1];
-  }
-  this.empty = function() {
-    return (this.start == this.end);
-  }
-}
-
 function BFS(graph, // graph description, as an array
              blocks, // currently placed blocks
              sources, // list of source vertices, in order of priority
              targets // set of target vertices
             ) {
   parent_dict = {};
-  var queue = new Queue(graph.m * graph.n);
+  var queue = new Array(graph.m * graph.n);
+  var queue_start = 0;
+  var queue_end = 0;
 
   for (var k in sources) {
     var source = sources[k];
-    queue.push(source);
+    queue[queue_end] = source;
+    queue_end += 1;
     parent_dict[source] = true;
   }
 
@@ -305,13 +290,15 @@ function BFS(graph, // graph description, as an array
     return path.reverse();
   }
 
-  while (!queue.empty()) {
-    var u = queue.pop();
+  while (queue_start != queue_end) {
+    var u = queue[queue_start];
+    queue_start += 1;
     var neighbors = graph.get_neighbors(blocks, u);
     for (var k = 0; k < neighbors.length; k++) {
       var v = neighbors[k];
       if (!parent_dict.hasOwnProperty(v)) {
-        queue.push(v)
+        queue[queue_end] = v;
+        queue_end += 1;
         parent_dict[v] = u;
       }
       if (targets[v]) {
@@ -326,12 +313,12 @@ function find_half_path(graph, blocks, reversed){
   var used_teleports = {};
   var index = 0;
   var fullpath = [];
-  var cur;
+  var cur; // current list of start points
   if (reversed) {     // red path
-    cur = graph.alt_starts; // current list of start points
+    cur = graph.alt_starts;
     graph.extra_block = 'g';
   } else {            // green path
-    cur = graph.starts; // current list of start points
+    cur = graph.starts;
     graph.extra_block = 'r';
   }
   var num_teleports_used = 0;
@@ -436,18 +423,50 @@ function sum_values(array) {
   return sum;
 }
 
-function improve_solution(graph, blocks) {
+// OPTIONS:
+// break_immediate:  break as soon as something better is found
+// randomize:        break ties by randomizing
+function improve_solution(graph, blocks, options) {
   var solution = find_full_path(graph, blocks);
-  var cur_val = sum_values(solution.values);
-  for (var block in blocks) {
-    delete blocks[block];
+
+  var best_val = sum_values(solution.values);
+  var best_remove_block = null;
+  var best_add_block = null;
+  var num_tied = 1;
+  var val;
+
+  for (var remove_block in blocks) {
+    delete blocks[remove_block];
 
     solution = find_full_path(graph, blocks);
-
     var relevant_blocks = solution.relevant_blocks;
 
-    blocks[block] = true;
+    for (var add_block in relevant_blocks) {
+      blocks[add_block] = true;
+      solution = find_full_path(graph, blocks);
+      val = sum_values(solution.values);
+      if (val > best_val) {
+        num_tied = 1;
+        if (options.break_immediate) {
+          return {remove_block: remove_block, add_block: add_block}
+        } else {
+          best_remove_block = remove_block; best_add_block = add_block; best_val = val;
+        }
+      } else if (val == best_val) {
+        num_tied += 1;
+        if (options.randomize) {
+          if (Math.random() * num_tied < 1) {
+            best_remove_block = remove_block; best_add_block = add_block; best_val = val;
+          }
+        }
+      }
+
+      delete blocks[add_block];
+    }
+
+    blocks[remove_block] = true;
   }
+  return null;
 }
 
 function compute_values(mapcode, solution) {
