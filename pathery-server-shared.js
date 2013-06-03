@@ -106,41 +106,39 @@ function parse_board(code) {
 
 function Graph(board) {
   
-  var self  = {};
+  this.board = board;
+  this.n = board.length;
+  this.m = board[0].length;
 
-  self.board = board;
-  self.n = board.length;
-  self.m = board[0].length;
-
-  self.keyify_coordinates = function(x, y) {
-    return x * self.m + y;
+  this.keyify_coordinates = function(x, y) {
+    return x * this.m + y;
   }
   
-  self.keyify = function(block) {
-    return self.keyify_coordinates(block[0] , block[1]);
+  this.keyify = function(block) {
+    return this.keyify_coordinates(block[0] , block[1]);
   }
 
-  self.keyify_list = function(blocklist) {
+  this.keyify_list = function(blocklist) {
     var list = [];
     for (var i = 0; i < blocklist.length; i++ ) {
-      list[i] = self.keyify(blocklist[i]);
+      list[i] = this.keyify(blocklist[i]);
     }
     return list;
   }
 
-  self.unkeyify = function(blockkey) {
-    return [Math.floor(blockkey / self.m), blockkey % self.m];
+  this.unkeyify = function(blockkey) {
+    return [Math.floor(blockkey / this.m), blockkey % this.m];
   }
 
-  self.unkeyify_list = function(blocklist) {
+  this.unkeyify_list = function(blocklist) {
     var list = [];
     for (var i = 0; i < blocklist.length; i++ ) {
-      list[i] = self.unkeyify(blocklist[i]);
+      list[i] = this.unkeyify(blocklist[i]);
     }
     return list;
   }
   
-  self.parse_blocks = function(blocksstring) {
+  this.parse_blocks = function(blocksstring) {
     var blocks = {};
     var str_blocks = blocksstring.split('.');
     for (var k in str_blocks) {
@@ -148,152 +146,140 @@ function Graph(board) {
       if (str_blocks[k]) {
         var x = parseInt(str_block.split(',')[0]);
         var y = parseInt(str_block.split(',')[1]);
-        blocks[self.keyify_coordinates(x-1 , y)] = true;
+        blocks[this.keyify_coordinates(x-1 , y)] = true;
       }
     }
     return blocks;
   }
 
-  self.boardstuff = {};
+  this.boardstuff = {};
 
-  self.serial_board = []; // same as board, but uses keyified index
+  this.serial_board = []; // same as board, but uses keyified index
 
   // Note that these lists start from top-left and go right, then down
   // In particular, starts and finishes are ordered top to bottom
   // Also when there are multiple outs for teleports, same ordering is used
-  for (var i = 0; i < self.n; i++) {
-    for (var j = 0; j < self.m; j++) {
-      var stuff = self.board[i][j];
-      var key = self.keyify_coordinates(i,j);
-      self.serial_board.push(stuff);
+  for (var i = 0; i < this.n; i++) {
+    for (var j = 0; j < this.m; j++) {
+      var stuff = this.board[i][j];
+      var key = this.keyify_coordinates(i,j);
+      this.serial_board.push(stuff);
       if (stuff != ' ') {
-        if (self.boardstuff.hasOwnProperty(stuff)) {
-          self.boardstuff[stuff].push(key);
+        if (this.boardstuff.hasOwnProperty(stuff)) {
+          this.boardstuff[stuff].push(key);
         } else {
-          self.boardstuff[stuff] = [key]
+          this.boardstuff[stuff] = [key]
         }
       }
     }
   }
 
-  self.checkpoints = []; // list of lists of intermediate targets, including starts and ends
+  this.checkpoints = []; // list of lists of intermediate targets, including starts and ends
 
-  self.starts = self.boardstuff['s'];
-  self.has_regular = (self.starts !== undefined);
+  this.starts = this.boardstuff['s'];
+  this.has_regular = (this.starts !== undefined);
 
-  self.alt_starts = self.boardstuff['S'];
-  self.has_reverse = (self.alt_starts !== undefined);
+  this.alt_starts = this.boardstuff['S'];
+  this.has_reverse = (this.alt_starts !== undefined);
 
   var letters = ['A', 'B', 'C', 'D', 'E'];
   for (var i = 0; i < 5; i++) {
     var letter = letters[i];
-    if (!(self.boardstuff.hasOwnProperty(letter))) {
+    if (!(this.boardstuff.hasOwnProperty(letter))) {
       break;
     }
-    self.checkpoints.push(self.boardstuff[letter]);
+    this.checkpoints.push(this.boardstuff[letter]);
   }
 
-  self.finishes = self.boardstuff['t'];
+  this.finishes = this.boardstuff['t'];
 
-  self.teleports = {};
+  this.teleports = {};
   for (teleport_key in teleports_map) {
     // TODO: NOT TRUE IN GENERAL!!!
-    var teleport_ins = self.boardstuff[teleport_key];
+    var teleport_ins = this.boardstuff[teleport_key];
     if (! teleport_ins) {continue;}
-    var teleport_outs = self.boardstuff[teleports_map[teleport_key]];
+    var teleport_outs = this.boardstuff[teleports_map[teleport_key]];
 
     for (var i = 0; i < teleport_ins.length; i++) {
-      self.teleports[teleport_ins[i]] = teleport_outs;
+      this.teleports[teleport_ins[i]] = teleport_outs;
     }
   }
         
-  self.can_place = function(i, j) {
-    return (self.board[i][j] == ' ');
-  }
-
-
-  self.get = function(block) {
-    return self.board[block[0]][block[1]];
-  }
-
   // NOTE: Order is important.  DETERMINES MOVE PRIORITIES
-  self.moves = [[-1, 0], [0, 1], [1, 0], [0, -1]];
+  this.moves = [[-1, 0], [0, 1], [1, 0], [0, -1]];
 
   // Preprocess neighbors
   // Index is the keyified block
-  self.neighbors = [];
+  this.neighbors = [];
   var neighbors_list;
   var xp;
   var yp;
-  for (var x = 0; x < self.n; x++) {
-    for (var y = 0; y < self.m; y++) {
+  for (var x = 0; x < this.n; x++) {
+    for (var y = 0; y < this.m; y++) {
       neighbors_list = [];
-      for (var i = 0; i < self.moves.length; i++) {
-        xp = x + self.moves[i][0];
-        yp = y + self.moves[i][1];
+      for (var i = 0; i < this.moves.length; i++) {
+        xp = x + this.moves[i][0];
+        yp = y + this.moves[i][1];
 
         // fill edge with 'X' so we don't need this check?
-        if (((0 <= xp) && (xp < self.n)) && ((0 <= yp) && (yp < self.m))) {
-          val = self.board[xp][yp];
+        if (((0 <= xp) && (xp < this.n)) && ((0 <= yp) && (yp < this.m))) {
+          val = this.board[xp][yp];
           if (val == 'X') {continue;}
           if (val == 'x') {continue;}
           if (val == '*') {continue;}
-          neighbors_list.push(self.keyify_coordinates(xp, yp));
+          neighbors_list.push(this.keyify_coordinates(xp, yp));
         }
       }
-      self.neighbors.push(neighbors_list);
+      this.neighbors.push(neighbors_list);
     }
   }
 
-  self.extra_block = '?';
+  this.extra_block = '?';
 
-  self.get_neighbors = function(blocks, u) {
+  this.get_neighbors = function(blocks, u) {
     var val;
     var neighbors = [];
-    var potential_neighbors = self.neighbors[u];
+    var potential_neighbors = this.neighbors[u];
     var potential_neighbor;
     for (var i = 0; i < potential_neighbors.length; i++) {
       potential_neighbor = potential_neighbors[i];
-      val = self.serial_board[potential_neighbor];
-      if (val == self.extra_block) {continue;}
+      val = this.serial_board[potential_neighbor];
+      if (val == this.extra_block) {continue;}
       if (blocks[potential_neighbor]) {continue;}
       neighbors.push(potential_neighbor);
     }
     return neighbors;
   }
 
-  self.teleport = function(block, used_teleports) {
-    var stuff = self.serial_board[block];
+  this.teleport = function(block, used_teleports) {
+    var stuff = this.serial_board[block];
     if ( teleports_map[stuff] ) {
       if (!(used_teleports[stuff])) {
         used_teleports[stuff] = true;
-        return self.teleports[block]
+        return this.teleports[block]
       }
     }
     return null;
   }
 
-  return self;
 }
 
 function Queue(n) {
-  var self = {};
-  self.n = n;
-  self.q = new Array(n); // guaranteed max size of queue
-  self.start = 0;
-  self.end = 0;
-  self.push = function(el) {
-    self.q[self.end] = el;
-    self.end = (self.end + 1) % self.n;
+  this.n = n;
+  this.q = new Array(n); // guaranteed max size of queue
+  this.start = 0;
+  this.end = 0;
+  this.push = function(el) {
+    this.q[this.end] = el;
+    this.end = (this.end + 1) % this.n;
   }
-  self.pop = function() {
-    self.start = (self.start + 1) % self.n;
-    return self.q[self.start - 1];
+  this.pop = function() {
+    this.start = (this.start + 1) % this.n;
+    return this.q[this.start - 1];
   }
-  self.empty = function() {
-    return (self.start == self.end);
+  this.empty = function() {
+    return (this.start == this.end);
   }
-  return self;
 }
 
 function BFS(graph, // graph description, as an array
@@ -302,7 +288,7 @@ function BFS(graph, // graph description, as an array
              targets // set of target vertices
             ) {
   parent_dict = {};
-  var queue = Queue(graph.m * graph.n);
+  var queue = new Queue(graph.m * graph.n);
 
   for (var k in sources) {
     var source = sources[k];
@@ -433,7 +419,7 @@ function find_full_path(graph, blocks){
 
 function compute_value(mapcode, solution) {
     bm_board= parse_board(mapcode);
-    bm_graph = Graph(bm_board);
+    bm_graph = new Graph(bm_board);
     //BFS(bm_graph, {}, [null], {'[2,2]':true})
 
     bm_current_blocks = bm_graph.parse_blocks(solution);
@@ -466,7 +452,7 @@ function improve_solution(graph, blocks) {
 
 function compute_values(mapcode, solution) {
     bm_board= parse_board(mapcode);
-    bm_graph = Graph(bm_board);
+    bm_graph = new Graph(bm_board);
     //BFS(bm_graph, {}, [null], {'[2,2]':true})
 
     bm_current_blocks = bm_graph.parse_blocks(solution);
