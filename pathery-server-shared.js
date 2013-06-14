@@ -525,8 +525,7 @@ function compute_values(mapcode, solution) {
             }
         }
     }
-    console.log("find_full_path count: " + find_full_path_count);
-    return {value: bm_solution_value, values_list: values_list};
+    return {value: bm_solution_value, values_list: values_list, find_full_path_count: find_full_path_count};
 }
 
 

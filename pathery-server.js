@@ -31,9 +31,12 @@ app.post('/compute_values', function(req, res){
   res.header("Access-Control-Allow-Origin", "*");
 
   var t = new Date().getTime();
+  console.log("\nCOMPUTE VALUES:")
   var result = pathery.compute_values(req.body.mapcode, req.body.solution);
-  console.log("\nCOMPUTE VALUES:ELAPSED")
-  console.log("ms elapsed: " , new Date().getTime() - t)
+  var time_elapsed = new Date().getTime() - t;
+  console.log("ms elapsed: " , time_elapsed);
+  console.log("find_full_path count: " + result.find_full_path_count);
+  console.log("ms / find_full_path: " , time_elapsed / result.find_full_path_count)
 
   res.end(JSON.stringify(result));
 });
