@@ -38,10 +38,10 @@ function bm_toggle() {
     interval_var = null;
     $('.map .child').text('');
     $('.client_score').text('');
-    $('#bm_button').text('Show values')
+    $('#bm_show_values').text('Show values')
   } else {
     interval_var = setInterval(draw_values, 1000);
-    $('#bm_button').text('Hide values')
+    $('#bm_show_values').text('Hide values')
   }
   bm_old_solution = null;
 }
@@ -76,11 +76,13 @@ $(document).ready(function() {
   });
   bm_mapid = get_current_map_id();
 
-  var my_button;
-  if ($('#bm_button').length == 0) {
-    my_button = $('<button id="bm_button">Show values</button>');
-    $('#difficulties').append(my_button);
-    my_button.click(bm_toggle);
+  if ($('#bm_button_toolbar').length == 0) {
+    var button_toolbar = $('<div id="bm_button_toolbar" style="text-align: center"></div>');
+    $('#difficulties').after(button_toolbar);
+
+    var show_values_button = $('<button id="bm_show_values">Show values</button>');
+    button_toolbar.append(show_values_button);
+    show_values_button.click(bm_toggle);
   }
 })
 

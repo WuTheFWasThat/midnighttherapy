@@ -309,7 +309,9 @@ function BFS(graph, // graph description, as an array
   return null;
 }
 
-function find_half_path(graph, blocks, reversed){
+var find_single_path = BFS;
+
+function find_full_path(graph, blocks, reversed){
   var used_teleports = {};
   var index = 0;
   var fullpath = [];
@@ -337,7 +339,7 @@ function find_half_path(graph, blocks, reversed){
       var target = targets[i];
       target_dict[target] = true;
     }
-    var path = BFS(graph, blocks, cur, target_dict);
+    var path = find_single_path(graph, blocks, cur, target_dict);
     if (path == null) {
       return {path: null, value: NaN, relevant_blocks: {}};
     }
@@ -380,20 +382,20 @@ function find_half_path(graph, blocks, reversed){
   };
 }
 
-function find_full_path(graph, blocks){
+function find_pathery_path(graph, blocks){
   var relevant_blocks = {};
   var paths = [];
   var values = [];
 
   if (graph.has_regular) {
-    solution_green = find_half_path(graph, blocks);
+    solution_green = find_full_path(graph, blocks);
     paths.push(solution_green.path);
     values.push(solution_green.value);
     for (var block in solution_green.relevant_blocks) {relevant_blocks[block] = true;}
   }
 
   if (graph.has_reverse) {
-    solution_red = find_half_path(graph, blocks, true);
+    solution_red = find_full_path(graph, blocks, true);
     paths.push(solution_red.path);
     values.push(solution_red.value);
     for (var block in solution_red.relevant_blocks) {relevant_blocks[block] = true;}
@@ -410,7 +412,7 @@ function compute_value(mapcode, solution) {
     //BFS(bm_graph, {}, [null], {'[2,2]':true})
 
     bm_current_blocks = bm_graph.parse_blocks(solution);
-    bm_solution = find_full_path(bm_graph, bm_current_blocks);
+    bm_solution = find_pathery_path(bm_graph, bm_current_blocks);
 
     return bm_solution.values;
 }
@@ -427,7 +429,7 @@ function sum_values(array) {
 // break_immediate:  break as soon as something better is found
 // randomize:        break ties by randomizing
 function improve_solution(graph, blocks, options) {
-  var solution = find_full_path(graph, blocks);
+  var solution = find_pathery_path(graph, blocks);
 
   var best_val = sum_values(solution.values);
   var best_remove_block = null;
@@ -438,12 +440,12 @@ function improve_solution(graph, blocks, options) {
   for (var remove_block in blocks) {
     delete blocks[remove_block];
 
-    solution = find_full_path(graph, blocks);
+    solution = find_pathery_path(graph, blocks);
     var relevant_blocks = solution.relevant_blocks;
 
     for (var add_block in relevant_blocks) {
       blocks[add_block] = true;
-      solution = find_full_path(graph, blocks);
+      solution = find_pathery_path(graph, blocks);
       val = sum_values(solution.values);
       if (val > best_val) {
         num_tied = 1;
@@ -475,13 +477,13 @@ function compute_values(mapcode, solution) {
     //BFS(bm_graph, {}, [null], {'[2,2]':true})
 
     bm_current_blocks = bm_graph.parse_blocks(solution);
-    var bm_solution = find_full_path(bm_graph, bm_current_blocks);
+    var bm_solution = find_pathery_path(bm_graph, bm_current_blocks);
 
     var bm_solution_path = bm_solution.paths;
     var bm_solution_value = sum_values(bm_solution.values);
     var bm_relevant_blocks = bm_solution.relevant_blocks;
 
-    var find_full_path_count = 0;
+    var find_pathery_path_count = 0;
 
     var values_list = [];
     for (var i = 0; i < bm_graph.n; i ++) {
@@ -497,8 +499,8 @@ function compute_values(mapcode, solution) {
                       diff = '-';
                     } else {
                       delete bm_current_blocks[block];
-                      value = sum_values(find_full_path(bm_graph, bm_current_blocks).values);
-                      find_full_path_count++;
+                      value = sum_values(find_pathery_path(bm_graph, bm_current_blocks).values);
+                      find_pathery_path_count++;
                       diff = bm_solution_value - value;
                       bm_current_blocks[block] = true;
                     }
@@ -508,8 +510,8 @@ function compute_values(mapcode, solution) {
                       diff = '';
                     } else {
                       bm_current_blocks[block] = true;
-                      value = sum_values(find_full_path(bm_graph, bm_current_blocks).values);
-                      find_full_path_count++;
+                      value = sum_values(find_pathery_path(bm_graph, bm_current_blocks).values);
+                      find_pathery_path_count++;
                       diff = value - bm_solution_value;
                       if (isNaN(diff)) {diff = '-';}
                       delete bm_current_blocks[block];
@@ -525,7 +527,7 @@ function compute_values(mapcode, solution) {
             }
         }
     }
-    return {value: bm_solution_value, values_list: values_list, find_full_path_count: find_full_path_count};
+    return {value: bm_solution_value, values_list: values_list, find_pathery_path_count: find_pathery_path_count};
 }
 
 
