@@ -2,12 +2,10 @@
 
 ## OVERVIEW ##
 
-This code is meant to be an interface between the Pathery website and a server.  
-With a human interacting with the browser, it effectively facilitates human-computer interaction.
-Besides interacting with the server, the client (browser) does things like client-side pathing and display, and in the future, load/save of solutions, and more.
-However, for those of us who aren't tech savvy, or don't want to run a server, I've provided an in-browser "server".
-
-The values on the blocks is currently white, so it works best with darker blocks.  (I'll make the font color better/customizable in the future.)
+This code is meant to be an interface between the Pathery website (www.pathery.com) and a server.  
+With a human interacting with the browser, it effectively facilitates human-computer interaction.  
+Besides interacting with the server, the client (browser) does things like client-side pathing and display and save/load of solutions.
+For those of us who aren't tech savvy, or don't want to run a server, I've provided an in-browser "server".
 
 ## FEATURES ##
 
@@ -27,13 +25,15 @@ However, this may feel laggy if you're letting the browser do the computation.
 
 ### SOLUTION LOAD AND SAVE ###
 
-It's often frustrating that you can only load your best solution, on maps with many viable but different placings.  
-On UC especially, it can be devastating to accidentally press Load Best Solution.  
+It's often frustrating that you can only load your best solution, on maps with many viable but different placings. 
+Ultra Complex is especially bad - it's devastating when I'm working on a new idea, and I accidentally load my best solution.  
 Thus I added the ability to save and load solutions.  Simply enter a name, and press Save, to save the current solution.
 You'll then see the name appear in a list, where you can Load or Delete it.
 
 ![save solutions](images/save-solutions.png)
 
+If you want your solution saving to persist, you'll need a browser that supports HTML5 storage!  
+If your browser doesn't support it, you really should upgrade it anyways.  
 
 ## INSTRUCTIONS FOR USE ##
 
@@ -54,15 +54,21 @@ To make this even easier, make it a bookmarklet.  That is, create a bookmark wit
 You can then just visit this bookmark while you're at Pathery.
 
 
-### OUTSOURCING COMPUTATION TO A SERVER (recommended if using "show values", and necessary if interfacing with your own solver): ###
+Unfortunately, "show values" is noticeably slow this way.  Thus, the following method is recommended instead
+
+### WITH A SERVER ###
+
+First you'll need a server running.  I've provided one that you can use (maybe as a starting point for an AI).  To get it,
 
 1. Clone this repo and cd into it
 2. Run locally:
 
 `node pathery-server.js`
 
-3. Go to Pathery
-4. Paste
+Next, add my client to the browser window.
+
+1. Go to Pathery
+2. Paste
 
 `$.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-client.js')`
 
@@ -70,14 +76,38 @@ into the Javascript console.  Again, you can make this easier for yourself by sa
 
 `javascript: $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-client.js')`
 
+<!--
+### SERVER API ###
+
+I'll get to this sometime...
+-->
+
 ## KNOWN ISSUES: ##
 
 None, at the moment.  Let me know if you find any! 
 
+<!--
+## MINOR NOTES: ##
+
+The values on the blocks is currently white, so it works best with darker blocks.  (I'll make the font color better/customizable in the future.)
+-->
+
 ## FUTURE WORK: ##
 
+Suggestions welcome.  Email me at [github-username]@gmail.com, or maybe catch me in the Pathery chat.
+
+- Block-placing tools
+  - placing blocks
+  - shift click draws walls from last click (two clicks to make a diagonal, n+1 clicks to make a structure with n parts)
+  - undo, redo
+  - block "paintbrush" and eraser (click and drag)
+  - keyboard shortcuts/modifiers for all the above, plus:
+    - placing wall relative to last thing placed
+    - clearing the board
+    - save and load
+
 - An API to support solvers that actually suggest (potentially major) changes, takes suggestions, etc. (and an accompanying prototype)
-- Undo
+
 - Make the [dumb] thing faster (currently does 400 full UC calculations per second... )
 
 Feel free to contribute, of course :)
