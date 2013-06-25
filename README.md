@@ -25,6 +25,15 @@ However, this may feel laggy if you're letting the browser do the computation.
 
 ![client side pathing](images/show-values-on.png)
 
+### SOLUTION LOAD AND SAVE ###
+
+It's often frustrating that you can only load your best solution, on maps with many viable but different placings.  
+On UC especially, it can be devastating to accidentally press Load Best Solution.  
+Thus I added the ability to save and load solutions.  Simply enter a name, and press Save, to save the current solution.
+You'll then see the name appear in a list, where you can Load or Delete it.
+
+![save solutions](images/save-solutions.png)
+
 
 ## INSTRUCTIONS FOR USE ##
 
@@ -68,7 +77,6 @@ None, at the moment.  Let me know if you find any!
 ## FUTURE WORK: ##
 
 - An API to support solvers that actually suggest (potentially major) changes, takes suggestions, etc. (and an accompanying prototype)
-- Saving and loading different solutions
 - Undo
 - Make the [dumb] thing faster (currently does 400 full UC calculations per second... )
 

@@ -169,7 +169,6 @@ function get_current_solution() {
     var y = parseInt(string_coordinates[1]);
     blocks.push([x, y]);
   }
-  console.log(blocks)
   return blocks;
 }
 
@@ -200,7 +199,7 @@ function refresh_solution_store_display() {
   $('#bm_save_solution_list').empty();
   for (var name in store) {
     var solution = store[name];
-    var solution_el = $('<li>' + name + '</li>')
+    var solution_el = $('<div>' + name + '</div>')
 
     var load_button = $('<button> Load </button>')
     load_button.data('solution', solution)
@@ -244,7 +243,6 @@ $(document).ready(function() {
     setTimeout(function() {
       var old_bm_mapid = bm_mapid;
       bm_mapid = get_current_map_id();
-      console.log(old_bm_mapid, bm_mapid)
       if (old_bm_mapid !== bm_mapid) {
         refresh_solution_store_display();
       }
@@ -261,12 +259,12 @@ $(document).ready(function() {
     show_values_button.click(bm_toggle);
   }
 
-  $('#difficulties').parent().css('margin-left', '250px');
+  $('#difficulties').parent().css('margin-left', '300px');
 
   if ($('#saved_solutions').length == 0) {
     //var solutions_toolbar = $('<div id="saved_solutions" style="text-align: center"></div>');
     //$('#bm_button_toolbar').after(solutions_toolbar);
-    var solutions_toolbar = $('<div id="saved_solutions" style="position:absolute; left:50px; width:150px; text-align:center"></div>')
+    var solutions_toolbar = $('<div id="saved_solutions" style="position:absolute; left:50px; width:250px; text-align:center"></div>')
     $('#bm_button_toolbar').after(solutions_toolbar);
 
     var save_solution_input = $('<input id="bm_save_solution_name" placeholder="solution label/name">');
