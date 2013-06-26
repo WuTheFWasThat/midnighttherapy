@@ -53,7 +53,6 @@ function refresh_score() {
 
 function start_up() {
   $(document).ready(function() {
-  
    console.log('here')
     $(window).click(function() {
       refresh_score();

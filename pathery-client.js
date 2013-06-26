@@ -12,10 +12,7 @@ function get_shared_client(cb) {
 
 function draw_values() {
     bm_mapid = get_current_map_id();
-
-    if (bm_old_solution == solution[bm_mapid]) {
-      return;
-    }
+    if (bm_old_solution == solution[bm_mapid]) { return; }
 
     bm_old_solution = solution[bm_mapid];
 
@@ -57,6 +54,4 @@ $(document).ready(function() {
     })
     refresh_score();
   })
-
-  
 });

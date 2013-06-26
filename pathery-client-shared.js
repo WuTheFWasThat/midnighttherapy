@@ -125,6 +125,27 @@ PatheryHTML5Storage.prototype.clear_all = function(mapid, name) {
   }
 }
 
+/////////////////////
+// GENERAL UTILITIES
+/////////////////////
+
+// from div id to my representation of block
+function id_from_bm_block(block, mapid) {
+  var x = block[0] + 1; 
+  var y = block[1]; 
+  var id = mapid + ',' + x + ',' + y;
+  return id;
+}
+
+// from my representation of block to pathery's 'x,y' representation
+function bm_block_from_block_string(block_string) { 
+  var string_coordinates = block_string.split(',');
+  var x = parseInt(string_coordinates[0]) - 1;
+  var y = parseInt(string_coordinates[1]);
+  var block = [x, y];
+  return block;
+}
+
 //////////////////
 // regular storage
 //////////////////
@@ -156,18 +177,14 @@ PatheryJSStorage.prototype.delete_solution = function(mapid, name) {
   delete this.storage[mapid][name];
 }
 
-//////////////////
-
-function get_current_solution() {
+function bm_get_current_solution() {
   var mapid = get_current_map_id();
   var solution_string = solution[mapid];
   var solution_block_strings = solution_string.split('.').slice(1, -1);
   var blocks = [];
   for (var k in solution_block_strings) {
-    var string_coordinates = solution_block_strings[k].split(',');
-    var x = parseInt(string_coordinates[0]) - 1;
-    var y = parseInt(string_coordinates[1]);
-    blocks.push([x, y]);
+    var block = bm_block_from_block_string(solution_block_strings[k]);
+    blocks.push(block);
   }
   return blocks;
 }
@@ -185,12 +202,21 @@ if (!supports_HTML5_Storage()) {
   bm_solution_storage = new PatheryHTML5Storage();
 }
 
-function save_current_solution() {
+function bm_save_current_solution() {
   var mapid = get_current_map_id();
-  var solution = get_current_solution();
+  var solution = bm_get_current_solution();
   var name = $('#bm_save_solution_name').val();
   bm_solution_storage.add_solution(mapid, solution, name);
   refresh_solution_store_display();
+}
+
+function bm_load_solution(mapid, solution) {
+  clearwalls(mapid);
+  for (var i in solution) {
+    var block = solution[i];
+    var id = id_from_bm_block(block, mapid);
+    $("[id='" + id + "']").click();
+  }
 }
 
 function refresh_solution_store_display() {
@@ -205,14 +231,8 @@ function refresh_solution_store_display() {
     load_button.data('solution', solution)
     load_button.click(function() {
       var solution = $(this).data('solution');
-      clearwalls(mapid);
-      for (var i in solution) {
-        var block = solution[i];
-        var x = block[0] + 1; 
-        var y = block[1]; 
-        var id = mapid + ',' + x + ',' + y;
-        $("[id='" + id + "']").click();
-      }
+      bm_load_solution(mapid, solution);
+
     })
     solution_el.append(load_button);
 
@@ -232,6 +252,45 @@ function refresh_solution_store_display() {
     $('#bm_save_solution_list').append(solution_el);
   }
 }
+
+////////////////////////////////////////////
+// REMEMBERING BLOCK PLACEMENTS
+////////////////////////////////////////////
+
+
+var bm_last_block_index = -1; // most recent index (in the block history) of a block placement
+var bm_block_history = []; // block history (and future)
+
+$('.playable > div').click(function() {
+  var id = $(this).attr('id');
+  var first_comma_index = id.indexOf(',');
+  var mapid = parseInt(id.slice(0, first_comma_index));
+
+  if (mapid !== bm_mapid ) {
+    console.log('BUG FOUND!! NONMATCHING IDS: ' + mapid + ', ' + bm_mapid)
+    return;
+  }
+
+  var block = bm_block_from_block_string(id.slice(first_comma_index+1));
+  console.log('block', block);
+})
+
+
+////////////////////////////////////////////
+// HOTKEYS
+////////////////////////////////////////////
+
+$(document).bind('keydown', function(e){
+    var chr = String.fromCharCode(e.keyCode);
+    console.log('keydown:' + chr)
+    if (e.keyCode =='a') {   
+      console.log('a ws pressed')
+    }
+    if (e.keyCode =='s') {   
+      console.log('s ws pressed')
+    }
+});
+
 
 ////////////////////////////////////////////
 // INITIALIZE
@@ -271,7 +330,7 @@ $(document).ready(function() {
     solutions_toolbar.append(save_solution_input);
     var save_solution_button = $('<button id="bm_save_solution">Save solution</button>');
     solutions_toolbar.append(save_solution_button);
-    save_solution_button.click(save_current_solution);
+    save_solution_button.click(bm_save_current_solution);
 
     //var clear_solutions_button = $('<button id="bm_clear_solution">Clear solution</button>');
     //solutions_toolbar.append(clear_solution_button);
