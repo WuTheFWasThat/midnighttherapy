@@ -130,7 +130,7 @@ PatheryHTML5Storage.prototype.clear_all = function(mapid, name) {
 /////////////////////
 
 // from div id to my representation of block
-function id_from_bm_block(block, mapid) {
+function id_from_bm_block(mapid, block) {
   var x = block[0] + 1; 
   var y = block[1]; 
   var id = mapid + ',' + x + ',' + y;
@@ -144,6 +144,11 @@ function bm_block_from_block_string(block_string) {
   var y = parseInt(string_coordinates[1]);
   var block = [x, y];
   return block;
+}
+
+// are we out of walls?
+function bm_map_is_out(mapid) {
+  return (mapdata[mapid].usedWallCount < 1);
 }
 
 //////////////////
@@ -214,7 +219,7 @@ function bm_load_solution(mapid, solution) {
   clearwalls(mapid);
   for (var i in solution) {
     var block = solution[i];
-    var id = id_from_bm_block(block, mapid);
+    var id = id_from_bm_block(mapid, block);
     $("[id='" + id + "']").click();
   }
 }
@@ -254,12 +259,60 @@ function refresh_solution_store_display() {
 }
 
 ////////////////////////////////////////////
-// REMEMBERING BLOCK PLACEMENTS
+// BLOCK PLACEMENT HISTORY
 ////////////////////////////////////////////
 
+// mapid : most recent index (in the block history) of a block placement (initially -1)
+var bm_last_block_indices = {};
 
-var bm_last_block_index = -1; // most recent index (in the block history) of a block placement
-var bm_block_history = []; // block history (and future)
+// mapid : list of block history (and future)
+var bm_block_history = {};
+
+function bm_get_block_history(mapid) {
+  if (!bm_block_history[mapid]) {
+    bm_block_history[mapid] = [];
+    bm_last_block_indices[mapid] = -1;
+  }
+  return bm_block_history[mapid];
+}
+
+function bm_add_block_to_history(mapid, block) {
+  var block_history = bm_get_block_history(mapid);
+  var index = ++bm_last_block_indices[mapid];
+  while (block_history.length > index) {
+    block_history.pop();
+  }
+  block_history[index] = block;
+}
+
+function bm_redo_block_history(mapid) {
+  var block_history = bm_get_block_history(mapid);
+  var index = bm_last_block_indices[mapid];
+
+  var block = block_history[index + 1];
+  if (block) {
+    bm_click_block_untriggered(mapid, block);
+    bm_last_block_indices[mapid]++;
+    console.log(bm_last_block_indices[mapid])
+    console.log(block_history)
+  }
+}
+
+function bm_undo_block_history(mapid) {
+  var block_history = bm_get_block_history(mapid);
+  var index = bm_last_block_indices[mapid];
+
+    console.log('before', bm_last_block_indices[mapid])
+  var block = block_history[index];
+  if (block) {
+    if (index == -1) {console.log("SOMETHING WEIRD HAPPENED.  UNDOING HISTORY AT -1");}
+    bm_click_block_untriggered(mapid, block);
+    bm_last_block_indices[mapid]--;
+    console.log('after', bm_last_block_indices[mapid])
+    console.log(block_history)
+  }
+}
+
 
 $('.playable > div').click(function() {
   var id = $(this).attr('id');
@@ -272,23 +325,57 @@ $('.playable > div').click(function() {
   }
 
   var block = bm_block_from_block_string(id.slice(first_comma_index+1));
-  console.log('block', block);
+  var is_there = this.cv; // note: can be undefined
+
+  // unless trying to add block while out of blocks, add to history
+  if (is_there || (!bm_map_is_out(mapid))) {
+    bm_add_block_to_history(mapid, block);
+  }
 })
+
+function bm_click_block_untriggered(mapid, block)  {
+  var id = id_from_bm_block(mapid, block);
+  grid_click($("[id='" + id + "']")[0]);
+}
+
+function bm_click_block(mapid, block)  {
+  var id = id_from_bm_block(mapid, block);
+  $("[id='" + id + "']").click();
+}
 
 
 ////////////////////////////////////////////
 // HOTKEYS
 ////////////////////////////////////////////
 
+var bm_hotkeys_text = 
+  //'r: reset'     + '<br/>' +
+  //'s: save'     + '<br/>' +
+  //'x: place'     + '<br/>' +
+  //'l: load'     + '<br/>' +
+  'y: redo'     + '<br/>' + 
+  'z: undo'     + '<br/>'
+;
+
+var bm_hotkey_handler = {
+  'R' : function(e) {
+  },
+  'S' : function(e) {
+  },
+  'Y' : function(e) {
+     console.log('redo?')
+     bm_redo_block_history(get_current_map_id());
+  },
+  'Z' : function(e) {
+     console.log('undo?')
+     bm_undo_block_history(get_current_map_id());
+  }
+}
+
 $(document).bind('keydown', function(e){
     var chr = String.fromCharCode(e.keyCode);
-    console.log('keydown:' + chr)
-    if (e.keyCode =='a') {   
-      console.log('a ws pressed')
-    }
-    if (e.keyCode =='s') {   
-      console.log('s ws pressed')
-    }
+    var handler = bm_hotkey_handler[chr];
+    if (handler) {handler(e)};
 });
 
 
@@ -309,34 +396,47 @@ $(document).ready(function() {
   });
   bm_mapid = get_current_map_id();
 
-  if ($('#bm_button_toolbar').length == 0) {
-    var button_toolbar = $('<div id="bm_button_toolbar" style="text-align: center"></div>');
+  if ($('#bm_top_toolbar').length == 0) {
+    var button_toolbar = $('<div id="bm_top_toolbar" style="text-align: center"></div>');
     $('#difficulties').after(button_toolbar);
 
     var show_values_button = $('<button id="bm_show_values">Show values</button>');
     button_toolbar.append(show_values_button);
     show_values_button.click(bm_toggle);
+
+    var hotkeys_button = $('<button id="bm_show_hotkeys">Hotkeys</button>');
+    var hotkeys_dropdown = $('<div id="bm_hotkeys_text" style="display:none; position: relative; border:1px solid #000">' + bm_hotkeys_text + '</div>');
+    hotkeys_button.hover(
+      function(e) {
+        hotkeys_dropdown.show();
+      },
+      function(e) {
+        hotkeys_dropdown.hide();
+      }
+    );
+    button_toolbar.append(hotkeys_button);
+    hotkeys_button.append(hotkeys_dropdown);
   }
 
   $('#difficulties').parent().css('margin-left', '300px');
 
-  if ($('#saved_solutions').length == 0) {
-    //var solutions_toolbar = $('<div id="saved_solutions" style="text-align: center"></div>');
-    //$('#bm_button_toolbar').after(solutions_toolbar);
-    var solutions_toolbar = $('<div id="saved_solutions" style="position:absolute; left:50px; width:250px; text-align:center"></div>')
-    $('#bm_button_toolbar').after(solutions_toolbar);
+  if ($('#bm_left_bar').length == 0) {
+    //var left_toolbar = $('<div id="bm_left_bar" style="text-align: center"></div>');
+    //$('#bm_top_toolbar').after(left_toolbar);
+    var left_toolbar = $('<div id="bm_left_bar" style="position:absolute; left:50px; width:250px; text-align:center"></div>')
+    $('#bm_top_toolbar').after(left_toolbar);
 
     var save_solution_input = $('<input id="bm_save_solution_name" placeholder="solution label/name">');
-    solutions_toolbar.append(save_solution_input);
+    left_toolbar.append(save_solution_input);
     var save_solution_button = $('<button id="bm_save_solution">Save solution</button>');
-    solutions_toolbar.append(save_solution_button);
+    left_toolbar.append(save_solution_button);
     save_solution_button.click(bm_save_current_solution);
 
     //var clear_solutions_button = $('<button id="bm_clear_solution">Clear solution</button>');
-    //solutions_toolbar.append(clear_solution_button);
+    //left_toolbar.append(clear_solution_button);
     
     var solutions_list = $('<div id="bm_save_solution_list" style="text-align:center; border:1px solid white;"></div>')
-    solutions_toolbar.append(solutions_list);
+    left_toolbar.append(solutions_list);
 
   }
   refresh_solution_store_display();

@@ -35,6 +35,15 @@ You'll then see the name appear in a list, where you can Load or Delete it.
 If you want your solution saving to persist, you'll need a browser that supports HTML5 storage!  
 If your browser doesn't support it, you really should upgrade it anyways.  
 
+### HOTKEYS ###
+
+I provide several hotkeys to make playing easier and faster:
+
+| Hotkey        | Action           |
+| ------------- |:-------------|
+| z      | undo |
+| y      | redo |
+
 ## INSTRUCTIONS FOR USE ##
 
 
@@ -84,7 +93,11 @@ I'll get to this sometime...
 
 ## KNOWN ISSUES: ##
 
+- Undo and redo don't work with save/load/reset properly 
+
+<!--
 None, at the moment.  Let me know if you find any! 
+-->
 
 <!--
 ## MINOR NOTES: ##
