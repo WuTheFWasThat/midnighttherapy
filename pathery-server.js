@@ -33,8 +33,8 @@ app.post('/compute_values', function(req, res){
   var result = pathery.compute_values(req.body.mapcode, req.body.solution);
   var time_elapsed = new Date().getTime() - t;
   console.log("ms elapsed: " , time_elapsed);
-  console.log("find_full_path count: " + result.find_full_path_count);
-  console.log("ms / find_full_path: " , time_elapsed / result.find_full_path_count)
+  console.log("find_pathery_path count: " + result.find_pathery_path_count);
+  console.log("ms / #find_pathery_path: " , time_elapsed / result.find_pathery_path_count)
 
   res.end(JSON.stringify(result));
 });
@@ -47,8 +47,8 @@ app.post('/compute_values', function(req, res){
   var result = pathery.compute_values(req.body.mapcode, req.body.solution);
   var time_elapsed = new Date().getTime() - t;
   console.log("ms elapsed: " , time_elapsed);
-  console.log("find_full_path count: " + result.find_full_path_count);
-  console.log("ms / find_full_path: " , time_elapsed / result.find_full_path_count)
+  console.log("find_pathery_path count: " + result.find_pathery_path_count);
+  console.log("ms / #find_pathery_path: " , time_elapsed / result.find_pathery_path_count)
 
   res.end(JSON.stringify(result));
 });

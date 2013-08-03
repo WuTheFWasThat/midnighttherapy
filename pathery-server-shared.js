@@ -1,3 +1,5 @@
+(function(exports) {
+
 teleports_map = {
   '1': '!',
   '2': '@',
@@ -406,7 +408,7 @@ function find_pathery_path(graph, blocks){
 }
 
 
-function compute_value(mapcode, solution) {
+exports.compute_value = function(mapcode, solution) {
     bm_board= parse_board(mapcode);
     bm_graph = new Graph(bm_board);
     //BFS(bm_graph, {}, [null], {'[2,2]':true})
@@ -471,7 +473,7 @@ function improve_solution(graph, blocks, options) {
   return null;
 }
 
-function compute_values(mapcode, solution) {
+exports.compute_values = function(mapcode, solution) {
     bm_board= parse_board(mapcode);
     bm_graph = new Graph(bm_board);
     //BFS(bm_graph, {}, [null], {'[2,2]':true})
@@ -530,8 +532,4 @@ function compute_values(mapcode, solution) {
     return {value: bm_solution_value, values_list: values_list, find_pathery_path_count: find_pathery_path_count};
 }
 
-// http://caolanmcmahon.com/posts/writing_for_node_and_the_browser/
-try {
-  exports.compute_value = compute_value;
-  exports.compute_values = compute_values;
-} catch (e) {}
+})(typeof exports === "undefined" ? (window.PatherySolver={}, window.PatherySolver) : module.exports)

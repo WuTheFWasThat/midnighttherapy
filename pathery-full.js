@@ -27,39 +27,22 @@ function get_shared_client(cb) {
   }
 }
 
-function draw_values() {
-  bm_mapid = get_current_map_id();
 
-  if (bm_old_solution == solution[bm_mapid]) {
-    return;
-  }
-
-  bm_old_solution = solution[bm_mapid];
-
-  var result = compute_values(mapdata[bm_mapid].code, solution[bm_mapid]) 
-  var value  = result.value;
-  var values_list  = result.values_list;
-
-  for (var k in values_list) {
-    var values_dict = values_list[k];
-    draw_single_value(bm_mapid, values_dict.i, values_dict.j, values_dict.val, values_dict.blocking);
-  }
+function bm_draw_values(mapid, cb) {
+  var result = PatherySolver.compute_values(mapdata[mapid].code, solution[mapid]) 
+  cb(result);
 }
 
-function refresh_score() {
-  var mapid = get_current_map_id();
-  write_score_value(compute_value(mapdata[mapid].code, solution[mapid]));
+function bm_refresh_score(mapid, cb) {
+  var result = PatherySolver.compute_value(mapdata[mapid].code, solution[mapid]);
+  cb(result);
 };
 
-
-function start_up() {
-  $(document).ready(function() {
-   console.log('here')
-    $(window).click(function() {
-      refresh_score();
-    })
-    refresh_score();
-  });
+function bm_start_up() {
 }
 
-get_shared_server(function() { get_shared_client(start_up)});
+get_shared_server(function() { 
+  get_shared_client(
+    bm_start_up
+  )
+});
