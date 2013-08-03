@@ -262,7 +262,14 @@ function refresh_solution_store_display() {
 // BLOCK PLACEMENT HISTORY
 ////////////////////////////////////////////
 
-// mapid : most recent index (in the block history) of a block placement (initially -1)
+////////////////////////////////////////////
+// SINGLE BLOCK MOVE
+////////////////////////////////////////////
+
+function bm_single_block_move(block) { // click (add or remove) the block
+}
+
+// mapid : most recent index (in the block history) of event (initially -1)
 var bm_last_block_indices = {};
 
 // mapid : list of block history (and future)
@@ -354,10 +361,14 @@ var bm_hotkeys_text =
   //'x: place'     + '<br/>' +
   //'l: load'     + '<br/>' +
   'y: redo'     + '<br/>' + 
-  'z: undo'     + '<br/>'
+  'z: undo'     + '<br/>' +
+  'g: go'       + '<br/>' 
 ;
 
 var bm_hotkey_handler = {
+  'G' : function(e) {
+    doSend(bm_mapid);
+  },
   'R' : function(e) {
   },
   'S' : function(e) {

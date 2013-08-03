@@ -107,7 +107,7 @@ The values on the blocks is currently white, so it works best with darker blocks
 
 ## FUTURE WORK: ##
 
-Suggestions welcome.  Email me at [github-username]@gmail.com, or maybe catch me in the Pathery chat.
+Suggestions and feedback welcome.  Email me at [github-username]@gmail.com, or maybe catch me in the Pathery chat.
 
 - Block-placing tools
   - placing blocks

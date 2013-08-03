@@ -530,7 +530,7 @@ function compute_values(mapcode, solution) {
     return {value: bm_solution_value, values_list: values_list, find_pathery_path_count: find_pathery_path_count};
 }
 
-
+// http://caolanmcmahon.com/posts/writing_for_node_and_the_browser/
 try {
   exports.compute_value = compute_value;
   exports.compute_values = compute_values;
