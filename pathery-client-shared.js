@@ -356,14 +356,14 @@ function bm_click_block(mapid, block)  {
 ////////////////////////////////////////////
 
 var bm_hotkeys_text = 
-  //'r: reset'     + '<br/>' +
   //'s: save'     + '<br/>' +
   //'x: place'     + '<br/>' +
   //'l: load'     + '<br/>' +
-  'g: go'            + '<br/>' +
-  'v: toggle values' + '<br/>' +
-  'y: redo'          + '<br/>' + 
-  'z: undo'          + '<br/>' 
+  'g: Go!'            + '<br/>' +
+  'r: Reset'          + '<br/>' +
+  'v: Toggle values'  + '<br/>' +
+  'y: Redo'           + '<br/>' + 
+  'z: Undo'           + '<br/>' 
 ;
 
 var bm_hotkey_handler = {
@@ -371,6 +371,7 @@ var bm_hotkey_handler = {
     doSend(bm_mapid);
   },
   'R' : function(e) {
+    resetwalls(bm_mapid);
   },
   'S' : function(e) {
   },

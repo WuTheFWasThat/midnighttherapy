@@ -42,9 +42,10 @@ I provide several hotkeys to make playing easier and faster:
 | Hotkey        | Action           |
 | ------------- |:-------------|
 | g      | Go! |
-| v      | toggle values |
-| z      | undo |
-| y      | redo |
+| r      | Reset |
+| v      | Toggle values |
+| z      | Undo |
+| y      | Redo |
 
 ## INSTRUCTIONS FOR USE ##
 
