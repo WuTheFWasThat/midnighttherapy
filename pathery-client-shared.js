@@ -40,6 +40,7 @@ function bm_toggle_values() {
     $('.client_score').text('');
     $('#bm_show_values').text('Show values')
   } else {
+    draw_values();
     interval_var = setInterval(draw_values, 1000);
     $('#bm_show_values').text('Hide values')
   }
@@ -266,6 +267,8 @@ function refresh_solution_store_display() {
 // SINGLE BLOCK MOVE
 ////////////////////////////////////////////
 
+// TODO: make moves into a more general thing
+
 function bm_single_block_move(block) { // click (add or remove) the block
 }
 
@@ -371,7 +374,8 @@ var bm_hotkey_handler = {
     doSend(bm_mapid);
   },
   'R' : function(e) {
-    resetwalls(bm_mapid);
+    clearwalls(bm_mapid);
+    // resetwalls(bm_mapid); // has confirmation prompt
   },
   'S' : function(e) {
   },
@@ -419,6 +423,10 @@ $(document).ready(function() {
     var show_values_button = $('<button id="bm_show_values">Show values</button>');
     button_toolbar.append(show_values_button);
     show_values_button.click(bm_toggle_values);
+
+    if (!is_full) {
+      show_values_button.click();
+    }
 
     var hotkeys_button = $('<button id="bm_show_hotkeys">Hotkeys</button>');
     var hotkeys_dropdown = $('<div id="bm_hotkeys_text" style="display:none; position: relative; border:1px solid #000">' + bm_hotkeys_text + '</div>');

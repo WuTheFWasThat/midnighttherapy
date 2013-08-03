@@ -1,7 +1,8 @@
-// SHARED WITH PATHERY-FULL
 
 bm_local = false;
+is_full = false;
 
+// SHARED WITH PATHERY-FULL
 function get_shared_client(cb) {
   if (bm_local) {
     $.getScript('file://localhost/Users/jeffwu/Dropbox/Projects/midnighttherapy/pathery-client-shared.js', cb)
