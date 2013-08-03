@@ -41,6 +41,8 @@ I provide several hotkeys to make playing easier and faster:
 
 | Hotkey        | Action           |
 | ------------- |:-------------|
+| g      | Go! |
+| v      | toggle values |
 | z      | undo |
 | y      | redo |
 

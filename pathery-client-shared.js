@@ -32,7 +32,7 @@ function get_current_map_id() {
 
 var interval_var;
 
-function bm_toggle() {
+function bm_toggle_values() {
   if (interval_var) {
     clearInterval(interval_var);
     interval_var = null;
@@ -360,9 +360,10 @@ var bm_hotkeys_text =
   //'s: save'     + '<br/>' +
   //'x: place'     + '<br/>' +
   //'l: load'     + '<br/>' +
-  'y: redo'     + '<br/>' + 
-  'z: undo'     + '<br/>' +
-  'g: go'       + '<br/>' 
+  'g: go'            + '<br/>' +
+  'v: toggle values' + '<br/>' +
+  'y: redo'          + '<br/>' + 
+  'z: undo'          + '<br/>' 
 ;
 
 var bm_hotkey_handler = {
@@ -373,13 +374,16 @@ var bm_hotkey_handler = {
   },
   'S' : function(e) {
   },
+  'V' : function(e) {
+    bm_toggle_values();
+  },
   'Y' : function(e) {
-     console.log('redo?')
-     bm_redo_block_history(get_current_map_id());
+    console.log('redo?')
+    bm_redo_block_history(get_current_map_id());
   },
   'Z' : function(e) {
-     console.log('undo?')
-     bm_undo_block_history(get_current_map_id());
+    console.log('undo?')
+    bm_undo_block_history(get_current_map_id());
   }
 }
 
@@ -413,7 +417,7 @@ $(document).ready(function() {
 
     var show_values_button = $('<button id="bm_show_values">Show values</button>');
     button_toolbar.append(show_values_button);
-    show_values_button.click(bm_toggle);
+    show_values_button.click(bm_toggle_values);
 
     var hotkeys_button = $('<button id="bm_show_hotkeys">Hotkeys</button>');
     var hotkeys_dropdown = $('<div id="bm_hotkeys_text" style="display:none; position: relative; border:1px solid #000">' + bm_hotkeys_text + '</div>');
