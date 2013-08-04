@@ -406,8 +406,6 @@ loadScripts([
     place_solution(this.mapid, this.old_blocks);
   }
   ChangeBoardMove.prototype.is_trivial = function() {
-    console.log(this.old_blocks.toString())
-    console.log(this.new_blocks.toString())
     return (this.old_blocks.toString() == this.new_blocks.toString()) ;
   }
   
@@ -586,7 +584,7 @@ loadScripts([
       }
   
       var hotkeys_button = $('<button id="bm_show_hotkeys">Hotkeys</button>');
-      var hotkeys_dropdown = $('<div id="bm_hotkeys_text" style="display:none; position: relative; border:1px solid #000; text-align: left">' + hotkeys_text + '</div>');
+      var hotkeys_dropdown = $('<p id="bm_hotkeys_text" style="display:none; position: relative; border:1px solid #000; text-align: left; font-family: Courier">' + hotkeys_text + '</p>');
       hotkeys_button.hover(
         function(e) {
           hotkeys_dropdown.show();
