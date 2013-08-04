@@ -269,6 +269,8 @@ loadScripts([
     solution_storage = new PatheryHTML5Storage();
   }
   
+  // TODO: auto-save best
+  // TODO: clear solutions for past maps?
   exports.save_current_solution = function() {
     var mapid = exports.get_current_map_id();
     var solution = exports.get_current_solution();
@@ -375,57 +377,60 @@ loadScripts([
   ////////////////////////////////////////////
   
   // TODO: make moves into a more general thing
-  function single_block_move(block) { // click (add or remove) the block
+  function SingleBlockMove(mapid, block) { // click (add or remove) the block
+    this.mapid = mapid;
+    this.block = block;
+  }
+  SingleBlockMove.prototype.redo = function() {
+      click_block_untriggered(this.mapid, this.block);
+  }
+  SingleBlockMove.prototype.undo = function() {
+      click_block_untriggered(this.mapid, this.block);
   }
   
   // mapid : most recent index (in the block history) of event (initially -1)
   var last_block_indices = {};
   
   // mapid : list of block history (and future)
-  var block_history = {};
+  var move_history = {};
   
-  function get_block_history(mapid) {
-    if (!block_history[mapid]) {
-      block_history[mapid] = [];
+  function get_move_history(mapid) {
+    if (!move_history[mapid]) {
+      move_history[mapid] = [];
       last_block_indices[mapid] = -1;
     }
-    return block_history[mapid];
+    return move_history[mapid];
   }
   
-  function add_block_to_history(mapid, block) {
-    var block_history = get_block_history(mapid);
+  function add_move_to_history(mapid, move) {
+    var move_history = get_move_history(mapid);
     var index = ++last_block_indices[mapid];
-    while (block_history.length > index) {
-      block_history.pop();
+    while (move_history.length > index) {
+      move_history.pop();
     }
-    block_history[index] = block;
+    move_history[index] = move;
   }
   
-  function redo_block_history(mapid) {
-    var block_history = get_block_history(mapid);
+  function redo_move_history(mapid) {
+    var move_history = get_move_history(mapid);
     var index = last_block_indices[mapid];
   
-    var block = block_history[index + 1];
+    var block = move_history[index + 1];
     if (block) {
-      click_block_untriggered(mapid, block);
+      block.redo();
       last_block_indices[mapid]++;
-      console.log(last_block_indices[mapid])
-      console.log(block_history)
     }
   }
   
-  function undo_block_history(mapid) {
-    var block_history = get_block_history(mapid);
+  function undo_move_history(mapid) {
+    var move_history = get_move_history(mapid);
     var index = last_block_indices[mapid];
   
-      console.log('before', last_block_indices[mapid])
-    var block = block_history[index];
+    var block = move_history[index];
     if (block) {
       if (index == -1) {console.log("SOMETHING WEIRD HAPPENED.  UNDOING HISTORY AT -1");}
-      click_block_untriggered(mapid, block);
+      block.undo();
       last_block_indices[mapid]--;
-      console.log('after', last_block_indices[mapid])
-      console.log(block_history)
     }
   }
   
@@ -445,7 +450,7 @@ loadScripts([
   
     // unless trying to add block while out of blocks, add to history
     if (is_there || (!map_is_out(mapid))) {
-      add_block_to_history(mapid, block);
+      add_move_to_history(mapid, new SingleBlockMove(mapid, block));
     }
   })
   
@@ -495,10 +500,10 @@ loadScripts([
       exports.toggle_values();
     },
     'Y' : function(e) {
-      redo_block_history(exports.get_current_map_id());
+      redo_move_history(exports.get_current_map_id());
     },
     'Z' : function(e) {
-      undo_block_history(exports.get_current_map_id());
+      undo_move_history(exports.get_current_map_id());
     }
   }
   
