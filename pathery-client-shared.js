@@ -5,9 +5,9 @@
   exports.mapid = null;
 
   function draw_values() {
-      bm_mapid = exports.get_current_map_id();
+      var mapid = exports.get_current_map_id();
   
-      draw_values_helper(bm_mapid, 
+      draw_values_helper(mapid, 
           function(old_mapid) {
             return function(result) {
               var value  = result.value;
@@ -18,7 +18,7 @@
                 draw_single_value(old_mapid, values_dict.i, values_dict.j, values_dict.val, values_dict.blocking);
               }
             }
-          } (bm_mapid)
+          } (mapid)
       )
   }
   
@@ -52,10 +52,11 @@
   exports.get_current_map_id = function() {
       var outer_grid = $('.shown-maps .grid_outer');
       if (outer_grid.length > 0) {
-        return parseInt(outer_grid.attr('id').split(',')[0]);
+        exports.mapid =  parseInt(outer_grid.attr('id').split(',')[0]);
       } else {
-        return -1;
+        exports.mapid = -1;
       }
+      return exports.mapid;
   }
   
   var interval_var;
@@ -76,9 +77,7 @@
   
   function write_score_value(values) {
     var sum = 0;
-      console.log('values', values)
     for (var i in values) {
-      console.log('value', values[i], typeof values[i])
       if (values[i] == null) {values[i] = NaN;}
       sum = sum + values[i];
     }
@@ -93,8 +92,6 @@
     } else {
       txt += sum + ' moves';
     }
-    console.log('text', txt)
-    console.log('sum', sum)
     if (!$('#' + exports.mapid + 'client_score').length) {
       var my_score = $('<span id="' + exports.mapid + 'client_score" class="client_score"></span>');
       $('[id="' + exports.mapid + ',dspbl"]').append(my_score);
@@ -162,7 +159,7 @@
   /////////////////////
   
   // from div id to my representation of block
-  function id_from_bm_block(mapid, block) {
+  function id_from_block(mapid, block) {
     var x = block[0] + 1; 
     var y = block[1]; 
     var id = mapid + ',' + x + ',' + y;
@@ -170,7 +167,7 @@
   }
   
   // from my representation of block to pathery's 'x,y' representation
-  function bm_block_from_block_string(block_string) { 
+  function block_from_block_string(block_string) { 
     var string_coordinates = block_string.split(',');
     var x = parseInt(string_coordinates[0]) - 1;
     var y = parseInt(string_coordinates[1]);
@@ -179,7 +176,7 @@
   }
   
   // are we out of walls?
-  function bm_map_is_out(mapid) {
+  function map_is_out(mapid) {
     return (mapdata[mapid].usedWallCount < 1);
   }
   
@@ -220,7 +217,7 @@
     var solution_block_strings = solution_string.split('.').slice(1, -1);
     var blocks = [];
     for (var k in solution_block_strings) {
-      var block = bm_block_from_block_string(solution_block_strings[k]);
+      var block = block_from_block_string(solution_block_strings[k]);
       blocks.push(block);
     }
     return blocks;
@@ -251,7 +248,7 @@
     clearwalls(mapid);
     for (var i in solution) {
       var block = solution[i];
-      var id = id_from_bm_block(mapid, block);
+      var id = id_from_block(mapid, block);
       $("[id='" + id + "']").click();
     }
   }
@@ -299,56 +296,56 @@
   ////////////////////////////////////////////
   
   // TODO: make moves into a more general thing
-  function bm_single_block_move(block) { // click (add or remove) the block
+  function single_block_move(block) { // click (add or remove) the block
   }
   
   // mapid : most recent index (in the block history) of event (initially -1)
-  var bm_last_block_indices = {};
+  var last_block_indices = {};
   
   // mapid : list of block history (and future)
-  var bm_block_history = {};
+  var block_history = {};
   
-  function bm_get_block_history(mapid) {
-    if (!bm_block_history[mapid]) {
-      bm_block_history[mapid] = [];
-      bm_last_block_indices[mapid] = -1;
+  function get_block_history(mapid) {
+    if (!block_history[mapid]) {
+      block_history[mapid] = [];
+      last_block_indices[mapid] = -1;
     }
-    return bm_block_history[mapid];
+    return block_history[mapid];
   }
   
-  function bm_add_block_to_history(mapid, block) {
-    var block_history = bm_get_block_history(mapid);
-    var index = ++bm_last_block_indices[mapid];
+  function add_block_to_history(mapid, block) {
+    var block_history = get_block_history(mapid);
+    var index = ++last_block_indices[mapid];
     while (block_history.length > index) {
       block_history.pop();
     }
     block_history[index] = block;
   }
   
-  function bm_redo_block_history(mapid) {
-    var block_history = bm_get_block_history(mapid);
-    var index = bm_last_block_indices[mapid];
+  function redo_block_history(mapid) {
+    var block_history = get_block_history(mapid);
+    var index = last_block_indices[mapid];
   
     var block = block_history[index + 1];
     if (block) {
-      bm_click_block_untriggered(mapid, block);
-      bm_last_block_indices[mapid]++;
-      console.log(bm_last_block_indices[mapid])
+      click_block_untriggered(mapid, block);
+      last_block_indices[mapid]++;
+      console.log(last_block_indices[mapid])
       console.log(block_history)
     }
   }
   
-  function bm_undo_block_history(mapid) {
-    var block_history = bm_get_block_history(mapid);
-    var index = bm_last_block_indices[mapid];
+  function undo_block_history(mapid) {
+    var block_history = get_block_history(mapid);
+    var index = last_block_indices[mapid];
   
-      console.log('before', bm_last_block_indices[mapid])
+      console.log('before', last_block_indices[mapid])
     var block = block_history[index];
     if (block) {
       if (index == -1) {console.log("SOMETHING WEIRD HAPPENED.  UNDOING HISTORY AT -1");}
-      bm_click_block_untriggered(mapid, block);
-      bm_last_block_indices[mapid]--;
-      console.log('after', bm_last_block_indices[mapid])
+      click_block_untriggered(mapid, block);
+      last_block_indices[mapid]--;
+      console.log('after', last_block_indices[mapid])
       console.log(block_history)
     }
   }
@@ -364,22 +361,22 @@
       return;
     }
   
-    var block = bm_block_from_block_string(id.slice(first_comma_index+1));
+    var block = block_from_block_string(id.slice(first_comma_index+1));
     var is_there = this.cv; // note: can be undefined
   
     // unless trying to add block while out of blocks, add to history
-    if (is_there || (!bm_map_is_out(mapid))) {
-      bm_add_block_to_history(mapid, block);
+    if (is_there || (!map_is_out(mapid))) {
+      add_block_to_history(mapid, block);
     }
   })
   
-  function bm_click_block_untriggered(mapid, block)  {
-    var id = id_from_bm_block(mapid, block);
+  function click_block_untriggered(mapid, block)  {
+    var id = id_from_block(mapid, block);
     grid_click($("[id='" + id + "']")[0]);
   }
   
-  function bm_click_block(mapid, block)  {
-    var id = id_from_bm_block(mapid, block);
+  function click_block(mapid, block)  {
+    var id = id_from_block(mapid, block);
     $("[id='" + id + "']").click();
   }
   
@@ -415,12 +412,10 @@
       exports.toggle_values();
     },
     'Y' : function(e) {
-      console.log('redo?')
-      bm_redo_block_history(exports.get_current_map_id());
+      redo_block_history(exports.get_current_map_id());
     },
     'Z' : function(e) {
-      console.log('undo?')
-      bm_undo_block_history(exports.get_current_map_id());
+      undo_block_history(exports.get_current_map_id());
     }
   }
   
