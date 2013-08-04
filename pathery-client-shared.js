@@ -284,7 +284,6 @@ loadScripts([
     }
 
     if (!name) {
-
       get_value(mapid, function(values) {
         name = '' + get_score_total(values);
         var existing_names = solution_storage.get_solutions(mapid);
@@ -297,7 +296,6 @@ loadScripts([
           }
           name = suffix_name;
         }
-
         add_solution();
       })
     } else {
@@ -310,15 +308,13 @@ loadScripts([
     clearwalls(mapid);
     for (var i in solution) {
       var block = solution[i];
-      var id = id_from_block(mapid, block);
-      // $("[id='" + id + "']").click();
-      grid_click($("[id='" + id + "']")[0]); // don't trigger click-handler
+      click_block_untriggered(mapid, block);
     }
   }
 
   exports.load_solution = function(mapid, new_solution) {
-    place_solution(mapid, new_solution);
     var cur_solution = exports.get_current_solution();
+    place_solution(mapid, new_solution);
     add_move_to_history(mapid, new ChangeBoardMove(mapid, cur_solution, new_solution))
   }
   
@@ -394,6 +390,7 @@ loadScripts([
   SingleBlockMove.prototype.undo = function() {
     click_block_untriggered(this.mapid, this.block);
   }
+  SingleBlockMove.prototype.is_trivial = function() {return false;}
 
   // TODO: make this work for built-in Reset and load-Best
   function ChangeBoardMove(mapid, old_blocks, new_blocks) { 
@@ -408,7 +405,11 @@ loadScripts([
   ChangeBoardMove.prototype.undo = function() {
     place_solution(this.mapid, this.old_blocks);
   }
-
+  ChangeBoardMove.prototype.is_trivial = function() {
+    console.log(this.old_blocks.toString())
+    console.log(this.new_blocks.toString())
+    return (this.old_blocks.toString() == this.new_blocks.toString()) ;
+  }
   
   // mapid : most recent index (in the block history) of event (initially -1)
   var last_block_indices = {};
@@ -425,6 +426,7 @@ loadScripts([
   }
   
   function add_move_to_history(mapid, move) {
+    if (move.is_trivial()) {return;}
     var move_history = get_move_history(mapid);
     var index = ++last_block_indices[mapid];
     while (move_history.length > index) {
@@ -486,7 +488,6 @@ loadScripts([
     $("[id='" + id + "']").click();
   }
   
-  
   ////////////////////////////////////////////
   // HOTKEYS
   ////////////////////////////////////////////
@@ -495,13 +496,13 @@ loadScripts([
     // TODO:
     //'x: place'     + '<br/>' +
     '1-5: switch maps' + '<br/>' + 
-    's: save'           + '<br/>' +
-    'l: load'           + '<br/>' +
-    'g: Go!'            + '<br/>' +
-    'r: Reset'          + '<br/>' +
-    'v: Toggle values'  + '<br/>' +
-    'y: Redo'           + '<br/>' + 
-    'z: Undo'           + '<br/>' 
+    's:   save'           + '<br/>' +
+    'l:   load'           + '<br/>' +
+    'g:   Go!'            + '<br/>' +
+    'r:   Reset'          + '<br/>' +
+    'v:   Toggle values'  + '<br/>' +
+    'y:   Redo'           + '<br/>' + 
+    'z:   Undo'           + '<br/>' 
   ;
   
   var hotkey_handler = {
@@ -585,7 +586,7 @@ loadScripts([
       }
   
       var hotkeys_button = $('<button id="bm_show_hotkeys">Hotkeys</button>');
-      var hotkeys_dropdown = $('<div id="bm_hotkeys_text" style="display:none; position: relative; border:1px solid #000">' + hotkeys_text + '</div>');
+      var hotkeys_dropdown = $('<div id="bm_hotkeys_text" style="display:none; position: relative; border:1px solid #000; text-align: left">' + hotkeys_text + '</div>');
       hotkeys_button.hover(
         function(e) {
           hotkeys_dropdown.show();
