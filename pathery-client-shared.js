@@ -1,13 +1,41 @@
+// TODO:  DO NOT UNCOMMENT THIS LINE
+// $(document).on('click', function() {$('.map.playable .o').css('background-image', 'url(http://24.media.tumblr.com/tumblr_lg3ynmrMvc1qcpyl1o1_400.gif)')})
+
+// CREDIT TO:  http://stackoverflow.com/questions/1866717/document-createelementscript-adding-two-scripts-with-one-callback
+function loadScripts(array,callback){
+    var loader = function(src,handler){
+        var script = document.createElement("script");
+        script.src = src;
+        script.onload = script.onreadystatechange = function(){
+        script.onreadystatechange = script.onload = null;
+          handler();
+        }
+        var head = document.getElementsByTagName("head")[0];
+        (head || document.body).appendChild( script );
+    };
+    (function(){
+        if(array.length!=0){
+          loader(array.shift(),arguments.callee);
+        }else{
+          callback && callback();
+        }
+    })();
+}
+
+loadScripts([
+   "http://html2canvas.hertzen.com/build/html2canvas.js"
+],function() {
+
 (function(exports, 
-          draw_values_helper, 
-          refresh_score_helper) {
+          get_values, 
+          get_value) {
 
   exports.mapid = null;
 
   function draw_values() {
       var mapid = exports.get_current_map_id();
   
-      draw_values_helper(mapid, 
+      get_values(mapid, 
           function(old_mapid) {
             return function(result) {
               var value  = result.value;
@@ -24,7 +52,7 @@
   
   function refresh_score() {
     var mapid = exports.get_current_map_id();
-    refresh_score_helper(mapid, function(values) {
+    get_value(mapid, function(values) {
       write_score_value(values);
     })
   };
@@ -75,12 +103,17 @@
     }
   }
   
-  function write_score_value(values) {
+  function get_score_total(values) {
     var sum = 0;
     for (var i in values) {
       if (values[i] == null) {values[i] = NaN;}
       sum = sum + values[i];
     }
+    return sum;
+  }
+
+  function write_score_value(values) {
+    var sum = get_score_total(values);
   
     var txt = ''
     if (values.length > 1) {
@@ -240,8 +273,34 @@
     var mapid = exports.get_current_map_id();
     var solution = exports.get_current_solution();
     var name = $('#bm_save_solution_name').val();
-    solution_storage.add_solution(mapid, solution, name);
-    refresh_solution_store_display();
+    $('#bm_save_solution_name').text('');
+
+    function add_solution() {
+      solution_storage.add_solution(mapid, solution, name);
+      refresh_solution_store_display();
+    }
+
+    if (!name) {
+
+      get_value(mapid, function(values) {
+        name = '' + get_score_total(values);
+        var existing_names = solution_storage.get_solutions(mapid);
+        if (name in existing_names) {
+          var suffix = 'a';
+          var suffix_name = name + '.' + suffix;
+          while (suffix_name in existing_names) {
+            suffix = String.fromCharCode(suffix.charCodeAt(0) + 1)
+            var suffix_name = name + '.' + suffix;
+          }
+          name = suffix_name;
+        }
+
+        add_solution();
+      })
+    } else {
+      add_solution();
+    }
+
   }
   
   exports.load_solution = function(mapid, solution) {
@@ -255,10 +314,14 @@
   
   function refresh_solution_store_display() {
     var mapid = exports.get_current_map_id();
+
+    //var current_solution = exports.get_current_solution();
+
     var store = solution_storage.get_solutions(mapid);
     $('#bm_save_solution_list').empty();
     for (var name in store) {
       var solution = store[name];
+      //exports.load_solution(mapid, solution);
       var solution_el = $('<div>' + name + '</div>')
   
       var load_button = $('<button> Load </button>')
@@ -284,7 +347,23 @@
       solution_el.append(delete_button);
   
       $('#bm_save_solution_list').append(solution_el);
+
+      // TODO: problem is that the div changes during this loop.  need async queue
+      //function render_solution(el) {
+      //  html2canvas($('[id="' + mapid + ',outer"] .playable'), {
+      //      onrendered: function(canvas) {
+      //          $(canvas).css('height', canvas.height/10+'px'); 
+      //          $(canvas).css('width', canvas.width/10 + 'px');
+      //          //el.append(canvas);
+      //          var img = canvas.toDataURL()
+      //          window.open(img);
+      //      }
+      //  });
+      //}
+      //render_solution(solution_el)
+
     }
+    //exports.load_solution(mapid, current_solution);
   }
   
   ////////////////////////////////////////////
@@ -448,7 +527,7 @@
         }
       }, 100);
     });
-    exports.mapid = exports.get_current_map_id();
+    exports.get_current_map_id();
   
     if ($('#bm_top_toolbar').length == 0) {
       var button_toolbar = $('<div id="bm_top_toolbar" style="text-align: center"></div>');
@@ -501,4 +580,7 @@
   
   })
 
-})(typeof exports === "undefined" ? (window.PatheryAssist={}, window.PatheryAssist) : module.exports, bm_draw_values, bm_refresh_score)
+})(typeof exports === "undefined" ? (window.PatheryAssist={}, window.PatheryAssist) : module.exports, bm_get_values, bm_get_value)
+
+});
+

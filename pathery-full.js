@@ -28,12 +28,12 @@ function get_shared_client(cb) {
 }
 
 
-function bm_draw_values(mapid, cb) {
+function bm_get_values(mapid, cb) {
   var result = PatherySolver.compute_values(mapdata[mapid].code, solution[mapid]) 
   cb(result);
 }
 
-function bm_refresh_score(mapid, cb) {
+function bm_get_value(mapid, cb) {
   var result = PatherySolver.compute_value(mapdata[mapid].code, solution[mapid]);
   cb(result);
 };

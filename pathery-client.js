@@ -11,7 +11,7 @@ function get_shared_client(cb) {
   }
 }
 
-function bm_draw_values(mapid, cb) {
+function bm_get_values(mapid, cb) {
     $.post('http://127.0.0.1:2222/compute_values', 
           {'mapcode': mapdata[mapid].code, 'solution': solution[mapid]}, 
             function(result) {
@@ -20,7 +20,7 @@ function bm_draw_values(mapid, cb) {
     );
 }
 
-function bm_refresh_score(mapid, cb) {
+function bm_get_value(mapid, cb) {
   $.post('http://127.0.0.1:2222/compute_value', 
         {'mapcode': mapdata[mapid].code, 'solution': solution[mapid]}, 
         function(values) {cb(JSON.parse(values));}
