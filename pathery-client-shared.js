@@ -503,6 +503,7 @@ loadScripts([
   }
   
   $(document).bind('keydown', function(e){
+      if ($("#bm_save_solution_name").is(":focus")) {return true;}
       var chr = String.fromCharCode(e.keyCode);
       var handler = hotkey_handler[chr];
       if (handler) {handler(e)};
