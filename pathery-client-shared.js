@@ -33,7 +33,7 @@ loadScripts([
   exports.mapid = null;
 
   function draw_values() {
-      var mapid = exports.get_current_map_id();
+      var mapid = exports.get_current_mapid();
   
       get_values(mapid, 
           function(old_mapid) {
@@ -51,7 +51,7 @@ loadScripts([
   }
   
   function refresh_score() {
-    var mapid = exports.get_current_map_id();
+    var mapid = exports.get_current_mapid();
     get_value(mapid, function(values) {
       write_score_value(values);
     })
@@ -77,7 +77,7 @@ loadScripts([
       elt.text(value);
   }
   
-  exports.get_current_map_id = function() {
+  exports.get_current_mapid = function() {
       var outer_grid = $('.shown-maps .grid_outer');
       if (outer_grid.length > 0) {
         exports.mapid =  parseInt(outer_grid.attr('id').split(',')[0]);
@@ -245,7 +245,7 @@ loadScripts([
   }
   
   exports.get_current_solution = function() {
-    var mapid = exports.get_current_map_id();
+    var mapid = exports.get_current_mapid();
     var solution_string = solution[mapid];
     var solution_block_strings = solution_string.split('.').slice(1, -1);
     var blocks = [];
@@ -273,7 +273,7 @@ loadScripts([
   // TODO: clear solutions for past maps?
   // TODO: prevent local-storage collision on beta sites?
   exports.save_current_solution = function() {
-    var mapid = exports.get_current_map_id();
+    var mapid = exports.get_current_mapid();
     var solution = exports.get_current_solution();
     var name = $('#bm_save_solution_name').val();
     $('#bm_save_solution_name').val('');
@@ -306,17 +306,24 @@ loadScripts([
 
   }
   
-  exports.load_solution = function(mapid, solution) {
+  function place_solution(mapid, solution) {
     clearwalls(mapid);
     for (var i in solution) {
       var block = solution[i];
       var id = id_from_block(mapid, block);
-      $("[id='" + id + "']").click();
+      // $("[id='" + id + "']").click();
+      grid_click($("[id='" + id + "']")[0]); // don't trigger click-handler
     }
+  }
+
+  exports.load_solution = function(mapid, new_solution) {
+    place_solution(mapid, new_solution);
+    var cur_solution = exports.get_current_solution();
+    add_move_to_history(mapid, new ChangeBoardMove(mapid, cur_solution, new_solution))
   }
   
   function refresh_solution_store_display() {
-    var mapid = exports.get_current_map_id();
+    var mapid = exports.get_current_mapid();
 
     //var current_solution = exports.get_current_solution();
 
@@ -386,6 +393,20 @@ loadScripts([
   }
   SingleBlockMove.prototype.undo = function() {
     click_block_untriggered(this.mapid, this.block);
+  }
+
+  // TODO: make this work for built-in Reset and load-Best
+  function ChangeBoardMove(mapid, old_blocks, new_blocks) { 
+    // change entire board, e.g. load solution, reset
+    this.mapid = mapid;
+    this.old_blocks = old_blocks;
+    this.new_blocks = new_blocks;
+  }
+  ChangeBoardMove.prototype.redo = function() {
+    place_solution(this.mapid, this.new_blocks);
+  }
+  ChangeBoardMove.prototype.undo = function() {
+    place_solution(this.mapid, this.old_blocks);
   }
 
   
@@ -473,7 +494,7 @@ loadScripts([
   var hotkeys_text = 
     // TODO:
     //'x: place'     + '<br/>' +
-    '1,2,3,4,5: switch maps' + '<br/>' + 
+    '1-5: switch maps' + '<br/>' + 
     's: save'           + '<br/>' +
     'l: load'           + '<br/>' +
     'g: Go!'            + '<br/>' +
@@ -493,23 +514,29 @@ loadScripts([
       doSend(exports.mapid);
     },
     'R' : function(e) {
-      clearwalls(exports.mapid); // TODO: make this undoable, and use this instead
-      //resetwalls(exports.mapid); // has confirmation prompt
+      var old_solution = exports.get_current_solution();
+      var mapid = exports.get_current_mapid();
+      add_move_to_history(mapid, new ChangeBoardMove(mapid, old_solution, []))
+      clearwalls(exports.mapid); 
     },
     'S' : function(e) {
       save_current_solution();
     },
     'L' : function(e) {
+      var old_solution = exports.get_current_solution();
+      var mapid = exports.get_current_mapid();
       requestSol(exports.mapid);
+      var new_solution = exports.get_current_solution();
+      add_move_to_history(mapid, new ChangeBoardMove(mapid, old_solution, new_solution))
     },
     'V' : function(e) {
       exports.toggle_values();
     },
     'Y' : function(e) {
-      redo_move_history(exports.get_current_map_id());
+      redo_move_history(exports.get_current_mapid());
     },
     'Z' : function(e) {
-      undo_move_history(exports.get_current_map_id());
+      undo_move_history(exports.get_current_mapid());
     }
   }
   
@@ -537,13 +564,13 @@ loadScripts([
       // TODO: this is a bit of a hack..
       setTimeout(function() {
         var old_mapid = exports.mapid;
-        exports.mapid = exports.get_current_map_id();
+        exports.mapid = exports.get_current_mapid();
         if (old_mapid !== exports.mapid) {
           refresh_solution_store_display();
         }
       }, 100);
     });
-    exports.get_current_map_id();
+    exports.get_current_mapid();
   
     if ($('#bm_top_toolbar').length == 0) {
       var button_toolbar = $('<div id="bm_top_toolbar" style="text-align: center"></div>');
