@@ -273,7 +273,7 @@ loadScripts([
     var mapid = exports.get_current_map_id();
     var solution = exports.get_current_solution();
     var name = $('#bm_save_solution_name').val();
-    $('#bm_save_solution_name').text('');
+    $('#bm_save_solution_name').val('');
 
     function add_solution() {
       solution_storage.add_solution(mapid, solution, name);
@@ -466,10 +466,10 @@ loadScripts([
   
   var hotkeys_text = 
     // TODO:
-    //'s: save'     + '<br/>' +
     //'x: place'     + '<br/>' +
-    //'l: load'     + '<br/>' +
     // '1,2,3,4,5: switch maps' + '<br/>' + 
+    's: save'           + '<br/>' +
+    'l: load'           + '<br/>' +
     'g: Go!'            + '<br/>' +
     'r: Reset'          + '<br/>' +
     'v: Toggle values'  + '<br/>' +
@@ -486,6 +486,10 @@ loadScripts([
       //resetwalls(exports.mapid); // has confirmation prompt
     },
     'S' : function(e) {
+      save_current_solution();
+    },
+    'L' : function(e) {
+      requestSol(exports.mapid);
     },
     'V' : function(e) {
       exports.toggle_values();
@@ -563,7 +567,7 @@ loadScripts([
       var left_toolbar = $('<div id="bm_left_bar" style="position:absolute; left:50px; width:250px; text-align:center"></div>')
       $('#bm_top_toolbar').after(left_toolbar);
   
-      var save_solution_input = $('<input id="bm_save_solution_name" placeholder="solution label/name">');
+      var save_solution_input = $('<input id="bm_save_solution_name" placeholder="solution label/name (optional)">');
       left_toolbar.append(save_solution_input);
       var save_solution_button = $('<button id="bm_save_solution">Save solution</button>');
       left_toolbar.append(save_solution_button);

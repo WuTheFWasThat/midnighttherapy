@@ -43,6 +43,8 @@ I provide several hotkeys to make playing easier and faster:
 | ------------- |:-------------|
 | g      | Go! |
 | r      | Reset |
+| l      | Load best solution |
+| s      | Save solution |
 | v      | Toggle values |
 | z      | Undo |
 | y      | Redo |
