@@ -271,6 +271,7 @@ loadScripts([
   
   // TODO: auto-save best
   // TODO: clear solutions for past maps?
+  // TODO: prevent local-storage collision on beta sites?
   exports.save_current_solution = function() {
     var mapid = exports.get_current_map_id();
     var solution = exports.get_current_solution();
@@ -376,17 +377,17 @@ loadScripts([
   // SINGLE BLOCK MOVE
   ////////////////////////////////////////////
   
-  // TODO: make moves into a more general thing
   function SingleBlockMove(mapid, block) { // click (add or remove) the block
     this.mapid = mapid;
     this.block = block;
   }
   SingleBlockMove.prototype.redo = function() {
-      click_block_untriggered(this.mapid, this.block);
+    click_block_untriggered(this.mapid, this.block);
   }
   SingleBlockMove.prototype.undo = function() {
-      click_block_untriggered(this.mapid, this.block);
+    click_block_untriggered(this.mapid, this.block);
   }
+
   
   // mapid : most recent index (in the block history) of event (initially -1)
   var last_block_indices = {};
@@ -472,7 +473,7 @@ loadScripts([
   var hotkeys_text = 
     // TODO:
     //'x: place'     + '<br/>' +
-    // '1,2,3,4,5: switch maps' + '<br/>' + 
+    '1,2,3,4,5: switch maps' + '<br/>' + 
     's: save'           + '<br/>' +
     'l: load'           + '<br/>' +
     'g: Go!'            + '<br/>' +
@@ -483,6 +484,11 @@ loadScripts([
   ;
   
   var hotkey_handler = {
+    '1' : function(e) {showStats(1)},
+    '2' : function(e) {showStats(2)},
+    '3' : function(e) {showStats(3)},
+    '4' : function(e) {showStats(4)},
+    '5' : function(e) {showStats(5)},
     'G' : function(e) {
       doSend(exports.mapid);
     },

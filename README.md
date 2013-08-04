@@ -41,13 +41,14 @@ I provide several hotkeys to make playing easier and faster:
 
 | Hotkey        | Action           |
 | ------------- |:-------------|
-| g      | Go! |
-| r      | Reset |
-| l      | Load best solution |
-| s      | Save solution |
-| v      | Toggle values |
-| z      | Undo |
-| y      | Redo |
+| 1,2,3,4,5     | Switch between maps |
+| g             | Go! |
+| r             | Reset |
+| l             | Load best solution |
+| s             | Save solution |
+| v             | Toggle values |
+| z             | Undo |
+| y             | Redo |
 
 ## INSTRUCTIONS FOR USE ##
 
