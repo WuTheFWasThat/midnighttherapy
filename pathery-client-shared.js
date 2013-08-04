@@ -406,8 +406,8 @@
       doSend(exports.mapid);
     },
     'R' : function(e) {
-      // clearwalls(exports.mapid); // TODO: make this undoable, and use this instead
-      resetwalls(exports.mapid); // has confirmation prompt
+      clearwalls(exports.mapid); // TODO: make this undoable, and use this instead
+      //resetwalls(exports.mapid); // has confirmation prompt
     },
     'S' : function(e) {
     },
