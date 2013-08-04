@@ -380,17 +380,22 @@ loadScripts([
   // SINGLE BLOCK MOVE
   ////////////////////////////////////////////
   
-  function SingleBlockMove(mapid, block) { // click (add or remove) the block
+  function BlocksDiffMove(mapid, blocks) { // click (add or remove) the block
     this.mapid = mapid;
-    this.block = block;
+    console.log("diffmove", blocks)
+    this.blocks = blocks;
   }
-  SingleBlockMove.prototype.redo = function() {
-    click_block_untriggered(this.mapid, this.block);
+  BlocksDiffMove.prototype.redo = function() {
+    for (var i in this.blocks) {
+      click_block_untriggered(this.mapid, this.blocks[i]);
+    }
   }
-  SingleBlockMove.prototype.undo = function() {
-    click_block_untriggered(this.mapid, this.block);
+  BlocksDiffMove.prototype.undo = function() {
+    for (var i in this.blocks) {
+      click_block_untriggered(this.mapid, this.blocks[i]);
+    }
   }
-  SingleBlockMove.prototype.is_trivial = function() {return false;}
+  BlocksDiffMove.prototype.is_trivial = function() {console.log(this.blocks.length, 'istrivial 0?'); return (this.blocks.length == 0);}
 
   // TODO: make this work for built-in Reset and load-Best
   function ChangeBoardMove(mapid, old_blocks, new_blocks) { 
@@ -410,23 +415,23 @@ loadScripts([
   }
   
   // mapid : most recent index (in the block history) of event (initially -1)
-  var last_block_indices = {};
+  var last_move_indices = {};
   
   // mapid : list of block history (and future)
-  var move_history = {};
+  var move_histories = {};
   
   function get_move_history(mapid) {
-    if (!move_history[mapid]) {
-      move_history[mapid] = [];
-      last_block_indices[mapid] = -1;
+    if (!move_histories[mapid]) {
+      move_histories[mapid] = [];
+      last_move_indices[mapid] = -1;
     }
-    return move_history[mapid];
+    return move_histories[mapid];
   }
   
   function add_move_to_history(mapid, move) {
     if (move.is_trivial()) {return;}
     var move_history = get_move_history(mapid);
-    var index = ++last_block_indices[mapid];
+    var index = ++last_move_indices[mapid];
     while (move_history.length > index) {
       move_history.pop();
     }
@@ -435,24 +440,24 @@ loadScripts([
   
   function redo_move_history(mapid) {
     var move_history = get_move_history(mapid);
-    var index = last_block_indices[mapid];
+    var index = last_move_indices[mapid];
   
-    var block = move_history[index + 1];
-    if (block) {
-      block.redo();
-      last_block_indices[mapid]++;
+    var move = move_history[index + 1];
+    if (move) {
+      move.redo();
+      last_move_indices[mapid]++;
     }
   }
   
   function undo_move_history(mapid) {
     var move_history = get_move_history(mapid);
-    var index = last_block_indices[mapid];
+    var index = last_move_indices[mapid];
   
-    var block = move_history[index];
-    if (block) {
+    var move = move_history[index];
+    if (move) {
       if (index == -1) {console.log("SOMETHING WEIRD HAPPENED.  UNDOING HISTORY AT -1");}
-      block.undo();
-      last_block_indices[mapid]--;
+      move.undo();
+      last_move_indices[mapid]--;
     }
   }
   
@@ -469,10 +474,26 @@ loadScripts([
   
     var block = block_from_block_string(id.slice(first_comma_index+1));
     var is_there = this.cv; // note: can be undefined
+
+    console.log(shiftkey_held) 
+    if (shiftkey_held) {
+      var move_history = get_move_history(mapid);
+      var index = last_move_indices[mapid];
+      var move = move_history[index];
+      console.log(move_histories)
+      console.log(move)
+      if (move instanceof BlocksDiffMove) {
+        var from_block = move.blocks.slice(-1)[0];
+        console.log('DRAW LINE')
+        console.log(from_block)
+        console.log(block)
+        return;
+      }
+    }
   
     // unless trying to add block while out of blocks, add to history
     if (is_there || (!map_is_out(mapid))) {
-      add_move_to_history(mapid, new SingleBlockMove(mapid, block));
+      add_move_to_history(mapid, new BlocksDiffMove(mapid, [block]));
     }
   })
   
@@ -538,6 +559,9 @@ loadScripts([
       undo_move_history(exports.get_current_mapid());
     }
   }
+
+  var shiftkey_held = false;
+  $(document).bind('keyup keydown', function(e){shiftkey_held = e.shiftKey; return true;} );
   
   $(document).bind('keydown', function(e){
       if ($("#bm_save_solution_name").is(":focus")) {return true;}

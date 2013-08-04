@@ -1,11 +1,20 @@
 # MIDNIGHT THERAPY #
 
+<!--
+## TABLE OF CONTENTS ##
+* [OVERVIEW]
+* [FEATURES]
+* [INSTRUCTIONS]
+* [KNOWN ISSUES]
+* [FUTURE WORK]
+-->
+
 ## OVERVIEW ##
 
-This code is meant to be an interface between the Pathery website (www.pathery.com) and a server.  
-With a human interacting with the browser, it effectively facilitates human-computer interaction.  
-Besides interacting with the server, the client (browser) does things like client-side pathing and display and save/load of solutions.
-For those of us who aren't tech savvy, or don't want to run a server, I've provided an in-browser "server".
+This project is a smarter interface for the Pathery website (www.pathery.com).
+The client (browser) does things like client-side pathing and save/load of solutions.
+By letting the website interact with a personal server (running a solver), it can effectively facilitate human-computer interaction.  
+For those of us who aren't tech savvy, or don't want to run a server, I've provided a limited in-browser "server" which can tell you block values.
 
 ## FEATURES ##
 
@@ -50,7 +59,7 @@ I provide a number of hotkeys to make playing easier and faster:
 | z             | Undo                |
 | y             | Redo                |
 
-## INSTRUCTIONS FOR USE ##
+## INSTRUCTIONS ##
 
 
 ### SIMPLE: ###
