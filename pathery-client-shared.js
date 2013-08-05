@@ -525,7 +525,7 @@ loadScripts([
     '1-5: Switch maps' + '<br/>' + 
     's:   Save'           + '<br/>' +
     'l:   Load'           + '<br/>' +
-    'm:   Toggle Mute'    + '<br/>' +
+    'm:   Toggle mute'    + '<br/>' +
     'g:   Go!'            + '<br/>' +
     'r:   Reset'          + '<br/>' +
     'v:   Toggle values'  + '<br/>' +

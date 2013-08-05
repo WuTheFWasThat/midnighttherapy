@@ -266,13 +266,15 @@ function Graph(board) {
 
 }
 
+// var BFS_queue = new Int32Array(graph.m * graph.n); // new Array(...)
+var BFS_queue = new Int32Array(1000); // new Array(...)
 function BFS(graph, // graph description, as an array
              blocks, // currently placed blocks
              sources, // list of source vertices, in order of priority
              targets // set of target vertices
             ) {
   parent_dict = {};
-  var queue = new Array(graph.m * graph.n);
+  var queue = BFS_queue;
   var queue_start = 0;
   var queue_end = 0;
 
@@ -283,14 +285,6 @@ function BFS(graph, // graph description, as an array
     parent_dict[source] = true;
   }
 
-  var get_path = function(v){
-    var path = [];
-    while (v !== true) {
-      path.push(v);
-      v = parent_dict[v];
-    }
-    return path.reverse();
-  }
 
   while (queue_start != queue_end) {
     var u = queue[queue_start];
@@ -304,7 +298,12 @@ function BFS(graph, // graph description, as an array
         parent_dict[v] = u;
       }
       if (targets[v]) {
-        return get_path(v);
+        var path = [];
+        while (v !== true) {
+          path.push(v);
+          v = parent_dict[v];
+        }
+        return path.reverse();
       }
     }
   }
