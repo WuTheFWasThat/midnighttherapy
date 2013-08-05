@@ -71,7 +71,11 @@ I provide a number of hotkeys to make playing easier and faster:
 
 into the Javascript console.
 
-To make this even easier, make it a bookmarklet.  That is, create a bookmark with the address:
+There are a few options to make this even easier:
+
+1. (RECOMMENDED:) Use Tampermonkey (Chrome) or Greasemonkey (Firefox) so that it will load automatically when you visit the site.
+
+2. Make it a bookmarklet.  That is, create a bookmark with the address:
 
 `javascript: $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-full.js')`
 
@@ -96,9 +100,7 @@ Next, add my client to the browser window.
 
 `$.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-client.js')`
 
-into the Javascript console.  Again, you can make this easier for yourself by saving bookmark with address:
-
-`javascript: $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-client.js')`
+into the Javascript console.  Again, you can make this easier using something like Tampermonkey/Greasemonkey, or a bookmarklet.
 
 <!--
 ### SERVER API ###
