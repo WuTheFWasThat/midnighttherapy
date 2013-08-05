@@ -54,6 +54,7 @@ I provide a number of hotkeys to make playing easier and faster:
 | g             | Go!                 |
 | r             | Reset               |
 | l             | Load best solution  |
+| m             | Toggle mute         |
 | s             | Save solution       |
 | v             | Toggle values       |
 | z             | Undo                |

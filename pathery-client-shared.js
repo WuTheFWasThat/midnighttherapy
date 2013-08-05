@@ -522,15 +522,15 @@ loadScripts([
   var hotkeys_text = 
     // TODO:
     //'x: place'     + '<br/>' +
-    '1-5: switch maps' + '<br/>' + 
-    's:   save'           + '<br/>' +
-    'l:   load'           + '<br/>' +
+    '1-5: Switch maps' + '<br/>' + 
+    's:   Save'           + '<br/>' +
+    'l:   Load'           + '<br/>' +
+    'm:   Toggle Mute'    + '<br/>' +
     'g:   Go!'            + '<br/>' +
     'r:   Reset'          + '<br/>' +
     'v:   Toggle values'  + '<br/>' +
     'y:   Redo'           + '<br/>' + 
-    'z:   Undo'           + '<br/>' 
-  ;
+    'z:   Undo'           + '<br/>' ;
   
   function switch_map(map_num) {
     showStats(map_num);
@@ -562,6 +562,9 @@ loadScripts([
       // TODO: this doesn't work
       var new_solution = exports.get_current_solution();
       add_move_to_history(mapid, new ChangeBoardMove(mapid, old_solution, new_solution))
+    },
+    'M' : function(e) {
+      setMute();
     },
     'V' : function(e) {
       exports.toggle_values();
