@@ -603,18 +603,38 @@ loadScripts([
     });
     exports.get_current_mapid();
   
-    if ($('#bm_top_toolbar').length == 0) {
-      var button_toolbar = $('<div id="bm_top_toolbar" style="text-align: center"></div>');
+    $('#difficulties').parent().css('margin-left', '300px');
+  
+    if ($('#bm_left_bar').length == 0) {
+      var button_toolbar = $('<div id="bm_left_bar" style="position:absolute; left:50px; width:250px; text-align:center"></div>')
       $('#difficulties').after(button_toolbar);
   
       var show_values_button = $('<button id="bm_show_values">Show values</button>');
       button_toolbar.append(show_values_button);
       show_values_button.click(exports.toggle_values);
+
+      button_toolbar.append('<br/>');
+      button_toolbar.append('<br/>');
   
       if (!is_full) {
         show_values_button.click();
       }
   
+      var save_solution_input = $('<input id="bm_save_solution_name" placeholder="solution label/name (optional)">');
+      button_toolbar.append(save_solution_input);
+      var save_solution_button = $('<button id="bm_save_solution">Save solution</button>');
+      button_toolbar.append(save_solution_button);
+      save_solution_button.click(exports.save_current_solution);
+  
+      //var clear_solutions_button = $('<button id="bm_clear_solution">Clear solution</button>');
+      //button_toolbar.append(clear_solution_button);
+      
+      var solutions_list = $('<div id="bm_save_solution_list" style="text-align:center; border:1px solid white;"></div>')
+      button_toolbar.append(solutions_list);
+
+      button_toolbar.append('<br/>');
+      button_toolbar.append('<br/>');
+
       var hotkeys_button = $('<button id="bm_show_hotkeys">Hotkeys</button>');
       var hotkeys_dropdown = $('<p id="bm_hotkeys_text" style="display:none; position: relative; border:1px solid #000; text-align: left; font-family: Courier">' + hotkeys_text + '</p>');
       hotkeys_button.hover(
@@ -627,27 +647,7 @@ loadScripts([
       );
       button_toolbar.append(hotkeys_button);
       hotkeys_button.append(hotkeys_dropdown);
-    }
   
-    $('#difficulties').parent().css('margin-left', '300px');
-  
-    if ($('#bm_left_bar').length == 0) {
-      //var left_toolbar = $('<div id="bm_left_bar" style="text-align: center"></div>');
-      //$('#bm_top_toolbar').after(left_toolbar);
-      var left_toolbar = $('<div id="bm_left_bar" style="position:absolute; left:50px; width:250px; text-align:center"></div>')
-      $('#bm_top_toolbar').after(left_toolbar);
-  
-      var save_solution_input = $('<input id="bm_save_solution_name" placeholder="solution label/name (optional)">');
-      left_toolbar.append(save_solution_input);
-      var save_solution_button = $('<button id="bm_save_solution">Save solution</button>');
-      left_toolbar.append(save_solution_button);
-      save_solution_button.click(exports.save_current_solution);
-  
-      //var clear_solutions_button = $('<button id="bm_clear_solution">Clear solution</button>');
-      //left_toolbar.append(clear_solution_button);
-      
-      var solutions_list = $('<div id="bm_save_solution_list" style="text-align:center; border:1px solid white;"></div>')
-      left_toolbar.append(solutions_list);
   
     }
     refresh_solution_store_display();

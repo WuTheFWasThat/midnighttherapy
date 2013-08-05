@@ -133,6 +133,8 @@ Suggestions and feedback welcome.  Email me at [github-username]@gmail.com, or m
   - keyboard shortcuts/modifiers for all the above, plus:
     - placing wall relative to last thing placed
 
+- Chat in the main page
+
 - An API to support solvers that actually suggest (potentially major) changes, takes suggestions, etc. (and an accompanying prototype)
 
 - Make the [dumb] thing faster (currently does 400 full UC calculations per second... )
