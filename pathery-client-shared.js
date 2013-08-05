@@ -77,13 +77,23 @@ loadScripts([
       elt.text(value);
   }
   
+  function refresh_all() {
+    refresh_solution_store_display();
+    refresh_score();
+  }
+
+  // also updates the current mapid
   exports.get_current_mapid = function() {
+      var old_mapid = exports.mapid;
       var outer_grid = $('.shown-maps .grid_outer');
       if (outer_grid.length > 0) {
         exports.mapid =  parseInt(outer_grid.attr('id').split(',')[0]);
       } else {
         exports.mapid = -1;
       }
+
+      if (old_mapid !== exports.mapid) {refresh_all();}
+
       return exports.mapid;
   }
   
@@ -523,8 +533,7 @@ loadScripts([
   
   function switch_map(map_num) {
     showStats(map_num);
-    refresh_solution_store_display();
-    refresh_score();
+    refresh_all();
   }
 
   var hotkey_handler = {
@@ -582,18 +591,9 @@ loadScripts([
 
     $(window).click(function() {
       refresh_score();
-      setTimeout(refresh_score, 500); // only needed if !is_full
-    })
-    refresh_score();
-  
-    $(window).click(function() {
-      // TODO: this is a bit of a hack..
       setTimeout(function() {
-        var old_mapid = exports.mapid;
-        exports.mapid = exports.get_current_mapid();
-        if (old_mapid !== exports.mapid) {
-          refresh_solution_store_display();
-        }
+        // trigger refresh
+        exports.get_current_mapid();
       }, 100);
     });
     exports.get_current_mapid();
