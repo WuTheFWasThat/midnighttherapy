@@ -107,8 +107,9 @@ loadScripts([
       $('.client_score').text('');
       $('#bm_show_values').text('Show values')
     } else {
+      // TODO: do something more intelligent
       draw_values();
-      interval_var = setInterval(draw_values, 1000);
+      interval_var = setInterval(draw_values, 2000);
       $('#bm_show_values').text('Hide values')
     }
   }
@@ -558,6 +559,7 @@ loadScripts([
       var old_solution = exports.get_current_solution();
       var mapid = exports.get_current_mapid();
       requestSol(exports.mapid);
+      // TODO: this doesn't work
       var new_solution = exports.get_current_solution();
       add_move_to_history(mapid, new ChangeBoardMove(mapid, old_solution, new_solution))
     },
@@ -579,7 +581,10 @@ loadScripts([
       if ($("#bm_save_solution_name").is(":focus")) {return true;}
       var chr = String.fromCharCode(e.keyCode);
       var handler = hotkey_handler[chr];
-      if (handler) {handler(e)};
+      if (handler) {
+        handler(e)
+        refresh_score();
+      };
   });
   
   
