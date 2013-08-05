@@ -108,7 +108,11 @@ I'll get to this sometime...
 
 ## KNOWN ISSUES: ##
 
+- Undo/redo doesn't work well with load best (it works with manual loading from the side though)
+
+<!--
 None, at the moment.  Let me know if you find any! 
+-->
 
 <!--
 ## MINOR NOTES: ##

@@ -382,7 +382,6 @@ loadScripts([
   
   function BlocksDiffMove(mapid, blocks) { // click (add or remove) the block
     this.mapid = mapid;
-    console.log("diffmove", blocks)
     this.blocks = blocks;
   }
   BlocksDiffMove.prototype.redo = function() {
@@ -395,7 +394,7 @@ loadScripts([
       click_block_untriggered(this.mapid, this.blocks[i]);
     }
   }
-  BlocksDiffMove.prototype.is_trivial = function() {console.log(this.blocks.length, 'istrivial 0?'); return (this.blocks.length == 0);}
+  BlocksDiffMove.prototype.is_trivial = function() {return (this.blocks.length == 0);}
 
   // TODO: make this work for built-in Reset and load-Best
   function ChangeBoardMove(mapid, old_blocks, new_blocks) { 
@@ -475,15 +474,13 @@ loadScripts([
     var block = block_from_block_string(id.slice(first_comma_index+1));
     var is_there = this.cv; // note: can be undefined
 
-    console.log(shiftkey_held) 
     if (shiftkey_held) {
       var move_history = get_move_history(mapid);
       var index = last_move_indices[mapid];
       var move = move_history[index];
-      console.log(move_histories)
-      console.log(move)
       if (move instanceof BlocksDiffMove) {
         var from_block = move.blocks.slice(-1)[0];
+        // TODO: this is a bit annoying... dealing with case where running out of walls, and being able to undo properly, hard to use just clidcks
         console.log('DRAW LINE')
         console.log(from_block)
         console.log(block)
@@ -524,12 +521,18 @@ loadScripts([
     'z:   Undo'           + '<br/>' 
   ;
   
+  function switch_map(map_num) {
+    showStats(map_num);
+    refresh_solution_store_display();
+    refresh_score();
+  }
+
   var hotkey_handler = {
-    '1' : function(e) {showStats(1)},
-    '2' : function(e) {showStats(2)},
-    '3' : function(e) {showStats(3)},
-    '4' : function(e) {showStats(4)},
-    '5' : function(e) {showStats(5)},
+    '1' : function(e) {switch_map(1)},
+    '2' : function(e) {switch_map(2)},
+    '3' : function(e) {switch_map(3)},
+    '4' : function(e) {switch_map(4)},
+    '5' : function(e) {switch_map(5)},
     'G' : function(e) {
       doSend(exports.mapid);
     },
