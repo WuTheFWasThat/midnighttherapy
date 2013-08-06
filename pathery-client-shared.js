@@ -1,3 +1,53 @@
+// CUSTOMIZED BLOCKS
+var user_id;
+var id_to_block_image_map = {
+  'www.pathery.com': {
+    835: 'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/images/blocks/pusheen.png', // joy
+    400: 'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/images/blocks/bwlo.png', // wuthefwasthat
+    271: 'http://downloads.khinsider.com/wallpaper/1280x1024/1058-everquest-002-gywvt.jpg' // yeuo
+  }
+}
+
+function get_custom_block_image() {
+  if ((document.domain in id_to_block_image_map) && (user_id in id_to_block_image_map[document.domain])) {
+    return id_to_block_image_map[document.domain][user_id];
+  }
+  return 'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/images/blocks/mario_block.png'; // wuthefwasthat
+  return null;
+}
+
+var __old_grick_click__ = grid_click;
+var grid_click = function() { 
+  var custom_image = get_custom_block_image();
+  if (custom_image) {wallEmblem = custom_image;}
+  var old_linkEmblem = linkEmblem;
+  if (custom_image) {
+    linkEmblem = function() {return wallEmblem;}
+  }
+  __old_grick_click__.apply(this, arguments);
+  if (custom_image) {linkEmblem = old_linkEmblem;}
+}
+
+$(document).ready(function() {
+  $('#topbarContent a').each(function(x, y) {
+    var link = $(y); 
+    if (link.text() == 'Achievements') {
+      user_id = parseInt(link.attr('href').split('=')[1])
+    }
+  })
+  function update_block_images() {
+    var custom_image = get_custom_block_image();
+    if (custom_image) {
+      $('.playable > div').each(function(x, y) {
+        if (this.cv) {$(this).css('background-image', "url(" + custom_image + ")")};
+      })
+    }
+  }
+  update_block_images();
+});
+
+// END CUSTOMIZED BLOCKS
+
 // TODO:  DO NOT UNCOMMENT THIS LINE
 // $(document).on('click', function() {$('.map.playable .o').css('background-image', 'url(http://24.media.tumblr.com/tumblr_lg3ynmrMvc1qcpyl1o1_400.gif)')})
 
@@ -521,7 +571,9 @@ loadScripts([
   
   var hotkeys_text = 
     // TODO:
-    //'x: place'     + '<br/>' +
+    //'x: place'     + '<br/>' +var 
+    //'w: Place wall'     + '<br/>' +var 
+    //'e: Erase wall'     + '<br/>' +var 
     '1-5: Switch maps' + '<br/>' + 
     's:   Save'           + '<br/>' +
     'l:   Load'           + '<br/>' +
@@ -536,6 +588,7 @@ loadScripts([
     showStats(map_num);
     refresh_all();
   }
+  // 'x' : use mouseover, mouseout events
 
   var hotkey_handler = {
     '1' : function(e) {switch_map(1)},
@@ -553,7 +606,7 @@ loadScripts([
       clearwalls(exports.mapid); 
     },
     'S' : function(e) {
-      save_current_solution();
+      exports.save_current_solution();
     },
     'L' : function(e) {
       var old_solution = exports.get_current_solution();
@@ -596,7 +649,7 @@ loadScripts([
   ////////////////////////////////////////////
   
   $(document).ready(function() {
-
+    
     $(window).click(function() {
       refresh_score();
       setTimeout(function() {
@@ -605,6 +658,8 @@ loadScripts([
       }, 100);
     });
     exports.get_current_mapid();
+
+
   
     $('#difficulties').parent().css('margin-left', '300px');
   

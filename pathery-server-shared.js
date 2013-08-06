@@ -239,14 +239,12 @@ function Graph(board) {
   this.extra_block = '?'; // dummy variable, initially
 
   this.get_neighbors = function(blocks, u) {
-    var val;
     var neighbors = [];
     var potential_neighbors = this.neighbors[u];
-    var potential_neighbor;
     for (var i = 0; i < potential_neighbors.length; i++) {
-      potential_neighbor = potential_neighbors[i];
-      val = this.serial_board[potential_neighbor];
-      if (val == this.extra_block) {continue;}
+      var potential_neighbor = potential_neighbors[i];
+      var val = this.serial_board[potential_neighbor];
+      if (val === this.extra_block) {continue;}
       if (blocks[potential_neighbor]) {continue;}
       neighbors.push(potential_neighbor);
     }

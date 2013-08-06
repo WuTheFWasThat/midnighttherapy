@@ -36,7 +36,8 @@ However, this may feel laggy if you're letting the browser do the computation.
 
 It's often frustrating that you can only load your best solution, on maps with many viable but different placings. 
 Ultra Complex is especially bad - it's devastating when I'm working on a new idea, and I accidentally load my best solution.  
-Thus I added the ability to save and load solutions.  Simply enter a name, and press Save, to save the current solution.
+Thus I added the ability to save and load solutions.  Simply enter a name, and press Save (hotkey S), to save the current solution.
+If you don't enter a name, your solution is automatically named based on your score.
 You'll then see the name appear in a list, where you can Load or Delete it.
 
 ![save solutions](images/save-solutions.png)
@@ -59,6 +60,10 @@ I provide a number of hotkeys to make playing easier and faster:
 | v             | Toggle values       |
 | z             | Undo                |
 | y             | Redo                |
+
+### CUSTOM BLOCK IMAGES ###
+
+As you might have noticed, you can customize your block images.  Just tell me your Pathery user id and an image!
 
 ## INSTRUCTIONS ##
 
