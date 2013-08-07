@@ -133,6 +133,9 @@ loadScripts([
     get_value(mapid, function(values) {
       write_score_value(values);
     })
+    if (show_values) {
+      draw_values();
+    }
   };
 
   function draw_single_value(mapid, i, j, value, blocking) {
@@ -175,19 +178,16 @@ loadScripts([
       return exports.mapid;
   }
   
-  var interval_var;
+  var show_values;
   
   exports.toggle_values = function() {
-    if (interval_var) {
-      clearInterval(interval_var);
-      interval_var = null;
+    if (show_values) {
+      show_values = false;
       $('.map .child').text('');
       $('.client_score').text('');
       $('#bm_show_values').text('Show values')
     } else {
-      // TODO: do something more intelligent
-      draw_values();
-      interval_var = setInterval(draw_values, 2000);
+      show_values = true;
       $('#bm_show_values').text('Hide values')
     }
   }
@@ -696,6 +696,7 @@ loadScripts([
       $('#difficulties').after(button_toolbar);
   
       var show_values_button = $('<button id="bm_show_values">Show values</button>');
+      show_values = false;
       button_toolbar.append(show_values_button);
       show_values_button.click(exports.toggle_values);
 
