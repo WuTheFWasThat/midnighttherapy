@@ -8,7 +8,7 @@ var id_to_block_image_map = {
   }
 }
 
-function get_custom_block_image() {
+function bm_get_custom_block_image() {
   if ((document.domain in id_to_block_image_map) && (user_id in id_to_block_image_map[document.domain])) {
     return id_to_block_image_map[document.domain][user_id];
   }
@@ -18,7 +18,7 @@ function get_custom_block_image() {
 
 var __old_grick_click__ = grid_click;
 var grid_click = function() { 
-  var custom_image = get_custom_block_image();
+  var custom_image = bm_get_custom_block_image();
   if (custom_image) {wallEmblem = custom_image;}
   var old_linkEmblem = linkEmblem;
   if (custom_image) {
@@ -28,15 +28,22 @@ var grid_click = function() {
   if (custom_image) {linkEmblem = old_linkEmblem;}
 }
 
+function bm_add_message(msg) {
+  $('#difficulties').before('<center>' + msg + '</center></br>');
+}
+
 $(document).ready(function() {
   $('#topbarContent a').each(function(x, y) {
     var link = $(y); 
     if (link.text() == 'Achievements') {
       user_id = parseInt(link.attr('href').split('=')[1])
+      if (!((document.domain in id_to_block_image_map) && (user_id in id_to_block_image_map[document.domain]))) {
+        bm_add_message('<p style="font-size:18px;color:yellow">Get your own custom block image!  Just tell Wu your user_id and give him an image URL.  <a href="https://github.com/WuTheFWasThat/midnighttherapy/tree/master/images/blocks">Here</a>\'s a small selection.</p>')
+      }
     }
   })
   function update_block_images() {
-    var custom_image = get_custom_block_image();
+    var custom_image = bm_get_custom_block_image();
     if (custom_image) {
       $('.playable > div').each(function(x, y) {
         if (this.cv) {$(this).css('background-image', "url(" + custom_image + ")")};
