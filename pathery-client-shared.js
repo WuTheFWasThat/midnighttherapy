@@ -1,24 +1,35 @@
 // CUSTOMIZED BLOCKS
 var user_id;
-var id_to_block_image_map = {
+var bm_customizations = {
   'www.pathery.com': {
-    835: 'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/images/blocks/pusheen.png', // joy
-    400: 'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/images/blocks/bwlo.png', // wuthefwasthat
-    271: 'http://downloads.khinsider.com/wallpaper/1280x1024/1058-everquest-002-gywvt.jpg' // yeuo
+    835: { // joy
+           block: 'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/images/custom/pusheen.png', 
+         },
+    400: { // me
+           block: 'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/images/custom/bwlo.png', 
+         },
+    271: { // yeuo
+           block: 'http://downloads.khinsider.com/wallpaper/1280x1024/1058-everquest-002-gywvt.jpg',
+         },
+  },
+  'defaults': {
+    wall:  null, //'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/images/custom/mario_wall.png',
+    block: null, //'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/images/custom/mario_block.png'
   }
 }
 
-function bm_get_custom_block_image() {
-  if ((document.domain in id_to_block_image_map) && (user_id in id_to_block_image_map[document.domain])) {
-    return id_to_block_image_map[document.domain][user_id];
+function bm_get_custom(item) {
+  if ((document.domain in bm_customizations) && (user_id in bm_customizations[document.domain])) {
+    if (item in bm_customizations[document.domain][user_id]) {
+      return bm_customizations[document.domain][user_id][item];
+    }
   }
-  return 'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/images/blocks/mario_block.png'; // wuthefwasthat
-  return null;
+  return bm_customizations.defaults[item];
 }
 
 var __old_grick_click__ = grid_click;
 var grid_click = function() { 
-  var custom_image = bm_get_custom_block_image();
+  var custom_image = bm_get_custom('block');
   if (custom_image) {wallEmblem = custom_image;}
   var old_linkEmblem = linkEmblem;
   if (custom_image) {
@@ -37,13 +48,23 @@ $(document).ready(function() {
     var link = $(y); 
     if (link.text() == 'Achievements') {
       user_id = parseInt(link.attr('href').split('=')[1])
-      if (!((document.domain in id_to_block_image_map) && (user_id in id_to_block_image_map[document.domain]))) {
-        bm_add_message('<p style="font-size:18px;color:yellow">Get your own custom block image!  Just tell Wu your user_id and give him an image URL.  <a href="https://github.com/WuTheFWasThat/midnighttherapy/tree/master/images/blocks">Here</a>\'s a small selection.</p>')
+      if (!((document.domain in bm_customizations) && (user_id in bm_customizations[document.domain]))) {
+        bm_add_message('<p style="font-size:18px;color:yellow">Get your own custom block and wall images!  Just tell Wu your user_id and give him image URLs.' + 
+                       '<a href="https://github.com/WuTheFWasThat/midnighttherapy/tree/master/images/custom">Here</a>\'s a small selection.</p>')
       }
     }
   })
+
+  function update_wall_images() {
+    var custom_wall = bm_get_custom('wall');
+    if (custom_wall) {
+      $('.mapcell.r').css('background-image', "url(" + custom_wall + ")")
+    };
+  }
+  update_wall_images();
+
   function update_block_images() {
-    var custom_image = bm_get_custom_block_image();
+    var custom_image = bm_get_custom('block');
     if (custom_image) {
       $('.playable > div').each(function(x, y) {
         if (this.cv) {$(this).css('background-image', "url(" + custom_image + ")")};
