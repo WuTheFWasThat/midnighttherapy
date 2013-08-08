@@ -49,7 +49,7 @@ $(document).ready(function() {
     if (link.text() == 'Achievements') {
       user_id = parseInt(link.attr('href').split('=')[1])
       if (!((document.domain in bm_customizations) && (user_id in bm_customizations[document.domain]))) {
-        bm_add_message('<p style="font-size:18px;color:yellow">Get your own custom block and wall images!  Just tell Wu your user_id and give him image URLs.' + 
+        bm_add_message('<p style="font-size:15px;color:yellow">Get your own custom block and wall images!  Just tell Wu your user_id and give him image URLs.' + 
                        '<a href="https://github.com/WuTheFWasThat/midnighttherapy/tree/master/images/custom">Here</a>\'s a small selection.</p>')
       }
     }
@@ -643,6 +643,7 @@ loadScripts([
       // TODO: this doesn't work
       var new_solution = exports.get_current_solution();
       add_move_to_history(mapid, new ChangeBoardMove(mapid, old_solution, new_solution))
+      setTimeout(refresh_score, 500);
     },
     'M' : function(e) {
       setMute();
