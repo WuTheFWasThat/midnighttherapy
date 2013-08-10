@@ -11,10 +11,10 @@
 
 ## OVERVIEW ##
 
-This project is a smarter interface for the Pathery website (www.pathery.com).
-The client (browser) does things like client-side pathing and save/load of solutions.
-By letting the website interact with a personal server (running a solver), it can effectively facilitate human-computer interaction.  
-For those of us who aren't tech savvy, or don't want to run a server, I've provided a limited in-browser "server" which can tell you block values.
+This project is an extension to the Pathery website (www.pathery.com).  It does two main things:
+
+1. Extend the client (browser) to do things like show block values and save/load of solutions.
+2. Lets the website interact with a personal server (running a solver), to facilitate human-computer interaction.  
 
 ## FEATURES ##
 

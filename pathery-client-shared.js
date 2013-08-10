@@ -60,6 +60,10 @@ $(document).ready(function() {
     if (custom_wall) {
       $('.mapcell.r').css('background-image', "url(" + custom_wall + ")")
     };
+    $('.o').css('-moz-user-select','none') 
+           .css('-khtml-user-select', 'none') 
+           .css('-webkit-user-select', 'none') 
+           .css('-o-user-select', 'none')
   }
   update_wall_images();
 
