@@ -60,10 +60,6 @@ $(document).ready(function() {
     if (custom_wall) {
       $('.mapcell.r').css('background-image', "url(" + custom_wall + ")")
     };
-    $('.o').css('-moz-user-select','none') 
-           .css('-khtml-user-select', 'none') 
-           .css('-webkit-user-select', 'none') 
-           .css('-o-user-select', 'none')
   }
   update_wall_images();
 
@@ -76,6 +72,11 @@ $(document).ready(function() {
     }
   }
   update_block_images();
+
+  $('.o').css('-moz-user-select','none') 
+         .css('-khtml-user-select', 'none') 
+         .css('-webkit-user-select', 'none') 
+         .css('-o-user-select', 'none')
 });
 
 // END CUSTOMIZED BLOCKS
@@ -553,47 +554,66 @@ loadScripts([
     }
   }
   
+  function paint_block(block_div) {
+    if (!block_div.cv) {$(block_div).trigger('click');}
+  }
+
+  function erase_block(block_div) {
+    if (block_div.cv) {$(block_div).trigger('click');}
+  }
+
   $('.playable > div').mousemove(function(e) {
     var id = $(this).attr('id');
     var first_comma_index = id.indexOf(',');
-    var mapid = parseInt(id.slice(0, first_comma_index));
 
-    if (mapid !== exports.mapid ) {
-      console.log('BUG FOUND!! NONMATCHING IDS: ' + mapid + ', ' + exports.mapid);
-      return;
-    }
+    var mapid = parseInt(id.slice(0, first_comma_index));
+    if (mapid !== exports.mapid ) {return console.log('BUG FOUND!! NONMATCHING IDS: ' + mapid + ', ' + exports.mapid);}
 
     var block = block_from_block_string(id.slice(first_comma_index+1));
     var is_there = this.cv; // note: can be undefined
 
+    // Only attempt to add/remove blocks if you're not at the tile corner.
     var x_offset = (e.pageX - $(this).offset().left) / $(this).width();
     var y_offset = (e.pageY - $(this).offset().top) / $(this).height();
+    var on_corner = ((x_offset < 0.2 || x_offset > 0.8) && 
+                   (y_offset < 0.2 || y_offset > 0.8)) ;
+    if (on_corner) {return;}
 
-    // Only attempt to add/remove blocks if you're not at the tile corner.
-    if ((x_offset < 0.3 || x_offset > 0.7) &&
-        (y_offset < 0.3 || y_offset > 0.7)) {
-      return;
-    }
-
-    if (shiftkey_held && !is_there) {
-      $(this).trigger('click');
-    }
-
-    if (controlkey_held && is_there) {
-      $(this).trigger('click');
-    }
+    if (paintkey_held) {paint_block(this);}
+    if (erasekey_held) {erase_block(this);}
   });
+
+  var cur_block;
+  $('.playable > div').mouseenter(function(e) {
+    cur_block = this;
+    console.log('cur_block', $(cur_block).attr('id'))
+  })
+  $('.playable > div').mouseleave(function(e) {
+    cur_block = null;
+    console.log('cur_block null')
+  })
 
   $('.playable > div').click(function() {
     var id = $(this).attr('id');
     var first_comma_index = id.indexOf(',');
+
     var mapid = parseInt(id.slice(0, first_comma_index));
+    if (mapid !== exports.mapid ) {return console.log('BUG FOUND!! NONMATCHING IDS: ' + mapid + ', ' + exports.mapid);}
   
-    if (mapid !== exports.mapid ) {
-      console.log('BUG FOUND!! NONMATCHING IDS: ' + mapid + ', ' + exports.mapid);
-      return;
-    }
-  
+    //if (shiftkey_held) {
+    //  var move_history = get_move_history(mapid);
+    //  var index = last_move_indices[mapid];
+    //  var move = move_history[index];
+    //  if (move instanceof BlocksDiffMove) {
+    //    var from_block = move.blocks.slice(-1)[0];
+    //    // TODO: this is a bit annoying... dealing with case where running out of walls, and being able to undo properly, hard to use just clidcks
+    //    console.log('DRAW LINE')
+    //    console.log(from_block)
+    //    console.log(block)
+    //    return;
+    //  }
+    //}
+
     var block = block_from_block_string(id.slice(first_comma_index+1));
     var is_there = this.cv; // note: can be undefined
   
@@ -631,8 +651,8 @@ loadScripts([
     'v:     Toggle values'  + '<br/>' +
     'y:     Redo'           + '<br/>' +
     'z:     Undo'           + '<br/>' +
-    'SHFT:  Add block'      + '<br/>' +
-    'CTRL:  Remove block'   + '<br/>';
+    'w:     Wall (paint)'   + '<br/>' +
+    'e:     Erase (paint)'  + '<br/>';
   
   function switch_map(map_num) {
     showStats(map_num);
@@ -673,6 +693,12 @@ loadScripts([
     'V' : function(e) {
       exports.toggle_values();
     },
+    'W' : function(e) {
+      if (cur_block) {paint_block(cur_block)}
+    },
+    'E' : function(e) {
+      if (cur_block) {erase_block(cur_block)}
+    },
     'Y' : function(e) {
       redo_move_history(exports.get_current_mapid());
     },
@@ -682,10 +708,28 @@ loadScripts([
   }
 
   var shiftkey_held = false;
-  $(document).bind('keyup keydown', function(e){shiftkey_held = e.shiftKey; return true;} );
-
   var controlkey_held = false;
-  $(document).bind('keyup keydown', function(e){controlkey_held = e.ctrlKey; return true;} );
+  var paintkey_held = false;
+  var erasekey_held = false;
+  $(document).bind('keyup keydown', function(e){
+    shiftkey_held = e.shiftKey; 
+    controlkey_held = e.ctrlKey;
+    return true;
+  });
+
+  $(document).bind('keyup', function(e){
+    if (String.fromCharCode(e.keyCode) == 'W') {paintkey_held = false;}
+    if (String.fromCharCode(e.keyCode) == 'E') {erasekey_held = false;}
+    return true;
+  });
+
+  $(document).bind('keydown', function(e){
+    if (String.fromCharCode(e.keyCode) == 'W') {paintkey_held = true;}
+    if (String.fromCharCode(e.keyCode) == 'E') {erasekey_held = true;}
+    return true;
+  });
+
+
 
   $(document).bind('keydown', function(e){
       if ($("#bm_save_solution_name").is(":focus")) {return true;}

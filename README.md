@@ -52,14 +52,16 @@ I provide a number of hotkeys to make playing easier and faster:
 | Hotkey        | Action              |
 | ------------- |:------------------- |
 | 1-5           | Switch between maps |
-| g             | Go!                 |
-| r             | Reset               |
-| l             | Load best solution  |
-| m             | Toggle mute         |
-| s             | Save solution       |
-| v             | Toggle values       |
-| z             | Undo                |
-| y             | Redo                |
+| G             | Go!                 |
+| R             | Reset               |
+| L             | Load best solution  |
+| S             | Save solution       |
+| M             | Toggle mute         |
+| V             | Toggle values       |
+| W             | Wall (paint)        |
+| E             | Erase (paint)       |
+| Z             | Undo                |
+| Y             | Redo                |
 
 ### CUSTOM BLOCK IMAGES ###
 
