@@ -553,39 +553,55 @@ loadScripts([
     }
   }
   
-  
+  $('.playable > div').mousemove(function(e) {
+    var id = $(this).attr('id');
+    var first_comma_index = id.indexOf(',');
+    var mapid = parseInt(id.slice(0, first_comma_index));
+
+    if (mapid !== exports.mapid ) {
+      console.log('BUG FOUND!! NONMATCHING IDS: ' + mapid + ', ' + exports.mapid);
+      return;
+    }
+
+    var block = block_from_block_string(id.slice(first_comma_index+1));
+    var is_there = this.cv; // note: can be undefined
+
+    var x_offset = (e.pageX - $(this).offset().left) / $(this).width();
+    var y_offset = (e.pageY - $(this).offset().top) / $(this).height();
+
+    // Only attempt to add/remove blocks if you're not at the tile corner.
+    if ((x_offset < 0.3 || x_offset > 0.7) &&
+        (y_offset < 0.3 || y_offset > 0.7)) {
+      return;
+    }
+
+    if (shiftkey_held && !is_there) {
+      $(this).trigger('click');
+    }
+
+    if (controlkey_held && is_there) {
+      $(this).trigger('click');
+    }
+  });
+
   $('.playable > div').click(function() {
     var id = $(this).attr('id');
     var first_comma_index = id.indexOf(',');
     var mapid = parseInt(id.slice(0, first_comma_index));
   
     if (mapid !== exports.mapid ) {
-      console.log('BUG FOUND!! NONMATCHING IDS: ' + mapid + ', ' + exports.mapid)
+      console.log('BUG FOUND!! NONMATCHING IDS: ' + mapid + ', ' + exports.mapid);
       return;
     }
   
     var block = block_from_block_string(id.slice(first_comma_index+1));
     var is_there = this.cv; // note: can be undefined
-
-    if (shiftkey_held) {
-      var move_history = get_move_history(mapid);
-      var index = last_move_indices[mapid];
-      var move = move_history[index];
-      if (move instanceof BlocksDiffMove) {
-        var from_block = move.blocks.slice(-1)[0];
-        // TODO: this is a bit annoying... dealing with case where running out of walls, and being able to undo properly, hard to use just clidcks
-        console.log('DRAW LINE')
-        console.log(from_block)
-        console.log(block)
-        return;
-      }
-    }
   
     // unless trying to add block while out of blocks, add to history
     if (is_there || (!map_is_out(mapid))) {
       add_move_to_history(mapid, new BlocksDiffMove(mapid, [block]));
     }
-  })
+  });
   
   function click_block_untriggered(mapid, block)  {
     var id = id_from_block(mapid, block);
@@ -606,15 +622,17 @@ loadScripts([
     //'x: place'     + '<br/>' +var 
     //'w: Place wall'     + '<br/>' +var 
     //'e: Erase wall'     + '<br/>' +var 
-    '1-5: Switch maps' + '<br/>' + 
-    's:   Save'           + '<br/>' +
-    'l:   Load'           + '<br/>' +
-    'm:   Toggle mute'    + '<br/>' +
-    'g:   Go!'            + '<br/>' +
-    'r:   Reset'          + '<br/>' +
-    'v:   Toggle values'  + '<br/>' +
-    'y:   Redo'           + '<br/>' + 
-    'z:   Undo'           + '<br/>' ;
+    '1-5:   Switch maps' + '<br/>' +
+    's:     Save'           + '<br/>' +
+    'l:     Load'           + '<br/>' +
+    'm:     Toggle mute'    + '<br/>' +
+    'g:     Go!'            + '<br/>' +
+    'r:     Reset'          + '<br/>' +
+    'v:     Toggle values'  + '<br/>' +
+    'y:     Redo'           + '<br/>' +
+    'z:     Undo'           + '<br/>' +
+    'SHFT:  Add block'      + '<br/>' +
+    'CTRL:  Remove block'   + '<br/>';
   
   function switch_map(map_num) {
     showStats(map_num);
@@ -665,7 +683,10 @@ loadScripts([
 
   var shiftkey_held = false;
   $(document).bind('keyup keydown', function(e){shiftkey_held = e.shiftKey; return true;} );
-  
+
+  var controlkey_held = false;
+  $(document).bind('keyup keydown', function(e){controlkey_held = e.ctrlKey; return true;} );
+
   $(document).bind('keydown', function(e){
       if ($("#bm_save_solution_name").is(":focus")) {return true;}
       var chr = String.fromCharCode(e.keyCode);
