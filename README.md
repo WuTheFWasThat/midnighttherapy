@@ -60,6 +60,7 @@ I provide a number of hotkeys to make playing easier and faster:
 | V             | Toggle values       |
 | W             | Wall (paint)        |
 | E             | Erase (paint)       |
+| X             | Toggle block        |
 | Z             | Undo                |
 | Y             | Redo                |
 
@@ -134,12 +135,13 @@ The values on the blocks is currently white, so it works best with darker blocks
 
 Suggestions and feedback welcome.  Email me at [github-username]@gmail.com, or maybe catch me in the Pathery chat.
 
+- Cleanup of old solutions
+
+- Make it so you can upload your own image URL
+
 - Block-placing tools
   - placing blocks
   - shift click draws walls from last click (two clicks to make a diagonal, n+1 clicks to make a structure with n parts)
-  - block "paintbrush" and eraser (click and drag)
-  - keyboard shortcuts/modifiers for all the above, plus:
-    - placing wall relative to last thing placed
 
 - Chat in the main page
 

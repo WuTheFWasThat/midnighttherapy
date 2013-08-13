@@ -49,8 +49,8 @@ $(document).ready(function() {
     if (link.text() == 'Achievements') {
       user_id = parseInt(link.attr('href').split('=')[1])
       if (!((document.domain in bm_customizations) && (user_id in bm_customizations[document.domain]))) {
-        bm_add_message('<p style="font-size:15px;color:yellow">Get your own custom block and wall images!  Just tell Wu your user_id and give him image URLs.' + 
-                       '<a href="https://github.com/WuTheFWasThat/midnighttherapy/tree/master/images/custom">Here</a>\'s a small selection.</p>')
+        //bm_add_message('<p style="font-size:15px;color:yellow">Get your own custom block and wall images!  Just tell Wu your user_id and give him image URLs.' + 
+        //               '<a href="https://github.com/WuTheFWasThat/midnighttherapy/tree/master/images/custom">Here</a>\'s a small selection.</p>')
       }
     }
   })
@@ -357,7 +357,7 @@ loadScripts([
   var solution_storage;
   
   if (!supports_HTML5_Storage()) {
-    alert('Your browser doesn\'t support HTML5 local storage, so your solutions will not be remembered upon refresh.');
+    bm_add_message('<p style="font-size:15px;color:yellow">Your browser doesn\'t support HTML5 local storage, so your solutions will not be remembered upon refresh.</p>')
     solution_storage = new PatheryJSStorage();
   }  else {
     solution_storage = new PatheryHTML5Storage();
@@ -562,6 +562,10 @@ loadScripts([
     if (block_div.cv) {$(block_div).trigger('click');}
   }
 
+  function toggle_block(block_div) {
+    $(block_div).trigger('click');
+  }
+
   $('.playable > div').mousemove(function(e) {
     var id = $(this).attr('id');
     var first_comma_index = id.indexOf(',');
@@ -586,11 +590,9 @@ loadScripts([
   var cur_block;
   $('.playable > div').mouseenter(function(e) {
     cur_block = this;
-    console.log('cur_block', $(cur_block).attr('id'))
   })
   $('.playable > div').mouseleave(function(e) {
     cur_block = null;
-    console.log('cur_block null')
   })
 
   $('.playable > div').click(function() {
@@ -639,26 +641,23 @@ loadScripts([
   
   var hotkeys_text = 
     // TODO:
-    //'x: place'     + '<br/>' +var 
-    //'w: Place wall'     + '<br/>' +var 
-    //'e: Erase wall'     + '<br/>' +var 
-    '1-5:   Switch maps' + '<br/>' +
-    's:     Save'           + '<br/>' +
-    'l:     Load'           + '<br/>' +
-    'm:     Toggle mute'    + '<br/>' +
-    'g:     Go!'            + '<br/>' +
-    'r:     Reset'          + '<br/>' +
-    'v:     Toggle values'  + '<br/>' +
-    'y:     Redo'           + '<br/>' +
-    'z:     Undo'           + '<br/>' +
-    'w:     Wall (paint)'   + '<br/>' +
-    'e:     Erase (paint)'  + '<br/>';
+    '1-5:   Switch maps'    + '<br/>' +
+    'S:     Save'           + '<br/>' +
+    'L:     Load best'      + '<br/>' +
+    'G:     Go!'            + '<br/>' +
+    'R:     Reset'          + '<br/>' +
+    'M:     Toggle mute'    + '<br/>' +
+    'V:     Toggle values'  + '<br/>' +
+    'Y:     Redo'           + '<br/>' +
+    'Z:     Undo'           + '<br/>' +
+    'X:     Toggle block'   + '<br/>' +
+    'W:     Wall (paint)'   + '<br/>' +
+    'E:     Erase (paint)'  + '<br/>';
   
   function switch_map(map_num) {
     showStats(map_num);
     refresh_all();
   }
-  // 'x' : use mouseover, mouseout events
 
   var hotkey_handler = {
     '1' : function(e) {switch_map(1)},
@@ -698,6 +697,9 @@ loadScripts([
     },
     'E' : function(e) {
       if (cur_block) {erase_block(cur_block)}
+    },
+    'X' : function(e) {
+      if (cur_block) {toggle_block(cur_block)}
     },
     'Y' : function(e) {
       redo_move_history(exports.get_current_mapid());
