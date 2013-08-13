@@ -115,22 +115,34 @@ loadScripts([
 
   exports.mapid = null;
 
+  var last_get_values_time = Date.now();
+  var get_values_interval = 1000;
+  var draw_values_var = null;
+
   function draw_values() {
       var mapid = exports.get_current_mapid();
   
-      get_values(mapid, 
-          function(old_mapid) {
-            return function(result) {
-              var value  = result.value;
-              var values_list  = result.values_list;
-  
-              for (var k in values_list) {
-                var values_dict = values_list[k];
-                draw_single_value(old_mapid, values_dict.i, values_dict.j, values_dict.val, values_dict.blocking);
+      var time = Date.now();
+
+      clearTimeout(draw_values_var);
+      if (time - last_get_values_time < get_values_interval) {
+        draw_values_var = setTimeout(draw_values, get_values_interval);
+      } else {
+        last_get_values_time = time;
+        get_values(mapid, 
+            function(old_mapid) {
+              return function(result) {
+                var value  = result.value;
+                var values_list  = result.values_list;
+    
+                for (var k in values_list) {
+                  var values_dict = values_list[k];
+                  draw_single_value(old_mapid, values_dict.i, values_dict.j, values_dict.val, values_dict.blocking);
+                }
               }
-            }
-          } (mapid)
-      )
+            } (mapid)
+        )
+      }
   }
   
   function refresh_score() {
