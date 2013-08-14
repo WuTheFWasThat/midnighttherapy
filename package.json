@@ -1,0 +1,41 @@
+{
+  "name": "pathery-assist",
+  "preferGlobal": true,
+  "version": "0.0.1",
+  "author": "Jeff Wu <wuthefwasthat@gmail.com>",
+  "description": "An assist for the game Pathery (www.pathery.com)",
+  "contributors": [ 
+    {
+      "name": "Jeff Wu",
+      "email": "wuthefwasthat@gmail.com"
+    },
+    {
+      "name": "Shaunak Kishore"
+    },
+    {
+      "name": "Joy Zhang"
+    } 
+  ],
+  "scripts": {
+    "start": "node ./pathery-server"
+  },
+  "main": "./pathery-server-shared",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WuTheFWasThat/midnighttherapy.git"
+  },
+  "keywords": [
+    "pathery"
+  ],
+  "dependencies" : {
+    "express"   :  "3.3.x"
+  },
+  "devDependencies": {
+  },
+  "bundledDependencies": [
+  ],  
+  "license": "MIT",
+  "engines": {
+    "node": ">=0.6"
+  }
+}
