@@ -9,7 +9,7 @@ var app = express();
 
 // configure Express
 app.configure(function() {
-  app.use(express.bodyParser()); 
+  app.use(express.bodyParser());
   app.use(app.router);
 });
 
@@ -52,5 +52,7 @@ app.post('/compute_values', function(req, res){
 
   res.end(JSON.stringify(result));
 });
+
+app.use(express.static(__dirname));
 
 app.listen(2222);
