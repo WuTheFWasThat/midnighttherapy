@@ -29,23 +29,10 @@ app.post('/compute_values', function(req, res){
   res.header("Access-Control-Allow-Origin", "*");
 
   var t = new Date().getTime();
-  console.log("\nCOMPUTE VALUES:")
-  var result = pathery.compute_values(req.body.mapcode, req.body.solution);
+  var result = pathery.compute_values(req.param('mapcode'), req.param('solution'));
   var time_elapsed = new Date().getTime() - t;
-  console.log("ms elapsed: " , time_elapsed);
-  console.log("find_pathery_path count: " + result.find_pathery_path_count);
-  console.log("ms / #find_pathery_path: " , time_elapsed / result.find_pathery_path_count)
 
-  res.end(JSON.stringify(result));
-});
-
-app.post('/compute_values', function(req, res){
-  res.header("Access-Control-Allow-Origin", "*");
-
-  var t = new Date().getTime();
   console.log("\nCOMPUTE VALUES:")
-  var result = pathery.compute_values(req.body.mapcode, req.body.solution);
-  var time_elapsed = new Date().getTime() - t;
   console.log("ms elapsed: " , time_elapsed);
   console.log("find_pathery_path count: " + result.find_pathery_path_count);
   console.log("ms / #find_pathery_path: " , time_elapsed / result.find_pathery_path_count)

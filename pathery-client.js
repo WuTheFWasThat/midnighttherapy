@@ -1,14 +1,8 @@
-
-bm_local = false;
 is_full = false;
 
 // SHARED WITH PATHERY-FULL
 function get_shared_client(cb) {
-  if (bm_local) {
-    $.getScript('file://localhost/Users/jeffwu/Dropbox/Projects/midnighttherapy/pathery-client-shared.js', cb)
-  } else {
-    $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-client-shared.js', cb)
-  }
+  $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-client-shared.js', cb)
 }
 
 function bm_get_values(mapid, cb) {
