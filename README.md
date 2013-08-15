@@ -119,6 +119,8 @@ I'll get to this sometime...
 
 - Undo/redo doesn't work well with load best (it works with manual loading from the side though)
 
+- With the painters + undo/redo, it's possible to delete pre-placed walls, checkpoints, etc. (b/c i add something to the history, and do trigger unclicked)
+
 <!--
 None, at the moment.  Let me know if you find any! 
 -->

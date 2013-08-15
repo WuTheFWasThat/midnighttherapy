@@ -1,3 +1,4 @@
+// NOTE: set bm_local_testing to use local version
 is_full = true;
 
 ///////////////////////////////////////
@@ -5,7 +6,11 @@ is_full = true;
 ///////////////////////////////////////
 
 function get_shared_server(cb) {
-  $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-server-shared.js', cb)
+  if (typeof bm_local_testing === 'undefined') {
+    $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-server-shared.js', cb)
+  } else {
+    $.getScript('http://127.0.0.1:2222/pathery-server-shared.js', cb)
+  }
 }
 
 ///////////////////////////////////////
@@ -14,7 +19,11 @@ function get_shared_server(cb) {
 
 // SHARED WITH PATHERY-CLIENT
 function get_shared_client(cb) {
-  $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-client-shared.js', cb)
+  if (typeof bm_local_testing === 'undefined') {
+    $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-client-shared.js', cb)
+  } else {
+    $.getScript('http://127.0.0.1:2222/pathery-client-shared.js', cb)
+  }
 }
 
 function bm_get_values(mapid, cb) {

@@ -622,7 +622,7 @@ loadScripts([
     //  var move = move_history[index];
     //  if (move instanceof BlocksDiffMove) {
     //    var from_block = move.blocks.slice(-1)[0];
-    //    // TODO: this is a bit annoying... dealing with case where running out of walls, and being able to undo properly, hard to use just clidcks
+    //    // TODO: this is a bit annoying... dealing with case where running out of walls, and being able to undo properly, hard to use just clicks
     //    console.log('DRAW LINE')
     //    console.log(from_block)
     //    console.log(block)
@@ -653,45 +653,70 @@ loadScripts([
   // HOTKEYS
   ////////////////////////////////////////////
   
+  var MAP_SWITCH_KEY_1  = '1'
+    , MAP_SWITCH_KEY_2  = '2'
+    , MAP_SWITCH_KEY_3  = '3'
+    , MAP_SWITCH_KEY_4  = '4'
+    , MAP_SWITCH_KEY_5  = '5'
+    , SAVE_KEY          = 'S'
+    , LOAD_KEY          = 'L' 
+    , GO_KEY            = 'G' 
+    , RESET_KEY         = 'R' 
+    , MUTE_KEY          = 'M' 
+    , TOGGLE_VALUES_KEY = 'V'
+    , REDO_KEY          = 'Y' 
+    , UNDO_KEY          = 'Z' 
+    , TOGGLE_BLOCK_KEY  = 'X' 
+    , PAINT_BLOCK_KEY   = 'W' 
+    , ERASE_KEY         = 'E'
+  ;
+
   var hotkeys_text = 
+    '<table style="border:1px solid black; text-align: left;">' + 
     // TODO:
-    '1-5:   Switch maps'    + '<br/>' +
-    'S:     Save'           + '<br/>' +
-    'L:     Load best'      + '<br/>' +
-    'G:     Go!'            + '<br/>' +
-    'R:     Reset'          + '<br/>' +
-    'M:     Toggle mute'    + '<br/>' +
-    'V:     Toggle values'  + '<br/>' +
-    'Y:     Redo'           + '<br/>' +
-    'Z:     Undo'           + '<br/>' +
-    'X:     Toggle block'   + '<br/>' +
-    'W:     Wall (paint)'   + '<br/>' +
-    'E:     Erase (paint)'  + '<br/>';
+    '<tr><td>' + MAP_SWITCH_KEY_1 + '-' + MAP_SWITCH_KEY_5 + '</td><td>' + 'Switch maps'    + '</td></tr>' +
+    '<tr><td>' + SAVE_KEY                                  + '</td><td>' + 'Save'           + '</td></tr>' +
+    '<tr><td>' + LOAD_KEY                                  + '</td><td>' + 'Load best'      + '</td></tr>' +
+    '<tr><td>' + GO_KEY                                    + '</td><td>' + 'Go!'            + '</td></tr>' +
+    '<tr><td>' + RESET_KEY                                 + '</td><td>' + 'Reset'          + '</td></tr>' +
+    '<tr><td>' + MUTE_KEY                                  + '</td><td>' + 'Toggle mute'    + '</td></tr>' +
+    '<tr><td>' + TOGGLE_VALUES_KEY                         + '</td><td>' + 'Toggle values'  + '</td></tr>' +
+    '<tr><td>' + REDO_KEY                                  + '</td><td>' + 'Redo'           + '</td></tr>' +
+    '<tr><td>' + UNDO_KEY                                  + '</td><td>' + 'Undo'           + '</td></tr>' +
+    '<tr><td>' + TOGGLE_BLOCK_KEY                          + '</td><td>' + 'Toggle block'   + '</td></tr>' +
+    '<tr><td>' + PAINT_BLOCK_KEY                           + '</td><td>' + 'Wall (paint)'   + '</td></tr>' +
+    '<tr><td>' + ERASE_KEY                                 + '</td><td>' + 'Erase (paint)'  + '</td></tr>' +
+    '</table>';
   
   function switch_map(map_num) {
     showStats(map_num);
     refresh_all();
   }
 
-  var hotkey_handler = {
-    '1' : function(e) {switch_map(1)},
-    '2' : function(e) {switch_map(2)},
-    '3' : function(e) {switch_map(3)},
-    '4' : function(e) {switch_map(4)},
-    '5' : function(e) {switch_map(5)},
-    'G' : function(e) {
+  var hotkey_handler = {};
+
+  hotkey_handler[MAP_SWITCH_KEY_1] = function(e) {switch_map(1)};
+  hotkey_handler[MAP_SWITCH_KEY_2] = function(e) {switch_map(2)};
+  hotkey_handler[MAP_SWITCH_KEY_3] = function(e) {switch_map(3)};
+  hotkey_handler[MAP_SWITCH_KEY_4] = function(e) {switch_map(4)};
+  hotkey_handler[MAP_SWITCH_KEY_5] = function(e) {switch_map(5)};
+
+  hotkey_handler[GO_KEY] = function(e) {
       doSend(exports.mapid);
-    },
-    'R' : function(e) {
+  };
+
+  hotkey_handler[RESET_KEY] = function(e) {
       var old_solution = exports.get_current_solution();
       var mapid = exports.get_current_mapid();
       add_move_to_history(mapid, new ChangeBoardMove(mapid, old_solution, []))
       clearwalls(exports.mapid); 
-    },
-    'S' : function(e) {
+  };
+
+  hotkey_handler[SAVE_KEY] = function(e) {
       exports.save_current_solution();
-    },
-    'L' : function(e) {
+  };
+
+  hotkey_handler[LOAD_KEY] = function(e) {
       var old_solution = exports.get_current_solution();
       var mapid = exports.get_current_mapid();
       requestSol(exports.mapid);
@@ -699,49 +724,55 @@ loadScripts([
       var new_solution = exports.get_current_solution();
       add_move_to_history(mapid, new ChangeBoardMove(mapid, old_solution, new_solution))
       setTimeout(refresh_score, 500);
-    },
-    'M' : function(e) {
+  };
+
+  hotkey_handler[MUTE_KEY] = function(e) {
       setMute();
-    },
-    'V' : function(e) {
+  };
+
+  hotkey_handler[TOGGLE_VALUES_KEY] = function(e) {
       exports.toggle_values();
-    },
-    'W' : function(e) {
+  };
+
+  hotkey_handler[PAINT_BLOCK_KEY] = function(e) {
       if (cur_block) {paint_block(cur_block)}
-    },
-    'E' : function(e) {
+  };
+
+  hotkey_handler[ERASE_KEY] = function(e) {
       if (cur_block) {erase_block(cur_block)}
-    },
-    'X' : function(e) {
+  };
+
+  hotkey_handler[TOGGLE_BLOCK_KEY] = function(e) {
       if (cur_block) {toggle_block(cur_block)}
-    },
-    'Y' : function(e) {
+  };
+
+  hotkey_handler[REDO_KEY] = function(e) {
       redo_move_history(exports.get_current_mapid());
-    },
-    'Z' : function(e) {
+  };
+
+  hotkey_handler[UNDO_KEY] = function(e) {
       undo_move_history(exports.get_current_mapid());
-    }
-  }
+  };
 
   var shiftkey_held = false;
   var controlkey_held = false;
   var paintkey_held = false;
   var erasekey_held = false;
-  $(document).bind('keyup keydown', function(e){
+  $(document).bind('keyup keydown', function(e) {
     shiftkey_held = e.shiftKey; 
     controlkey_held = e.ctrlKey;
     return true;
   });
 
   $(document).bind('keyup', function(e){
-    if (String.fromCharCode(e.keyCode) == 'W') {paintkey_held = false;}
-    if (String.fromCharCode(e.keyCode) == 'E') {erasekey_held = false;}
+    if (String.fromCharCode(e.keyCode) == PAINT_BLOCK_KEY) {paintkey_held = false;}
+    if (String.fromCharCode(e.keyCode) == ERASE_KEY) {erasekey_held = false;}
     return true;
   });
 
   $(document).bind('keydown', function(e){
-    if (String.fromCharCode(e.keyCode) == 'W') {paintkey_held = true;}
-    if (String.fromCharCode(e.keyCode) == 'E') {erasekey_held = true;}
+    if (String.fromCharCode(e.keyCode) == PAINT_BLOCK_KEY) {paintkey_held = true;}
+    if (String.fromCharCode(e.keyCode) == ERASE_KEY) {erasekey_held = true;}
     return true;
   });
 
@@ -809,7 +840,7 @@ loadScripts([
       button_toolbar.append('<br/>');
 
       var hotkeys_button = $('<button id="bm_show_hotkeys">Hotkeys</button>');
-      var hotkeys_dropdown = $('<p id="bm_hotkeys_text" style="display:none; position: relative; border:1px solid #000; text-align: left; font-family: Courier">' + hotkeys_text + '</p>');
+      var hotkeys_dropdown = $('<p id="bm_hotkeys_text" style="display:none; position: relative; text-align: left; font-family: Courier">' + hotkeys_text + '</p>');
       hotkeys_button.hover(
         function(e) {
           hotkeys_dropdown.show();
@@ -820,6 +851,7 @@ loadScripts([
       );
       button_toolbar.append(hotkeys_button);
       hotkeys_button.append(hotkeys_dropdown);
+      hotkeys_dropdown.hide();
   
   
     }
