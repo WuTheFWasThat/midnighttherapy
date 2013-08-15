@@ -287,6 +287,17 @@ PatheryGraph.prototype.find_path = function(
   return null;
 }
 
+// TODO: FIND BLOCKS WHERE I CAN'T PLACE BLOCKS WITHOUT BLOCKING THE PATH
+// BE VERY CAREFUL.  BECAUSE OF TELEPORTS... THIS IS TRICKY AND I DONT YET KNOW HOW TO DO IT
+PatheryGraph.prototype.find_bridges = function(
+             blocks, // currently placed blocks
+             extra_block, // unpassable square (used for green or red only)
+             sources, // list of source vertices, in order of priority
+             targets // set of target vertices
+            ) {
+
+}
+
 function find_full_path(graph, blocks, reversed){
   var used_teleports = {};
   var index = 0;
@@ -301,6 +312,7 @@ function find_full_path(graph, blocks, reversed){
     extra_block = 'r';
   }
   var num_teleports_used = 0;
+  // TODO: REMOVE BRIDGES FROM RELEVANT BLOCKS (i.e. take care of all those - values in one sweep)
   var relevant_blocks = {}; // The set of blocks which blocking may help
 
   while (index < graph.checkpoints.length  + 1) {

@@ -380,7 +380,6 @@ loadScripts([
   
   // TODO: auto-save best
   // TODO: clear solutions for past maps?
-  // TODO: prevent local-storage collision on beta sites?
   exports.save_current_solution = function() {
     var mapid = exports.get_current_mapid();
     var solution = exports.get_current_solution();

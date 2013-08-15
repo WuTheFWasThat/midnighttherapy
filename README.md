@@ -34,16 +34,14 @@ However, this may feel laggy if you're letting the browser do the computation.
 
 ### SOLUTION LOAD AND SAVE ###
 
-It's often frustrating that you can only load your best solution, on maps with many viable but different placings. 
-Ultra Complex is especially bad - it's devastating when I'm working on a new idea, and I accidentally load my best solution.  
-Thus I added the ability to save and load solutions.  Simply enter a name, and press Save (hotkey S), to save the current solution.
-If you don't enter a name, your solution is automatically named based on your score.
+Simply enter a name and press "Save solution" (or use the hotkey S) to save a solution under some name.  
+If no name is entered, a default name is chosen based on the score of the solution.
 You'll then see the name appear in a list, where you can Load or Delete it.
 
 ![save solutions](images/save-solutions.png)
 
 If you want your solution saving to persist, you'll need a browser that supports HTML5 storage!  
-If your browser doesn't support it, you really should upgrade it anyways.  
+If your browser doesn't support HTML5 local storage, you really should upgrade it...
 
 ### HOTKEYS ###
 
@@ -100,7 +98,7 @@ First you'll need a server running.  I've provided one that you can use (maybe a
 1. Clone this repo and cd into it
 2. Run locally:
 
-`node pathery-server.js`
+`node pathery-server.js` (or just `npm start`, if you have npm)
 
 Next, add my client to the browser window.
 
@@ -140,12 +138,13 @@ Suggestions and feedback welcome.  Email me at [github-username]@gmail.com, or m
 - Make it so you can upload your own image URL
 
 - Block-placing tools
-  - placing blocks
   - shift click draws walls from last click (two clicks to make a diagonal, n+1 clicks to make a structure with n parts)
 
 - Chat in the main page
 
 - An API to support solvers that actually suggest (potentially major) changes, takes suggestions, etc. (and an accompanying prototype)
+
+Ongoing:
 
 - Make the [dumb] thing faster (currently does ~1000 full UC calculations per second on my Macbook Air, in Node.js (which is single threaded))
 
