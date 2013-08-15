@@ -80,7 +80,7 @@ into the Javascript console.
 
 There are a few options to make this even easier:
 
-1. (RECOMMENDED:) Use Tampermonkey (Chrome) or Greasemonkey (Firefox) so that it will load automatically when you visit the site.
+1. (RECOMMENDED:) Use Tampermonkey (Chrome) or Greasemonkey (Firefox) so that it will load automatically when you visit the site.  I have a sample script which works.  See monkey-script.js.
 
 2. Make it a bookmarklet.  That is, create a bookmark with the address:
 
@@ -107,7 +107,7 @@ Next, add my client to the browser window.
 
 `$.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-client.js')`
 
-into the Javascript console.  Again, you can make this easier using something like Tampermonkey/Greasemonkey, or a bookmarklet.
+into the Javascript console.  Again, you can make this easier using something like Tampermonkey/Greasemonkey (a slight modification to monkey-script.js will work), or a bookmarklet.
 
 <!--
 ### SERVER API ###
