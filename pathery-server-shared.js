@@ -106,57 +106,14 @@ function parse_board(code) {
 }
 
 
-function Graph(board) {
+function PatheryGraph(board) {
   
-  this.board = board;
+  this.board = board; // i,j -> val
   this.n = board.length;
   this.m = board[0].length;
 
-  this.keyify_coordinates = function(x, y) {
-    return x * this.m + y;
-  }
-  
-  this.keyify = function(block) {
-    return this.keyify_coordinates(block[0] , block[1]);
-  }
-
-  this.keyify_list = function(blocklist) {
-    var list = [];
-    for (var i = 0; i < blocklist.length; i++ ) {
-      list[i] = this.keyify(blocklist[i]);
-    }
-    return list;
-  }
-
-  this.unkeyify = function(blockkey) {
-    return [Math.floor(blockkey / this.m), blockkey % this.m];
-  }
-
-  this.unkeyify_list = function(blocklist) {
-    var list = [];
-    for (var i = 0; i < blocklist.length; i++ ) {
-      list[i] = this.unkeyify(blocklist[i]);
-    }
-    return list;
-  }
-  
-  this.parse_blocks = function(blocksstring) {
-    var blocks = {};
-    var str_blocks = blocksstring.split('.');
-    for (var k in str_blocks) {
-      var str_block = str_blocks[k];
-      if (str_blocks[k]) {
-        var x = parseInt(str_block.split(',')[0]);
-        var y = parseInt(str_block.split(',')[1]);
-        blocks[this.keyify_coordinates(x-1 , y)] = true;
-      }
-    }
-    return blocks;
-  }
-
-  this.boardstuff = {};
-
   this.serial_board = []; // same as board, but uses keyified index
+  this.boardstuff = {}; // reverse of serial board.  val -> list of keyified blocks
 
   // Note that these lists start from top-left and go right, then down
   // In particular, starts and finishes are ordered top to bottom
@@ -176,13 +133,13 @@ function Graph(board) {
     }
   }
 
-  this.checkpoints = []; // list of lists of intermediate targets, including starts and ends
-
-  this.starts = this.boardstuff['s'];
+  this.starts = this.boardstuff['s']; // list of keyified starts
   this.has_regular = (this.starts !== undefined);
 
-  this.alt_starts = this.boardstuff['S'];
+  this.alt_starts = this.boardstuff['S']; // list of keyified alt-starts
   this.has_reverse = (this.alt_starts !== undefined);
+
+  this.checkpoints = []; // list of lists of intermediate targets, including starts and ends, all keyified
 
   var letters = ['A', 'B', 'C', 'D', 'E'];
   for (var i = 0; i < 5; i++) {
@@ -193,7 +150,7 @@ function Graph(board) {
     this.checkpoints.push(this.boardstuff[letter]);
   }
 
-  this.finishes = this.boardstuff['t'];
+  this.finishes = this.boardstuff['t']; // list of keyified finishes
 
   this.teleports = {};
   for (teleport_key in teleports_map) {
@@ -236,91 +193,112 @@ function Graph(board) {
     }
   }
 
-  this.extra_block = '?'; // dummy variable, initially
-
-  this.get_neighbors = function(blocks, u) {
-    var neighbors = [];
-    var potential_neighbors = this.neighbors[u];
-    for (var i = 0; i < potential_neighbors.length; i++) {
-      var potential_neighbor = potential_neighbors[i];
-      var val = this.serial_board[potential_neighbor];
-      if (val === this.extra_block) {continue;}
-      if (blocks[potential_neighbor]) {continue;}
-      neighbors.push(potential_neighbor);
-    }
-    return neighbors;
-  }
-
-  this.teleport = function(block, used_teleports) {
-    var stuff = this.serial_board[block];
-    if ( teleports_map[stuff] ) {
-      if (!(used_teleports[stuff])) {
-        used_teleports[stuff] = true;
-        return this.teleports[block]
-      }
-    }
-    return null;
-  }
-
 }
 
-// var BFS_queue = new Int32Array(graph.m * graph.n); // new Array(...)
-var BFS_queue = new Int32Array(1000); // new Array(...)
-function BFS(graph, // graph description, as an array
-             blocks, // currently placed blocks
-             sources, // list of source vertices, in order of priority
-             targets // set of target vertices
-            ) {
-  parent_dict = {};
-  var queue = BFS_queue;
-  var queue_start = 0;
-  var queue_end = 0;
+PatheryGraph.prototype.keyify_coordinates = function(x, y) {
+  return x * this.m + y;
+}
 
-  for (var k in sources) {
-    var source = sources[k];
-    queue[queue_end] = source;
-    queue_end += 1;
-    parent_dict[source] = true;
+PatheryGraph.prototype.keyify = function(block) {
+  return this.keyify_coordinates(block[0] , block[1]);
+}
+
+PatheryGraph.prototype.unkeyify = function(blockkey) {
+  return [Math.floor(blockkey / this.m), blockkey % this.m];
+}
+
+PatheryGraph.prototype.parse_blocks = function(blocksstring) {
+  var blocks = {};
+  var str_blocks = blocksstring.split('.');
+  for (var k in str_blocks) {
+    var str_block = str_blocks[k];
+    if (str_blocks[k]) {
+      var x = parseInt(str_block.split(',')[0]);
+      var y = parseInt(str_block.split(',')[1]);
+      blocks[this.keyify_coordinates(x-1 , y)] = true;
+    }
   }
+  return blocks;
+}
 
-
-  while (queue_start != queue_end) {
-    var u = queue[queue_start];
-    queue_start += 1;
-    var neighbors = graph.get_neighbors(blocks, u);
-    for (var k = 0; k < neighbors.length; k++) {
-      var v = neighbors[k];
-      if (!parent_dict.hasOwnProperty(v)) {
-        queue[queue_end] = v;
-        queue_end += 1;
-        parent_dict[v] = u;
-      }
-      if (targets[v]) {
-        var path = [];
-        while (v !== true) {
-          path.push(v);
-          v = parent_dict[v];
-        }
-        return path.reverse();
-      }
+PatheryGraph.prototype.teleport = function(block, used_teleports) {
+  var stuff = this.serial_board[block];
+  if ( teleports_map[stuff] ) {
+    if (!(used_teleports[stuff])) {
+      used_teleports[stuff] = true;
+      return this.teleports[block]
     }
   }
   return null;
 }
 
-var find_single_path = BFS;
+
+// var BFS_queue = new Int32Array(graph.m * graph.n); // new Array(...)
+var BFS_queue = new Int32Array(1000); // new Array(...)
+
+PatheryGraph.prototype.find_path = function(
+             blocks, // currently placed blocks
+             extra_block, // unpassable square (used for green or red only)
+             sources, // list of source vertices, in order of priority
+             targets // set of target vertices
+            ) {
+  parent_map = []; // keyified index ->  parent key (or -1 if was source, and undefined if not yet reached)
+  var queue = BFS_queue;
+  var queue_start = 0,
+      queue_end = 0;
+
+  for (var k in sources) {
+    var source = sources[k];
+    queue[queue_end++] = source;
+    parent_map[source] = -1;
+  }
+
+  while (queue_start != queue_end) {
+    var u = queue[queue_start++];
+
+    var neighbors = this.neighbors[u];
+    for (var i = 0; i < neighbors.length; i++) {
+      var v = neighbors[i];
+
+      // already found this square
+      if (parent_map.hasOwnProperty(v)) { continue;}
+
+      if (blocks[v]) {continue;}
+
+      // impassable square
+      if (this.serial_board[v] === extra_block) {continue;} 
+
+      parent_map[v] = u;
+
+      // found target!
+      if (targets[v]) {
+        var path = [];
+        while (v !== -1) {
+          path.push(v);
+          v = parent_map[v];
+        }
+        return path.reverse();
+      }
+
+      // add to queue
+      queue[queue_end++] = v;
+    }
+  }
+  return null;
+}
 
 function find_full_path(graph, blocks, reversed){
   var used_teleports = {};
   var index = 0;
   var fullpath = [];
   var cur; // current list of start points
+  var extra_block;
   if (reversed) {     // red path
     cur = graph.alt_starts;
-    graph.extra_block = 'g';
+    extra_block = 'g';
   } else {            // green path
     cur = graph.starts;
-    graph.extra_block = 'r';
+    extra_block = 'r';
   }
   var num_teleports_used = 0;
   var relevant_blocks = {}; // The set of blocks which blocking may help
@@ -338,7 +316,7 @@ function find_full_path(graph, blocks, reversed){
       var target = targets[i];
       target_dict[target] = true;
     }
-    var path = find_single_path(graph, blocks, cur, target_dict);
+    var path = graph.find_path(blocks, extra_block, cur, target_dict);
     if (path == null) {
       return {path: null, value: NaN, relevant_blocks: {}};
     }
@@ -374,7 +352,6 @@ function find_full_path(graph, blocks, reversed){
 
   var solution_length = fullpath.length - 1 - num_teleports_used;
   return {
-    //path: graph.unkeyify_list(fullpath), 
     path: fullpath, 
     value: solution_length, 
     relevant_blocks: relevant_blocks
@@ -407,8 +384,7 @@ function find_pathery_path(graph, blocks){
 
 exports.compute_value = function(mapcode, solution) {
     bm_board= parse_board(mapcode);
-    bm_graph = new Graph(bm_board);
-    //BFS(bm_graph, {}, [null], {'[2,2]':true})
+    bm_graph = new PatheryGraph(bm_board);
 
     bm_current_blocks = bm_graph.parse_blocks(solution);
     bm_solution = find_pathery_path(bm_graph, bm_current_blocks);
@@ -472,8 +448,7 @@ function improve_solution(graph, blocks, options) {
 
 exports.compute_values = function(mapcode, solution) {
     bm_board= parse_board(mapcode);
-    bm_graph = new Graph(bm_board);
-    //BFS(bm_graph, {}, [null], {'[2,2]':true})
+    bm_graph = new PatheryGraph(bm_board);
 
     bm_current_blocks = bm_graph.parse_blocks(solution);
     var bm_solution = find_pathery_path(bm_graph, bm_current_blocks);

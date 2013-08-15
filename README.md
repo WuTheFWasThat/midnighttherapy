@@ -147,6 +147,6 @@ Suggestions and feedback welcome.  Email me at [github-username]@gmail.com, or m
 
 - An API to support solvers that actually suggest (potentially major) changes, takes suggestions, etc. (and an accompanying prototype)
 
-- Make the [dumb] thing faster (currently does 400 full UC calculations per second on my Macbook Air... )
+- Make the [dumb] thing faster (currently does ~1000 full UC calculations per second on my Macbook Air, in Node.js (which is single threaded))
 
 Feel free to contribute, of course :)

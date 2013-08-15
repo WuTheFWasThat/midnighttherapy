@@ -124,7 +124,10 @@ loadScripts([
   
       var time = Date.now();
 
+      // nullify any other pending request
       clearTimeout(draw_values_var);
+
+      // Don't draw values if get_values_interval hasn't elapsed since the last request sent
       if (time - last_get_values_time < get_values_interval) {
         draw_values_var = setTimeout(draw_values, get_values_interval);
       } else {
