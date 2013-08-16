@@ -175,7 +175,7 @@ loadScripts([
       } else if (!isNaN(value) && value > 0) {
 	    //useful squares
 	    if (value == maxValue) {
-		  css.color = 'darkgreen';
+		  css.color = 'green';
 		  css['font-weight'] = 'bold';
 		} else {
           css.color = 'black';
@@ -823,7 +823,7 @@ loadScripts([
     $('#difficulties').parent().css('margin-left', '300px');
   
     if ($('#bm_left_bar').length == 0) {
-      var button_toolbar = $('<div id="bm_left_bar" style="position:absolute; left:50px; width:250px; text-align:center"></div>')
+      var button_toolbar = $('<div id="bm_left_bar" style="position:absolute; left:50px; width:275px; text-align:center; background: -ms-linear-gradient(top, #555555 0%,#222222 100%); background: linear-gradient(to bottom, #555555 0%,#222222 100%); border-radius: 15px; box-shadow: inset 0 0 0 1px #fff; padding: 8px 0px; margin-top: 21px"></div>')
       $('#difficulties').after(button_toolbar);
   
       var show_values_button = $('<button id="bm_show_values">Show values</button>');
@@ -847,7 +847,7 @@ loadScripts([
       //var clear_solutions_button = $('<button id="bm_clear_solution">Clear solution</button>');
       //button_toolbar.append(clear_solution_button);
       
-      var solutions_list = $('<div id="bm_save_solution_list" style="text-align:center; border:1px solid white;"></div>')
+      var solutions_list = $('<div id="bm_save_solution_list" style="text-align:center; border:1px solid white; margin: 5px 30px; padding: 3px 0px; width: 200px;"></div>')
       button_toolbar.append(solutions_list);
 
       button_toolbar.append('<br/>');
