@@ -218,7 +218,6 @@ loadScripts([
     if (show_values) {
       show_values = false;
       $('.map .child').text('');
-      $('.client_score').text('');
       $('#bm_show_values').text('Show values')
     } else {
       show_values = true;
@@ -248,11 +247,7 @@ loadScripts([
     } else {
       txt += sum + ' moves';
     }
-    if (!$('#' + exports.mapid + 'client_score').length) {
-      var my_score = $('<span id="' + exports.mapid + 'client_score" class="client_score"></span>');
-      $('[id="' + exports.mapid + ',dspbl"]').append(my_score);
-    }
-    $('#' + exports.mapid + 'client_score').text(txt);
+    $('#' + exports.mapid + '\\,dspCount').text(txt);
   }
   
   /////////////////////////////////////////////
