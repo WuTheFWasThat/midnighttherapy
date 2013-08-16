@@ -32,9 +32,7 @@ var grid_click = function() {
   var custom_image = bm_get_custom('block');
   if (custom_image) {wallEmblem = custom_image;}
   var old_linkEmblem = linkEmblem;
-  if (custom_image) {
-    linkEmblem = function() {return wallEmblem;}
-  }
+  if (custom_image) { linkEmblem = function() {return wallEmblem;} }
   __old_grick_click__.apply(this, arguments);
   if (custom_image) {linkEmblem = old_linkEmblem;}
 }
@@ -138,9 +136,10 @@ loadScripts([
                 var value  = result.value;
                 var values_list  = result.values_list;
     
+	            var maxValue = Math.max.apply(Math, values_list.map(function(x) { return (x.hasOwnProperty('val') && !isNaN(x.val) && !x.blocking ? x.val : -1); }));
                 for (var k in values_list) {
                   var values_dict = values_list[k];
-                  draw_single_value(old_mapid, values_dict.i, values_dict.j, values_dict.val, values_dict.blocking);
+                  draw_single_value(old_mapid, values_dict.i, values_dict.j, values_dict.val, values_dict.blocking, maxValue);
                 }
               }
             } (mapid)
@@ -158,20 +157,33 @@ loadScripts([
     }
   };
 
-  function draw_single_value(mapid, i, j, value, blocking) {
+  function draw_single_value(mapid, i, j, value, blocking, maxValue) {
       var elt = $('#child_' + mapid + '\\,' + (i+1) + '\\,' + j);
-      var css;
+      var css = {'text-align': 'center',
+			     'cursor': 'default',
+				 'font-weight': 'normal'
+                };
+
       if (blocking) {
-        css = {'color': 'white',
-               'text-align': 'center',
-			   'cursor': 'default'
-              };
+	    // user-placed walls
+	    if (!isNaN(value) && value <= 0) {
+          // negative worth block
+		  css.color = 'red';
+		} else {
+	      css.color = 'white';
+		}
+      } else if (!isNaN(value) && value > 0) {
+	    //useful squares
+	    if (value == maxValue) {
+		  css.color = 'darkgreen';
+		  css['font-weight'] = 'bold';
+		} else {
+          css.color = 'black';
+		}
       } else {
-        css = {'color': 'black',
-               'text-align': 'center',
-			   'cursor': 'default'
-              };
-      }
+	    //negative/invalid squares
+	    css.color = 'gray';
+	  }
       for (var attr in css) {
         if (css.hasOwnProperty(attr)) {
           elt.css(attr, css[attr]);
