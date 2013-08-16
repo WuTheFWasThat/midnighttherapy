@@ -16,6 +16,29 @@ This project is an extension to the Pathery website (www.pathery.com).  It does 
 1. Extend the client (browser) to do things like show block values and save/load of solutions.
 2. Lets the website interact with a personal server (running a solver), to facilitate human-computer interaction.  
 
+## HOW TO INSTALL ##
+
+
+### GREASEMONKEY ###
+
+1. Install [Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=en) *(Chrome)* or [Greasemonkey](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/) *(Firefox)*
+2. Click [this link](https://raw.github.com/WuTheFWasThat/midnighttherapy/master/monkey-script.user.js).
+
+### BOOKMARKLET ###
+
+If you can't or don't want to use Greasemonkey, use a bookmarklet.  That is, create a bookmark with the address:
+
+`javascript: $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-full.js')`
+
+### CONSOLE ###
+
+If all else fails, you can access the script by pasting
+
+`$.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-full.js')`
+
+into the Javascript console.
+
+
 ## FEATURES ##
 
 ### CLIENT-SIDE PATHING ###
@@ -66,32 +89,12 @@ I provide a number of hotkeys to make playing easier and faster:
 
 As you might have noticed, you can customize your block images.  Just tell me your Pathery user id and an image!
 
-## INSTRUCTIONS ##
 
+## SERVERSIDE PATHING ##
 
-### SIMPLE: ###
+### RUNNING THE SERVER ###
 
-1. Go to Pathery
-2. Paste:
-
-`$.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-full.js')`
-
-into the Javascript console.
-
-There are a few options to make this even easier:
-
-1. (RECOMMENDED:) Use Tampermonkey (Chrome) or Greasemonkey (Firefox) so that it will load automatically when you visit the site.  I have a sample script which works.  See monkey-script.js.
-
-2. Make it a bookmarklet.  That is, create a bookmark with the address:
-
-`javascript: $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-full.js')`
-
-You can then just visit this bookmark while you're at Pathery.
-
-
-Unfortunately, "show values" is noticeably slow this way.  Thus, the following method is recommended instead
-
-### WITH A SERVER ###
+Unfortunately, "show values" is noticeably slow using the default method.  The following method, though more complicated, speeds up the pathfinding by a great deal.
 
 First you'll need a server running.  I've provided one that you can use (maybe as a starting point for an AI).  To get it,
 
