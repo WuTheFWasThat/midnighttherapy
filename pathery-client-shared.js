@@ -163,11 +163,13 @@ loadScripts([
       var css;
       if (blocking) {
         css = {'color': 'white',
-               'text-align': 'center'
+               'text-align': 'center',
+			   'cursor': 'default'
               };
       } else {
         css = {'color': 'black',
-               'text-align': 'center'
+               'text-align': 'center',
+			   'cursor': 'default'
               };
       }
       for (var attr in css) {
