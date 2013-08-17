@@ -184,11 +184,7 @@ loadScripts([
 	    //negative/invalid squares
 	    css.color = 'gray';
 	  }
-      for (var attr in css) {
-        if (css.hasOwnProperty(attr)) {
-          elt.css(attr, css[attr]);
-        }
-      }
+	  elt.css(css);
       elt.text(value);
   }
   
