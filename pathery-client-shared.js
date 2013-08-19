@@ -114,7 +114,9 @@ loadScripts([
   exports.mapid = null;
 
   var last_get_values_time = Date.now();
-  var get_values_interval = 1000;
+  var get_values_interval = 500;
+  var load_best_timeout = 500;
+  var new_mapid_timeout = 100;
   var draw_values_var = null;
 
   function draw_values() {
@@ -728,7 +730,7 @@ loadScripts([
       // TODO: this doesn't work
       var new_solution = exports.get_current_solution();
       add_move_to_history(mapid, new ChangeBoardMove(mapid, old_solution, new_solution))
-      setTimeout(refresh_score, 500);
+      setTimeout(refresh_score, load_best_timeout);
   };
 
   hotkey_handler[MUTE_KEY] = function(e) {
@@ -805,7 +807,7 @@ loadScripts([
       setTimeout(function() {
         // trigger refresh
         exports.get_current_mapid();
-      }, 100);
+      }, new_mapid_timeout);
     });
     exports.get_current_mapid();
 
