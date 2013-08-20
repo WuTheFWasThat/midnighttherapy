@@ -3,10 +3,10 @@ var user_id;
 var bm_customizations = {
   'www.pathery.com': {
     835: { // joy
-           block: 'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/images/custom/pusheen.png', 
+           block: 'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/images/custom/pusheen.png',
          },
     400: { // me
-           block: 'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/images/custom/bwlo.png', 
+           block: 'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/images/custom/bwlo.png',
          },
     271: { // yeuo
            block: 'http://downloads.khinsider.com/wallpaper/1280x1024/1058-everquest-002-gywvt.jpg',
@@ -47,7 +47,7 @@ $(document).ready(function() {
     if (link.text() == 'Achievements') {
       user_id = parseInt(link.attr('href').split('=')[1])
       if (!((document.domain in bm_customizations) && (user_id in bm_customizations[document.domain]))) {
-        //bm_add_message('<p style="font-size:15px;color:yellow">Get your own custom block and wall images!  Just tell Wu your user_id and give him image URLs.' + 
+        //bm_add_message('<p style="font-size:15px;color:yellow">Get your own custom block and wall images!  Just tell Wu your user_id and give him image URLs.' +
         //               '<a href="https://github.com/WuTheFWasThat/midnighttherapy/tree/master/images/custom">Here</a>\'s a small selection.</p>')
       }
     }
@@ -613,17 +613,18 @@ loadScripts([
     var x_sign = (x_diff > 0) ? 1 : ((x_diff < 0) ? -1 : 0);
     var y_sign = (y_diff > 0) ? 1 : ((y_diff < 0) ? -1 : 0);
 
-    // For now, only allow perfect diagonal lines.
-    if (Math.abs(x_diff) != Math.abs(y_diff) || x_diff == 0) {
+    // Cannot paint a line if block and from_block are identical.
+    if (x_diff == 0 && y_diff == 0) {
       return;
     }
 
-    console.log("diag!");
+    // For now, only allow painting of horizontal, vertical, or diagonal lines.
+    if (Math.abs(x_diff) != Math.abs(y_diff) && x_diff != 0 && y_diff != 0) {
+      return;
+    }
+
     var blocks_to_add = [];
-
-    console.log(Math.abs(x_diff));
-
-    for (var iter = 1; iter <= Math.abs(x_diff) && !map_is_out(mapid); iter++) {
+    for (var iter = 1; iter <= Math.max(Math.abs(x_diff), Math.abs(y_diff)) && !map_is_out(mapid); iter++) {
       var x_local = from_block[0] + (x_sign * iter);
       var y_local = from_block[1] + (y_sign * iter);
       var local_block = [x_local, y_local];
