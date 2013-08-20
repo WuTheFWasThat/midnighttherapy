@@ -22,19 +22,19 @@ This project is an extension to the Pathery website (www.pathery.com).  It does 
 ### GREASEMONKEY ###
 
 1. Install [Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=en) *(Chrome)* or [Greasemonkey](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/) *(Firefox)*
-2. Click [this link](https://raw.github.com/WuTheFWasThat/midnighttherapy/master/monkey-script.user.js).
+2. Click [this link](https://raw.github.com/WuTheFWasThat/midnighttherapy/blue/monkey-script.user.js).
 
 ### BOOKMARKLET ###
 
 If you can't or don't want to use Greasemonkey, use a bookmarklet.  That is, create a bookmark with the address:
 
-`javascript: $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-full.js')`
+`javascript: $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/blue/pathery-full.js')`
 
 ### CONSOLE ###
 
 If all else fails, you can access the script by pasting
 
-`$.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-full.js')`
+`$.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/blue/pathery-full.js')`
 
 into the Javascript console.
 
@@ -108,7 +108,7 @@ Next, add my client to the browser window.
 1. Go to Pathery
 2. Paste
 
-`$.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-client.js')`
+`$.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/blue/pathery-client.js')`
 
 into the Javascript console.  Again, you can make this easier using something like Tampermonkey/Greasemonkey (a slight modification to monkey-script.js will work), or a bookmarklet.
 

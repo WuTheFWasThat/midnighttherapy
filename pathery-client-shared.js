@@ -3,18 +3,18 @@ var user_id;
 var bm_customizations = {
   'www.pathery.com': {
     835: { // joy
-           block: 'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/images/custom/pusheen.png',
+           block: 'https://raw.github.com/WuTheFWasThat/midnighttherapy/blue/images/custom/pusheen.png',
          },
     400: { // me
-           block: 'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/images/custom/bwlo.png',
+           block: 'https://raw.github.com/WuTheFWasThat/midnighttherapy/blue/images/custom/bwlo.png',
          },
     271: { // yeuo
            block: 'http://downloads.khinsider.com/wallpaper/1280x1024/1058-everquest-002-gywvt.jpg',
          },
   },
   'defaults': {
-    wall:  null, //'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/images/custom/mario_wall.png',
-    block: null, //'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/images/custom/mario_block.png'
+    wall:  null, //'https://raw.github.com/WuTheFWasThat/midnighttherapy/blue/images/custom/mario_wall.png',
+    block: null, //'https://raw.github.com/WuTheFWasThat/midnighttherapy/blue/images/custom/mario_block.png'
   }
 }
 
@@ -48,7 +48,7 @@ $(document).ready(function() {
       user_id = parseInt(link.attr('href').split('=')[1])
       if (!((document.domain in bm_customizations) && (user_id in bm_customizations[document.domain]))) {
         //bm_add_message('<p style="font-size:15px;color:yellow">Get your own custom block and wall images!  Just tell Wu your user_id and give him image URLs.' +
-        //               '<a href="https://github.com/WuTheFWasThat/midnighttherapy/tree/master/images/custom">Here</a>\'s a small selection.</p>')
+        //               '<a href="https://github.com/WuTheFWasThat/midnighttherapy/tree/blue/images/custom">Here</a>\'s a small selection.</p>')
       }
     }
   })

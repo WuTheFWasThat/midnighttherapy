@@ -7,7 +7,7 @@ is_full = true;
 
 function get_shared_server(cb) {
   if (typeof bm_local_testing === 'undefined') {
-    $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-server-shared.js', cb)
+    $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/blue/pathery-server-shared.js', cb)
   } else {
     $.getScript('http://127.0.0.1:2222/pathery-server-shared.js', cb)
   }
@@ -20,7 +20,7 @@ function get_shared_server(cb) {
 // SHARED WITH PATHERY-CLIENT
 function get_shared_client(cb) {
   if (typeof bm_local_testing === 'undefined') {
-    $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-client-shared.js', cb)
+    $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/blue/pathery-client-shared.js', cb)
   } else {
     $.getScript('http://127.0.0.1:2222/pathery-client-shared.js', cb)
   }

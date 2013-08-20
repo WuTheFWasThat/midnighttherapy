@@ -15,7 +15,7 @@
 
 
 // IF YOU'RE NOT RUNNING A SERVER:
-$.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-full.js')
+$.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/blue/pathery-full.js')
 
 // ALTERNATIVELY, IF YOU ARE RUNNING A SERVER:
-// $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-client.js')
+// $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/blue/pathery-client.js')
