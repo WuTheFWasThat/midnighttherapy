@@ -586,15 +586,14 @@ loadScripts([
     $(block_div).trigger('click');
   }
 
-  function paint_line(block_div) {
+  //logic for determining what squares to consider for paint_line and erase_line
+  //returns array of blocks to consider (or undefined)
+  function line_candidates(block_div) {
     var id = $(block_div).attr('id');
     var first_comma_index = id.indexOf(',');
+
     var mapid = parseInt(id.slice(0, first_comma_index));
     if (mapid !== exports.mapid ) {return console.log('BUG FOUND!! NONMATCHING IDS: ' + mapid + ', ' + exports.mapid);}
-
-    if (map_is_out(mapid)) {
-      return;
-    }
 
     var block = block_from_block_string(id.slice(first_comma_index+1));
 
@@ -622,15 +621,40 @@ loadScripts([
       return;
     }
 
-    var blocks_to_add = [];
+    var candidates = [];
     for (var iter = 1; iter <= Math.max(Math.abs(x_diff), Math.abs(y_diff)) && !map_is_out(mapid); iter++) {
       var x_local = from_block[0] + (x_sign * iter);
       var y_local = from_block[1] + (y_sign * iter);
       var local_block = [x_local, y_local];
+      candidates.push(local_block);
+    }
 
+    return candidates;
+  }
+
+  function paint_line(block_div) {
+    var id = $(block_div).attr('id');
+    var first_comma_index = id.indexOf(',');
+
+    var mapid = parseInt(id.slice(0, first_comma_index));
+    if (mapid !== exports.mapid ) {return console.log('BUG FOUND!! NONMATCHING IDS: ' + mapid + ', ' + exports.mapid);}
+
+    if (map_is_out(mapid)) {
+      return;
+    }
+
+    var candidates = line_candidates(block_div);
+    //case where line_candidates returned early
+    if (!candidates) {
+      return;
+    }
+
+    blocks_to_add = [];
+    for (var i = 0; i < candidates.length; i++) {
+      var local_block = candidates[i];
       if (!is_block_there(mapid, local_block)) {
-        blocks_to_add.push([x_local, y_local]);
-        click_block_untriggered(mapid, [x_local, y_local]);
+        blocks_to_add.push(local_block);
+        click_block_untriggered(mapid, local_block);
       }
     }
     add_move_to_history(mapid, new BlocksDiffMove(mapid, blocks_to_add));
