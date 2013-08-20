@@ -597,7 +597,6 @@ loadScripts([
     }
 
     var block = block_from_block_string(id.slice(first_comma_index+1));
-    var is_there = this.cv; // note: can be undefined
 
     var move_history = get_move_history(mapid);
     var index = last_move_indices[mapid];
@@ -703,12 +702,19 @@ loadScripts([
 
   function is_block_there(mapid, block) {
     var id = id_from_block(mapid, block);
-    return $("[id='" + id + "']").cv;
+    return $("[id='" + id + "']")[0].cv;
   }
 
   function click_block_untriggered(mapid, block)  {
     var id = id_from_block(mapid, block);
-    grid_click($("[id='" + id + "']")[0]);
+    var block_div = "[id='" + id + "']";
+    var block_class = $(block_div).attr('class');
+
+    // Only click the block if it's clickable (e.g. not a transporter/pre-placed block/checkpoint etc).
+    if (block_class != "mapcell o" && block_class != "o") {
+      return;
+    }
+    grid_click($(block_div)[0]);
   }
 
   function click_block(mapid, block)  {
