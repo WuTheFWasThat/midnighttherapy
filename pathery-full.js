@@ -27,7 +27,7 @@ function get_shared_client(cb) {
 }
 
 function bm_get_values(mapid, cb) {
-  var result = PatherySolver.compute_values(mapdata[mapid].code, solution[mapid]) 
+  var result = PatherySolver.compute_values(mapdata[mapid].code, solution[mapid])
   cb(result);
 }
 
@@ -39,7 +39,7 @@ function bm_get_value(mapid, cb) {
 function bm_start_up() {
 }
 
-get_shared_server(function() { 
+get_shared_server(function() {
   get_shared_client(
     bm_start_up
   )
