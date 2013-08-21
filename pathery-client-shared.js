@@ -37,6 +37,15 @@ var grid_click = function() {
   if (custom_image) {linkEmblem = old_linkEmblem;}
 }
 
+// disable updating of the main score display
+var __old_updateDsp__ = updateDsp;
+var updateDsp = function(mapid, element, data) {
+  if (element == 'dspCount') {return;}
+  __old_updateDsp__.apply(this, arguments);
+}
+// disable flashing of stuff
+function flashelement() {}
+
 function bm_add_message(msg) {
   $('#difficulties').before('<center>' + msg + '</center></br>');
 }
@@ -599,11 +608,9 @@ loadScripts([
 
     var move_history = get_move_history(mapid);
     var index = last_move_indices[mapid];
-    if (index < 0) return;
+    if (index < 0) {return;}
     var move = move_history[index];
-    if (!(move instanceof BlocksDiffMove)) {
-      return;
-    }
+    if (!(move instanceof BlocksDiffMove)) { return; }
 
     var from_block = move.blocks.slice(-1)[0];
     var x_diff = block[0] - from_block[0];
