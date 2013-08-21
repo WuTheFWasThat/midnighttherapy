@@ -121,37 +121,35 @@ I'll get to this sometime...
 
 ## KNOWN ISSUES: ##
 
-- Undo/redo doesn't work well with load best (it works with manual loading from the side though)
-
-- With the painters + undo/redo, it's possible to delete pre-placed walls, checkpoints, etc. (b/c i add something to the history, and do trigger unclicked)
-
-<!--
 None, at the moment.  Let me know if you find any! 
--->
-
 <!--
-## MINOR NOTES: ##
-
-The values on the blocks is currently white, so it works best with darker blocks.  (I'll make the font color better/customizable in the future.)
 -->
 
 ## FUTURE WORK: ##
 
-Suggestions and feedback welcome.  Email me at [github-username]@gmail.com, or maybe catch me in the Pathery chat.
-
 - Cleanup of old solutions
 
-- Make it so you can upload your own image URL
+- Dynamic scoreboard. Notifications when scores are beat?  
 
-- Block-placing tools
-  - shift click draws walls from last click (two clicks to make a diagonal, n+1 clicks to make a structure with n parts)
+- Make it so you can upload your own image URL, choose shown values color, etc.
 
 - Chat in the main page
 
 - An API to support solvers that actually suggest (potentially major) changes, takes suggestions, etc. (and an accompanying prototype)
 
-Ongoing:
+- Make the it faster! (currently does ~1000 full UC calculations per second on my Macbook Air, in Node.js (which is single threaded))
 
-- Make the [dumb] thing faster (currently does ~1000 full UC calculations per second on my Macbook Air, in Node.js (which is single threaded))
+## CONTACT: ##
+
+Suggestions and feedback are welcome.  If you can't catch me in the Pathery chat, there's a mailing list for updates and discussions:
+
+  midnight-therapy@zeromailer.com
+
+To join it: 
+
+  https://www.zeromailer.com/join/midnight-therapy
 
 Feel free to contribute, of course :)
+
+Thanks to those who already have: BlueRaja, HRoll, Joy, skishore, wuthefwasthat
+
