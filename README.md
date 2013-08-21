@@ -70,20 +70,21 @@ If your browser doesn't support HTML5 local storage, you really should upgrade i
 
 I provide a number of hotkeys to make playing easier and faster:
 
-| Hotkey        | Action              |
-| ------------- |:------------------- |
-| 1-5           | Switch between maps |
-| G             | Go!                 |
-| R             | Reset               |
-| L             | Load best solution  |
-| S             | Save solution       |
-| M             | Toggle mute         |
-| V             | Toggle values       |
-| W             | Wall (paint)        |
-| E             | Erase (paint)       |
-| X             | Toggle block        |
-| Z             | Undo                |
-| Y             | Redo                |
+| Hotkey        | Action                           |
+| ------------- |:-------------------------------- |
+| 1-5           | Switch between maps              |
+| G             | Go!                              |
+| R             | Reset                            |
+| L             | Load best solution               |
+| S             | Save solution                    |
+| M             | Toggle mute                      |
+| V             | Toggle values                    |
+| W             | Wall (paint)                     |
+| E             | Erase (paint)                    |
+| X             | Toggle block                     |
+| Z             | Undo                             |
+| Y             | Redo                             |
+| Shift+Click   | Draw line from most recent block |
 
 ### CUSTOM BLOCK IMAGES ###
 

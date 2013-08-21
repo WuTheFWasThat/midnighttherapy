@@ -604,7 +604,7 @@ loadScripts([
     var mapid = parseInt(id.slice(0, first_comma_index));
     if (mapid !== exports.mapid ) {return console.log('BUG FOUND!! NONMATCHING IDS: ' + mapid + ', ' + exports.mapid);}
 
-    var block = block_from_block_string(id.slice(first_comma_index+1));
+    var to_block = block_from_block_string(id.slice(first_comma_index+1));
 
     var move_history = get_move_history(mapid);
     var index = last_move_indices[mapid];
@@ -613,25 +613,18 @@ loadScripts([
     if (!(move instanceof BlocksDiffMove)) { return; }
 
     var from_block = move.blocks.slice(-1)[0];
-    var x_diff = block[0] - from_block[0];
-    var y_diff = block[1] - from_block[1];
-    var x_sign = (x_diff > 0) ? 1 : ((x_diff < 0) ? -1 : 0);
-    var y_sign = (y_diff > 0) ? 1 : ((y_diff < 0) ? -1 : 0);
-
-    // Cannot paint a line if block and from_block are identical.
-    if (x_diff == 0 && y_diff == 0) {
-      return;
-    }
-
-    // For now, only allow painting of horizontal, vertical, or diagonal lines.
-    if (Math.abs(x_diff) != Math.abs(y_diff) && x_diff != 0 && y_diff != 0) {
-      return;
-    }
+    var x_diff = to_block[0] - from_block[0];
+    var y_diff = to_block[1] - from_block[1];
 
     var candidates = [];
-    for (var iter = 1; iter <= Math.max(Math.abs(x_diff), Math.abs(y_diff)) && !map_is_out(mapid); iter++) {
-      var x_local = from_block[0] + (x_sign * iter);
-      var y_local = from_block[1] + (y_sign * iter);
+
+    var niters = Math.max(Math.abs(x_diff), Math.abs(y_diff))
+    var xinc = Math.min(Math.abs(x_diff / y_diff), 1) * (x_diff > 0 ? 1 : -1);
+    var yinc = Math.min(Math.abs(y_diff / x_diff), 1) * (y_diff > 0 ? 1 : -1);
+
+    for (var iter = 0; (iter <= niters) && (!map_is_out(mapid)); iter++) {
+      var x_local = from_block[0] + Math.round(iter * xinc);
+      var y_local = from_block[1] + Math.round(iter * yinc);
       var local_block = [x_local, y_local];
       candidates.push(local_block);
     }
@@ -790,6 +783,7 @@ loadScripts([
     '<tr><td>' + TOGGLE_BLOCK_KEY                          + '</td><td>' + 'Toggle block'   + '</td></tr>' +
     '<tr><td>' + PAINT_BLOCK_KEY                           + '</td><td>' + 'Wall (paint)'   + '</td></tr>' +
     '<tr><td>' + ERASE_KEY                                 + '</td><td>' + 'Erase (paint)'  + '</td></tr>' +
+    '<tr><td>' + 'Shift+Click'                             + '</td><td>' + 'Draw line to'   + '</td></tr>' +
     '</table>';
 
   function switch_map(map_num) {
@@ -945,17 +939,17 @@ loadScripts([
 
       var hotkeys_button = $('<button id="bm_show_hotkeys">Hotkeys</button>');
       var hotkeys_dropdown = $('<p id="bm_hotkeys_text" style="display:none; position: relative; text-align: left; font-family: Courier">' + hotkeys_text + '</p>');
-      hotkeys_button.hover(
-        function(e) {
-          hotkeys_dropdown.show();
-        },
-        function(e) {
-          hotkeys_dropdown.hide();
-        }
-      );
+      //hotkeys_button.hover(
+      //  function(e) {
+      //    hotkeys_dropdown.show();
+      //  },
+      //  function(e) {
+      //    hotkeys_dropdown.hide();
+      //  }
+      //);
       button_toolbar.append(hotkeys_button);
       hotkeys_button.append(hotkeys_dropdown);
-      hotkeys_dropdown.hide();
+      //hotkeys_dropdown.hide();
 
 
     }
