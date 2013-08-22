@@ -1,46 +1,38 @@
 // NOTE: set bm_local_testing to use local version
-is_full = true;
 
-///////////////////////////////////////
-// SERVER
-///////////////////////////////////////
-
-function get_shared_server(cb) {
+(function() {
   if (typeof bm_local_testing === 'undefined') {
-    $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-server-shared.js', cb)
+    var url = 'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/'
   } else {
-    $.getScript('http://127.0.0.1:2222/pathery-server-shared.js', cb)
+    var url = 'http://127.0.0.1:2222/';
   }
-}
 
-///////////////////////////////////////
-// CLIENT
-///////////////////////////////////////
+  ///////////////////////////////////////
+  // SERVER
+  ///////////////////////////////////////
 
-// SHARED WITH PATHERY-CLIENT
-function get_shared_client(cb) {
-  if (typeof bm_local_testing === 'undefined') {
-    $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-client-shared.js', cb)
-  } else {
-    $.getScript('http://127.0.0.1:2222/pathery-client-shared.js', cb)
+  function get_shared_server(cb) {
+    $.getScript(url + '/pathery-server-shared.js', cb)
   }
-}
 
-function bm_get_values(mapid, cb) {
-  var result = PatherySolver.compute_values(mapdata[mapid].code, solution[mapid])
-  cb(result);
-}
+  ///////////////////////////////////////
+  // CLIENT
+  ///////////////////////////////////////
 
-function bm_get_value(mapid, cb) {
-  var result = PatherySolver.compute_value(mapdata[mapid].code, solution[mapid]);
-  cb(result);
-};
+  // SHARED WITH PATHERY-CLIENT
+  function get_shared_client(cb) {
+    $.getScript(url + '/pathery-client-shared.js', cb)
+  }
 
-function bm_start_up() {
-}
+  function start_up() {
+  }
 
-get_shared_server(function() {
-  get_shared_client(
-    bm_start_up
-  )
-});
+  get_shared_server(function() {
+    PatherySolver.is_remote = false;
+
+    get_shared_client(
+      start_up
+    )
+  });
+
+})()

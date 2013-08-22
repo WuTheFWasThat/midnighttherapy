@@ -1,33 +1,54 @@
 // NOTE: set bm_local_testing to use local version
-is_full = false;
 
-// SHARED WITH PATHERY-FULL
-function get_shared_client(cb) {
+var PatherySolver  = {};
+
+(function() {
   if (typeof bm_local_testing === 'undefined') {
-    $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-client-shared.js', cb)
+    var url = 'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/'
   } else {
-    $.getScript('http://127.0.0.1:2222/pathery-client-shared.js', cb)
+    var url = 'http://127.0.0.1:2222/';
   }
-}
 
-function bm_get_values(mapid, cb) {
-    $.post('http://127.0.0.1:2222/compute_values', 
-          {'mapcode': mapdata[mapid].code, 'solution': solution[mapid]}, 
-            function(result) {
-              cb(JSON.parse(result))
-            }
-    );
-}
+  // SHARED WITH PATHERY-FULL
+  function get_shared_client(cb) {
+    $.getScript(url + 'pathery-client-shared.js', cb)
+  }
 
-function bm_get_value(mapid, cb) {
-  $.post('http://127.0.0.1:2222/compute_value', 
-        {'mapcode': mapdata[mapid].code, 'solution': solution[mapid]}, 
-        function(values) {cb(JSON.parse(values));}
-  )
-};
+  PatherySolver.compute_values = function(code, solution, cb) {
+    $.ajax({
+      url: 'http://127.0.0.1:2222/compute_values',
+      type: 'POST',
+      data: {'mapcode': code, 'solution': solution},
+      dataType: 'json',
+      success: cb
+    });
+  }
+
+  PatherySolver.compute_value = function(code, solution, cb) {
+    $.ajax({
+      url: 'http://127.0.0.1:2222/compute_value',
+      type: 'POST',
+      data: {'mapcode': code, 'solution': solution},
+      dataType: 'json',
+      success: cb
+    })
+  }
+
+  PatherySolver.place_greedy = function(code, solution, remaining, cb) {
+    $.ajax({
+      url: 'http://127.0.0.1:2222/place_greedy',
+      type: 'POST',
+      data: {'mapcode': code, 'solution': solution, 'remaining': remaining},
+      dataType: 'json',
+      success: cb
+    })
+  }
+
+  PatherySolver.is_remote = true;
 
 
-function bm_start_up() {
-}
+  function start_up() {
+  }
+  get_shared_client(start_up);
 
-get_shared_client(bm_start_up);
+})()

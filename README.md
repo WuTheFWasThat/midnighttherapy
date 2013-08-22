@@ -121,17 +121,27 @@ I'll get to this sometime...
 
 ## KNOWN ISSUES: ##
 
-None, at the moment.  Let me know if you find any!
+- After erasing a block, you can't shift click to it
+
 <!--
+None, at the moment.  Let me know if you find any!
 -->
 
 ## FUTURE WORK: ##
 
-- Cleanup of old solutions
+- Disable new day alert, auto refresh
+
+- Toggle showing the path animation
+
+- Make reset button do my reset
+
+- Make load best into a custom thing?
+
+- Cleanup of old saved solutions
 
 - Dynamic scoreboard. Notifications when scores are beat?
 
-- Make it so you can upload your own image URL, choose shown values color, etc.
+- More customization!  block images, choose shown values color, etc.
 
 - Chat in the main page
 
