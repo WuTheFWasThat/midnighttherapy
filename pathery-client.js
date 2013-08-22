@@ -1,5 +1,5 @@
 // NOTE: set bm_local_testing to use local version
-is_full = false;
+var bm_is_full = false;
 
 // SHARED WITH PATHERY-FULL
 function get_shared_client(cb) {
@@ -10,21 +10,21 @@ function get_shared_client(cb) {
   }
 }
 
-function bm_get_values(mapid, cb) {
-    $.post('http://127.0.0.1:2222/compute_values', 
-          {'mapcode': mapdata[mapid].code, 'solution': solution[mapid]}, 
-            function(result) {
-              cb(JSON.parse(result))
-            }
+var PatherySolver  = {
+  compute_values : function(code, solution, cb) {
+    $.post('http://127.0.0.1:2222/compute_values',
+          {'mapcode': code, 'solution': solution},
+            function(result) { cb(JSON.parse(result)) }
     );
-}
+  },
 
-function bm_get_value(mapid, cb) {
-  $.post('http://127.0.0.1:2222/compute_value', 
-        {'mapcode': mapdata[mapid].code, 'solution': solution[mapid]}, 
-        function(values) {cb(JSON.parse(values));}
-  )
-};
+  compute_value : function(code, solution, cb) {
+    $.post('http://127.0.0.1:2222/compute_value',
+          {'mapcode': code, 'solution': solution},
+          function(values) {cb(JSON.parse(values));}
+    )
+  }
+}
 
 
 function bm_start_up() {

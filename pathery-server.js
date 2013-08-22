@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////
 
 var express = require('express');
-var pathery = require('./pathery-server-shared.js');
+var PatherySolver = require('./pathery-server-shared.js');
 
 var app = express();
 
@@ -17,7 +17,7 @@ app.post('/compute_value', function(req, res){
   res.header("Access-Control-Allow-Origin", "*");
 
   var t = new Date().getTime();
-  var result = pathery.compute_value(req.body.mapcode, req.body.solution);
+  var result = PatherySolver.compute_value(req.body.mapcode, req.body.solution);
   //console.log("\nCOMPUTE VALUE:")
   //console.log("ms elapsed: " , new Date().getTime() - t)
 
@@ -29,7 +29,7 @@ app.post('/compute_values', function(req, res){
   res.header("Access-Control-Allow-Origin", "*");
 
   var t = new Date().getTime();
-  var result = pathery.compute_values(req.param('mapcode'), req.param('solution'));
+  var result = PatherySolver.compute_values(req.param('mapcode'), req.param('solution'));
   var time_elapsed = new Date().getTime() - t;
 
   console.log("\nCOMPUTE VALUES:")

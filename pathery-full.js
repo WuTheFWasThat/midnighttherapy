@@ -1,5 +1,5 @@
 // NOTE: set bm_local_testing to use local version
-is_full = true;
+var bm_is_full = true;
 
 ///////////////////////////////////////
 // SERVER
@@ -25,16 +25,6 @@ function get_shared_client(cb) {
     $.getScript('http://127.0.0.1:2222/pathery-client-shared.js', cb)
   }
 }
-
-function bm_get_values(mapid, cb) {
-  var result = PatherySolver.compute_values(mapdata[mapid].code, solution[mapid])
-  cb(result);
-}
-
-function bm_get_value(mapid, cb) {
-  var result = PatherySolver.compute_value(mapdata[mapid].code, solution[mapid]);
-  cb(result);
-};
 
 function bm_start_up() {
 }
