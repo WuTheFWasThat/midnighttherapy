@@ -10,21 +10,39 @@ function get_shared_client(cb) {
   }
 }
 
-var PatherySolver  = {
-  compute_values : function(code, solution, cb) {
-    $.post('http://127.0.0.1:2222/compute_values',
-          {'mapcode': code, 'solution': solution},
-            function(result) { cb(JSON.parse(result)) }
-    );
-  },
+var PatherySolver  = {};
 
-  compute_value : function(code, solution, cb) {
-    $.post('http://127.0.0.1:2222/compute_value',
-          {'mapcode': code, 'solution': solution},
-          function(values) {cb(JSON.parse(values));}
-    )
-  }
+PatherySolver.compute_values = function(code, solution, cb) {
+    $.ajax({
+      url: 'http://127.0.0.1:2222/compute_values',
+      type: 'POST',
+      data: {'mapcode': code, 'solution': solution},
+      dataType: 'json',
+      success: cb
+    });
 }
+
+PatherySolver.compute_value = function(code, solution, cb) {
+    $.ajax({
+      url: 'http://127.0.0.1:2222/compute_value',
+      type: 'POST',
+      data: {'mapcode': code, 'solution': solution},
+      dataType: 'json',
+      success: cb
+    })
+}
+
+PatherySolver.place_greedy = function(code, solution, remaining, cb) {
+    $.ajax({
+      url: 'http://127.0.0.1:2222/place_greedy',
+      type: 'POST',
+      data: {'mapcode': code, 'solution': solution, 'remaining': remaining},
+      dataType: 'json',
+      success: cb
+    })
+}
+
+PatherySolver.is_remote = true;
 
 
 function bm_start_up() {

@@ -1,5 +1,4 @@
 // NOTE: set bm_local_testing to use local version
-var bm_is_full = true;
 
 ///////////////////////////////////////
 // SERVER
@@ -30,6 +29,8 @@ function bm_start_up() {
 }
 
 get_shared_server(function() {
+  PatherySolver.is_remote = false;
+
   get_shared_client(
     bm_start_up
   )

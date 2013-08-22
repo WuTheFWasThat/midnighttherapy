@@ -394,7 +394,7 @@ function find_pathery_path(graph, blocks){
 }
 
 
-exports.compute_value = function(mapcode, solution, cb) {
+function compute_value(mapcode, solution, cb) {
     bm_board= parse_board(mapcode);
     bm_graph = new PatheryGraph(bm_board);
 
@@ -404,6 +404,7 @@ exports.compute_value = function(mapcode, solution, cb) {
     if (cb) {cb(bm_solution.values)}
     return bm_solution.values;
 }
+exports.compute_value = compute_value;
 
 function sum_values(array) {
   return array.reduce(function(x, y) {return x + y})
@@ -455,7 +456,7 @@ function improve_solution(graph, blocks, options) {
   return null;
 }
 
-exports.compute_values = function(mapcode, solution, cb) {
+function compute_values(mapcode, solution, cb) {
     bm_board= parse_board(mapcode);
     bm_graph = new PatheryGraph(bm_board);
 
@@ -499,7 +500,7 @@ exports.compute_values = function(mapcode, solution, cb) {
                       if (isNaN(diff)) {diff = '-';}
                       delete bm_current_blocks[block];
 
-                      if (Math.abs(diff) > 2222222222) {diff = '-';}
+                      if (Math.abs(diff) > 2222222222) {diff = '-';} // TODO : make less hackish
                       else if (diff == 0) {diff = '';}
                     }
                 } else {
@@ -514,5 +515,14 @@ exports.compute_values = function(mapcode, solution, cb) {
     if (cb) {cb(retval);}
     return retval;
 }
+exports.compute_values = compute_values;
+
+function place_greedy(mapcode, solution, remaining, cb) {
+  var retval = {testing: 'hooray', hmm: 'ok'};
+  if (cb) {cb(retval);}
+  return retval;
+}
+exports.place_greedy = place_greedy;
+
 
 })(typeof exports === "undefined" ? (window.PatherySolver={}, window.PatherySolver) : module.exports)

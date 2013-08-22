@@ -60,6 +60,15 @@ bm_loadScripts([
     return solution[mapid];
   }
 
+  function walls_remaining(mapid) {
+    return mapdata[mapid].usedWallCount;
+  }
+
+  function map_is_out(mapid) {
+    return (walls_remaining(mapid) < 1);
+  }
+
+
   function draw_values() {
       var mapid = get_mapid();
 
@@ -158,7 +167,12 @@ bm_loadScripts([
   exports.toggle_values = toggle_values;
 
   function get_score_total(values) {
-    return values.reduce(function(x, y) {return x + (y === null ? NaN : y)});
+    var sum = 0;
+    for (var i in values) {
+      if (values[i] == null) {return NaN;}
+      sum = sum + values[i];
+    }
+    return sum;
   }
 
   function write_score_value(values) {
@@ -265,11 +279,6 @@ bm_loadScripts([
     var y = parseInt(string_coordinates[1]);
     var block = [x, y];
     return block;
-  }
-
-  // are we out of walls?
-  function map_is_out(mapid) {
-    return (mapdata[mapid].usedWallCount < 1);
   }
 
   //////////////////
@@ -699,10 +708,15 @@ bm_loadScripts([
   hotkey_handler[MAP_SWITCH_KEY_5] = function(e) {switch_map(5)};
 
   hotkey_handler[GO_KEY] = function(e) {
-    if (bm_is_full) {
-      doSend(exports.mapid);
+    var mapid = get_mapid();
+    return doSend(mapid);
+    if (solver.is_remote) {
+      solver.place_greedy(get_code(mapid), get_solution(mapid), walls_remaining(mapid), function(result) {
+        console.log(result);
+        //place_solution(mapid, result);
+      })
     } else {
-      place_greedy
+      doSend(mapid);
     }
   };
 
@@ -814,7 +828,7 @@ bm_loadScripts([
     button_toolbar.append('<br/>');
 
     // show values automatically enabled only if using server
-    if (!bm_is_full) { show_values_button.click(); }
+    if (solver.is_remote) { show_values_button.click(); }
 
     var save_solution_input = $('<input id="bm_save_solution_name" placeholder="solution label/name (optional)">');
     button_toolbar.append(save_solution_input);
