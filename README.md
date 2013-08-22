@@ -131,7 +131,7 @@ None, at the moment.  Let me know if you find any!
 
 - Dynamic scoreboard. Notifications when scores are beat?
 
-- Make it so you can upload your own image URL, choose shown values color, etc.
+- More customization!  block images, choose shown values color, etc.
 
 - Chat in the main page
 

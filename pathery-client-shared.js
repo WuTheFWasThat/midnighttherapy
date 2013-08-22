@@ -1,90 +1,6 @@
-// CUSTOMIZED BLOCKS
-var user_id;
-var bm_customizations = {
-  'www.pathery.com': {
-    835: { // joy
-           block: 'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/images/custom/pusheen.png',
-         },
-    400: { // me
-           block: 'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/images/custom/bwlo.png',
-         },
-    271: { // yeuo
-           block: 'http://downloads.khinsider.com/wallpaper/1280x1024/1058-everquest-002-gywvt.jpg',
-         },
-  },
-  'defaults': {
-    wall:  null, //'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/images/custom/mario_wall.png',
-    block: null, //'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/images/custom/mario_block.png'
-  }
-}
-
-function bm_get_custom(item) {
-  if ((document.domain in bm_customizations) && (user_id in bm_customizations[document.domain])) {
-    if (item in bm_customizations[document.domain][user_id]) {
-      return bm_customizations[document.domain][user_id][item];
-    }
-  }
-  return bm_customizations.defaults[item];
-}
-
-var __old_grick_click__ = grid_click;
-var grid_click = function() {
-  var custom_image = bm_get_custom('block');
-  if (custom_image) {wallEmblem = custom_image;}
-  var old_linkEmblem = linkEmblem;
-  if (custom_image) { linkEmblem = function() {return wallEmblem;} }
-  __old_grick_click__.apply(this, arguments);
-  if (custom_image) {linkEmblem = old_linkEmblem;}
-}
-
-// disable updating of the main score display
-var __old_updateDsp__ = updateDsp;
-var updateDsp = function(mapid, element, data) {
-  if (element == 'dspCount') {return;}
-  __old_updateDsp__.apply(this, arguments);
-}
-// disable flashing of stuff
-function flashelement() {}
-
-$(document).ready(function() {
-  $('#topbarContent a').each(function(x, y) {
-    var link = $(y);
-    if (link.text() == 'Achievements') {
-      user_id = parseInt(link.attr('href').split('=')[1])
-      if (!((document.domain in bm_customizations) && (user_id in bm_customizations[document.domain]))) {
-        // user has no custom block
-      }
-    }
-  })
-
-  function update_wall_images() {
-    var custom_wall = bm_get_custom('wall');
-    if (custom_wall) {
-      $('.mapcell.r').css('background-image', "url(" + custom_wall + ")")
-    };
-  }
-  update_wall_images();
-
-  function update_block_images() {
-    var custom_image = bm_get_custom('block');
-    if (custom_image) {
-      $('.playable > div').each(function(x, y) {
-        if (this.cv) {$(this).css('background-image', "url(" + custom_image + ")")};
-      })
-    }
-  }
-  update_block_images();
-
-  $('.o').css('-moz-user-select','none')
-         .css('-khtml-user-select', 'none')
-         .css('-webkit-user-select', 'none')
-         .css('-o-user-select', 'none')
-});
-
-// END CUSTOMIZED BLOCKS
-
-// TODO:  DO NOT UNCOMMENT THIS LINE
-// $(document).on('click', function() {$('.map.playable .o').css('background-image', 'url(http://24.media.tumblr.com/tumblr_lg3ynmrMvc1qcpyl1o1_400.gif)')})
+////////////////////////////////////////////////////////////
+// LOAD SCRIPTS
+////////////////////////////////////////////////////////////
 
 // CREDIT TO:  http://stackoverflow.com/questions/1866717/document-createelementscript-adding-two-scripts-with-one-callback
 function bm_loadScripts(array,callback){
@@ -108,12 +24,27 @@ function bm_loadScripts(array,callback){
 }
 
 bm_loadScripts([
-   "http://html2canvas.hertzen.com/build/html2canvas.js"
-],function() {
+   "http://html2canvas.hertzen.com/build/html2canvas.js",
+   "https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js"
+] , function() {
 
 (function(exports,
           get_values,
           get_value) {
+
+  ////////////////////////////
+  // GET USER ID
+  ////////////////////////////
+
+  var user_id;
+  $(document).ready(function() {
+    $('#topbarContent a').each(function(x, y) {
+      var link = $(y);
+      if (link.text() == 'Achievements') {
+        user_id = parseInt(link.attr('href').split('=')[1])
+      }
+    })
+  })
 
   exports.mapid = null;
 
@@ -244,6 +175,22 @@ bm_loadScripts([
       txt += sum + ' moves';
     }
     $('#' + exports.mapid + '\\,dspCount').text(txt);
+  }
+
+  function get_custom(item_name) {
+    if (supports_HTML5_Storage()) {
+      return localStorage['custom' + '.' + item_name];
+    } else {
+      return $.cookie('bm_' + item_name);
+    }
+  }
+
+  function set_custom(item_name, val) {
+    if (supports_HTML5_Storage()) {
+      localStorage['custom' + '.' + item_name] = val;
+    } else {
+      $.cookie('bm_' + item_name, val);
+    }
   }
 
   /////////////////////////////////////////////
@@ -480,8 +427,12 @@ bm_loadScripts([
       //  });
       //}
       //render_solution(solution_el)
-
     }
+
+    if ($('#bm_save_solution_list').children().length == 0) {
+      $('#bm_save_solution_list').append('No solutions saved!')
+    }
+
     //load_solution(mapid, current_solution);
   }
 
@@ -830,7 +781,7 @@ bm_loadScripts([
   });
 
   $(document).bind('keydown', function(e){
-      if ($("#bm_save_solution_name").is(":focus")) {return true;}
+      if ($("input").is(":focus")) {return true;}
       var chr = String.fromCharCode(e.keyCode);
       var handler = hotkey_handler[chr];
       if (handler) {
@@ -844,6 +795,61 @@ bm_loadScripts([
   ////////////////////////////////////////////
 
   $(document).ready(function() {
+
+    // NOTE:  DO NOT UNCOMMENT THIS LINE
+    // $(document).on('click', function() {$('.map.playable .o').css('background-image', 'url(http://24.media.tumblr.com/tumblr_lg3ynmrMvc1qcpyl1o1_400.gif)')})
+
+    ////////////////////////////////////////////
+    // OVERRIDE SNAP'S STUFF
+    ////////////////////////////////////////////
+
+    var __old_grick_click__ = grid_click;
+    grid_click = function() {
+      var custom_image = get_custom('wall_image');
+      if (custom_image) {wallEmblem = custom_image;}
+      var old_linkEmblem = linkEmblem;
+      if (custom_image) { linkEmblem = function() {return wallEmblem;} }
+      __old_grick_click__.apply(this, arguments);
+      if (custom_image) {linkEmblem = old_linkEmblem;}
+    }
+
+    // disable updating of the main score display
+    var __old_updateDsp__ = updateDsp;
+    updateDsp = function(mapid, element, data) {
+      if (element == 'dspCount') {return;}
+      __old_updateDsp__.apply(this, arguments);
+    }
+
+    // disable flashing of stuff
+    flashelement = function() {}
+
+    // NOTE: currently unused
+    function update_block_images() {
+      var block_image = get_custom('block_image');
+      if (block_image) {
+        $('.mapcell.r').css('background-image', "url(" + block_image + ")")
+      };
+    }
+    update_block_images();
+
+    function update_wall_images() {
+      var wall_image = get_custom('wall_image');
+      if (!wall_image) {
+        setWallStyle(userObj);
+        wall_image = linkEmblem(wallEmblem, wallOrientation)
+      }
+      if (wall_image) {
+        $('.playable > div').each(function(x, y) {
+          if (this.cv) {$(this).css('background-image', "url(" + wall_image + ")")};
+        })
+      }
+    }
+    update_wall_images();
+
+    $('.o').css('-moz-user-select','none')
+           .css('-khtml-user-select', 'none')
+           .css('-webkit-user-select', 'none')
+           .css('-o-user-select', 'none')
 
     $(window).click(function() {
       refresh_score();
@@ -874,7 +880,7 @@ bm_loadScripts([
 
       var show_values_button = $('<button id="bm_show_values">Show values</button>');
       show_values_button.css({
-        'margin': '10px'
+        'margin': '10px 0px 20px 0px'
       })
 
       button_toolbar.append(show_values_button);
@@ -894,11 +900,25 @@ bm_loadScripts([
       solutions_list.css({
         'text-align': 'center',
         'border':'1px solid white',
-        'margin': '5px 30px',
+        'margin': '5px 30px 20px 30px',
         'padding': '3px 0px',
         'width': '200px'
       })
       button_toolbar.append(solutions_list);
+
+
+
+      function change_wall_image() {
+        var url = $('#bm_change_wall_input').val();
+        set_custom('wall_image', url);
+        update_wall_images();
+      }
+
+      var change_wall_input = $('<input id="bm_change_wall_input" placeholder="Image url (blank to use default)">');
+      button_toolbar.append(change_wall_input);
+      var change_wall_button = $('<button id="bm_change_wall">Set wall image</button>');
+      button_toolbar.append(change_wall_button);
+      change_wall_button.click(change_wall_image);
 
       var hotkeys_button = $('<button id="bm_show_hotkeys">Hotkeys</button>');
       hotkeys_button.css({
