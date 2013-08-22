@@ -508,6 +508,9 @@ bm_loadScripts([
     }
   }
   BlocksDiffMove.prototype.is_trivial = function() {return (this.blocks.length == 0);}
+  BlocksDiffMove.prototype.get_last_block = function() {
+    return ((!this.is_trivial()) && this.blocks.slice(-1)[0]);
+  }
 
   // TODO: make this work for built-in Reset and load-Best
   function ChangeBoardMove(mapid, old_blocks, new_blocks) {
@@ -597,7 +600,7 @@ bm_loadScripts([
     var xinc = Math.min(Math.abs(x_diff / y_diff), 1) * (x_diff > 0 ? 1 : -1);
     var yinc = Math.min(Math.abs(y_diff / x_diff), 1) * (y_diff > 0 ? 1 : -1);
 
-    for (var iter = 0; (iter <= niters) && (!map_is_out(mapid)); iter++) {
+    for (var iter = 0; iter <= niters; iter++) {
       var x_local = from_block[0] + Math.round(iter * xinc);
       var y_local = from_block[1] + Math.round(iter * yinc);
       var local_block = [x_local, y_local];
@@ -610,16 +613,17 @@ bm_loadScripts([
   function paint_line_to(to_block, mapid) {
     var move_history = get_move_history(mapid);
     var index = last_move_indices[mapid];
-    if (index < 0) {return;}
+    if (index < 0) {return false;}
     var move = move_history[index];
-    if (!(move instanceof BlocksDiffMove)) { return; }
-    var from_block = move.blocks.slice(-1)[0];
+    var from_block = (move.get_last_block && move.get_last_block());
+    if (!from_block) { return false; }
 
     var candidates = line_candidates(from_block, to_block);
     //case where line_candidates returned early
 
     var blocks_to_add = [];
     for (var i = 0; i < candidates.length; i++) {
+      if (map_is_out(mapid)) {break;}
       var local_block = candidates[i];
       if (!is_block_there(mapid, local_block)) {
         blocks_to_add.push(local_block);
@@ -627,6 +631,7 @@ bm_loadScripts([
       }
     }
     add_move_to_history(mapid, new BlocksDiffMove(mapid, blocks_to_add));
+    return true;
   };
 
   $('.playable > div').mousemove(function(e) {
@@ -654,7 +659,7 @@ bm_loadScripts([
   $('.playable > div').mouseenter(function(e) { cur_block = this; })
   $('.playable > div').mouseleave(function(e) { cur_block = null; })
 
-  $('.playable > div').click(function() {
+  $('.playable > div').click(function(ev) {
     var id = $(this).attr('id');
     var first_comma_index = id.indexOf(',');
 
@@ -664,10 +669,10 @@ bm_loadScripts([
     var block = block_from_block_string(id.slice(first_comma_index+1));
     var is_there = this.cv; // note: can be undefined
 
-    if (shiftkey_held && is_there) {
-      // Undo previous click. (2 simple clicks on same grid is always a no-op).
-      click_block_untriggered(mapid, block);
-      paint_line_to(block, mapid);
+    if (shiftkey_held) {
+      // Undo previous click.  That way this is the last block clicked. (2 simple clicks on same grid is always a no-op).
+      if (is_there) { click_block_untriggered(mapid, block); }
+      var painted = paint_line_to(block, mapid);
       return;
     }
 
@@ -685,15 +690,12 @@ bm_loadScripts([
   function click_block_untriggered(mapid, block)  {
     var id = id_from_block(mapid, block);
     var block_div = "[id='" + id + "']";
-    var block_class = $(block_div).attr('class');
-
     // Only click the block if it's clickable (e.g. not a transporter/pre-placed block/checkpoint etc).
-    if (block_class != "mapcell o" && block_class != "o") {
-      return;
-    }
+    if (!$(block_div).hasClass('o')) { return; }
     grid_click($(block_div)[0]);
   }
 
+  // NOTE: this is unused
   function click_block(mapid, block)  {
     var id = id_from_block(mapid, block);
     $("[id='" + id + "']").click();
