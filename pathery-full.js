@@ -1,5 +1,4 @@
 // NOTE: set bm_local_testing to use local version
-is_full = true;
 
 ///////////////////////////////////////
 // SERVER

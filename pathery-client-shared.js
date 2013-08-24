@@ -959,6 +959,6 @@ bm_loadScripts([
     refresh_solution_store_display();
   })
 
-})(typeof exports === "undefined" ? (window.PatheryAssist={}, window.PatheryAssist) : module.exports, bm_get_values, bm_get_value)
+})(typeof exports === "undefined" ? (window.PatheryAssist={}, window.PatheryAssist) : module.exports, PatherySolver)
 });
 
