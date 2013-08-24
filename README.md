@@ -14,7 +14,7 @@
 This project is an extension to the Pathery website (www.pathery.com).  It does two main things:
 
 1. Extend the client (browser) to do things like show block values and save/load of solutions.
-2. Lets the website interact with a personal server (running a solver), to facilitate human-computer interaction.  
+2. Lets the website interact with a personal server (running a solver), to facilitate human-computer interaction.
 
 ## HOW TO INSTALL ##
 
@@ -50,20 +50,20 @@ Check this out:
 You can have something which updates your score as you place blocks!
 The score is shown next to the speed dropdown.  Remember, the score IS NOT SUBMITTED FOR YOU.
 
-If you press "show values", you'll see block values for every block.  
+If you press "show values", you'll see block values for every block.
 However, this may feel laggy if you're letting the browser do the computation.
 
 ![client side pathing](images/show-values-on.png)
 
 ### SOLUTION LOAD AND SAVE ###
 
-Simply enter a name and press "Save solution" (or use the hotkey S) to save a solution under some name.  
+Simply enter a name and press "Save solution" (or use the hotkey S) to save a solution under some name.
 If no name is entered, a default name is chosen based on the score of the solution.
 You'll then see the name appear in a list, where you can Load or Delete it.
 
 ![save solutions](images/save-solutions.png)
 
-If you want your solution saving to persist, you'll need a browser that supports HTML5 storage!  
+If you want your solution saving to persist, you'll need a browser that supports HTML5 storage!
 If your browser doesn't support HTML5 local storage, you really should upgrade it...
 
 ### HOTKEYS ###
@@ -121,17 +121,24 @@ I'll get to this sometime...
 
 ## KNOWN ISSUES: ##
 
-None, at the moment.  Let me know if you find any! 
+- After erasing a block, you can't shift click to it
 <!--
+None, at the moment.  Let me know if you find any!
 -->
 
 ## FUTURE WORK: ##
 
-- Cleanup of old solutions
+- Disable new day alert, auto refresh
 
-- Dynamic scoreboard. Notifications when scores are beat?  
+- Make reset button do my reset
 
-- Make it so you can upload your own image URL, choose shown values color, etc.
+- Make load best into a custom thing?
+
+- Cleanup of old saved solutions
+
+- Dynamic scoreboard. Notifications when scores are beat?
+
+- More customization!  block images, choose shown values color, etc.
 
 - Chat in the main page
 
@@ -139,13 +146,15 @@ None, at the moment.  Let me know if you find any!
 
 - Make the it faster! (currently does ~1000 full UC calculations per second on my Macbook Air, in Node.js (which is single threaded))
 
+- Make painting/erasing atomic for undo?
+
 ## CONTACT: ##
 
 Suggestions and feedback are welcome.  If you can't catch me in the Pathery chat, there's a mailing list for updates and discussions:
 
   midnight-therapy@zeromailer.com
 
-To join it: 
+To join it:
 
   https://www.zeromailer.com/join/midnight-therapy
 

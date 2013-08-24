@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////
 
 var express = require('express');
-var pathery = require('./pathery-server-shared.js');
+var PatherySolver = require('./pathery-server-shared.js');
 
 var app = express();
 
@@ -13,15 +13,27 @@ app.configure(function() {
   app.use(app.router);
 });
 
+app.post('/place_greedy', function(req, res){
+  res.header("Access-Control-Allow-Origin", "*");
+
+  var t = new Date().getTime();
+  var result = PatherySolver.place_greedy(req.param('mapcode'), req.param('solution'), req.param('remaining'));
+  console.log("\nPLACE GREEDY:")
+  console.log("ms elapsed: " , new Date().getTime() - t)
+
+  res.json(result);
+
+});
+
 app.post('/compute_value', function(req, res){
   res.header("Access-Control-Allow-Origin", "*");
 
   var t = new Date().getTime();
-  var result = pathery.compute_value(req.body.mapcode, req.body.solution);
+  var result = PatherySolver.compute_value(req.param('mapcode'), req.param('solution'));
   //console.log("\nCOMPUTE VALUE:")
   //console.log("ms elapsed: " , new Date().getTime() - t)
 
-  res.end(JSON.stringify(result));
+  res.json(result);
 
 });
 
@@ -29,7 +41,7 @@ app.post('/compute_values', function(req, res){
   res.header("Access-Control-Allow-Origin", "*");
 
   var t = new Date().getTime();
-  var result = pathery.compute_values(req.param('mapcode'), req.param('solution'));
+  var result = PatherySolver.compute_values(req.param('mapcode'), req.param('solution'));
   var time_elapsed = new Date().getTime() - t;
 
   console.log("\nCOMPUTE VALUES:")
@@ -37,7 +49,7 @@ app.post('/compute_values', function(req, res){
   console.log("find_pathery_path count: " + result.find_pathery_path_count);
   console.log("ms / #find_pathery_path: " , time_elapsed / result.find_pathery_path_count)
 
-  res.end(JSON.stringify(result));
+  res.json(result);
 });
 
 app.use(express.static(__dirname));

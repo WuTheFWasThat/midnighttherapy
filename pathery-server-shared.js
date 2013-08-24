@@ -56,7 +56,7 @@ TYPE_MAP = {
 function parse_board(code) {
     var head = code.split(':')[0];
     var body = code.split(':')[1];
-    
+
     var head = head.split('.');
     var dims = head[0].split('x');
     var width = parseInt(dims[0]);
@@ -66,9 +66,9 @@ function parse_board(code) {
     if (head[2][0] != 'r') {console.log('head[2][0] was ' + head[2][0] + ' expected r');}
     if (head[3][0] != 'w') {console.log('head[3][0] was ' + head[3][0] + ' expected w');}
     if (head[4][0] != 't') {console.log('head[4][0] was ' + head[4][0] + ' expected t');}
-    
+
     var teleports = parseInt(head[4].slice(1))
-    
+
     var data = new Array();
     for (i = 0; i < height; i++) {
         var row = new Array();
@@ -77,11 +77,11 @@ function parse_board(code) {
         }
         data[i] = row;
     }
-    
+
     var i = -1;
     var j = width - 1;
     var body_split = body.split('.').slice(0, -1);
-    
+
     for (var k = 0; k < body_split.length; k++) {
         var item = body_split[k];
         for (var l = 0; l < parseInt(item.slice(0, -1)) + 1; l++) {
@@ -101,13 +101,13 @@ function parse_board(code) {
     //  board.push(data[i].join(''));
     //}
     //return board
-    
+
     return data;
 }
 
 
 function PatheryGraph(board) {
-  
+
   this.board = board; // i,j -> val
   this.n = board.length;
   this.m = board[0].length;
@@ -163,7 +163,7 @@ function PatheryGraph(board) {
       this.teleports[teleport_ins[i]] = teleport_outs;
     }
   }
-        
+
   // NOTE: Order is important.  DETERMINES MOVE PRIORITIES
   this.moves = [[-1, 0], [0, 1], [1, 0], [0, -1]];
 
@@ -266,7 +266,7 @@ PatheryGraph.prototype.find_path = function(
       if (blocks[v]) {continue;}
 
       // impassable square
-      if (this.serial_board[v] === extra_block) {continue;} 
+      if (this.serial_board[v] === extra_block) {continue;}
 
       parent_map[v] = u;
 
@@ -364,8 +364,8 @@ function find_full_path(graph, blocks, reversed){
 
   var solution_length = fullpath.length - 1 - num_teleports_used;
   return {
-    path: fullpath, 
-    value: solution_length, 
+    path: fullpath,
+    value: solution_length,
     relevant_blocks: relevant_blocks
   };
 }
@@ -388,28 +388,26 @@ function find_pathery_path(graph, blocks){
     values.push(solution_red.value);
     for (var block in solution_red.relevant_blocks) {relevant_blocks[block] = true;}
   }
-  return {paths: paths, 
-          values: values, 
+  return {paths: paths,
+          values: values,
           relevant_blocks: relevant_blocks};
 }
 
 
-exports.compute_value = function(mapcode, solution) {
+function compute_value(mapcode, solution, cb) {
     bm_board= parse_board(mapcode);
     bm_graph = new PatheryGraph(bm_board);
 
     bm_current_blocks = bm_graph.parse_blocks(solution);
     bm_solution = find_pathery_path(bm_graph, bm_current_blocks);
 
+    if (cb) {cb(bm_solution.values)}
     return bm_solution.values;
 }
+exports.compute_value = compute_value;
 
 function sum_values(array) {
-  var sum = 0;
-  for (var i = 0; i < array.length; i++)  {
-    sum += array[i];
-  }
-  return sum;
+  return array.reduce(function(x, y) {return x + y})
 }
 
 // OPTIONS:
@@ -458,7 +456,7 @@ function improve_solution(graph, blocks, options) {
   return null;
 }
 
-exports.compute_values = function(mapcode, solution) {
+function compute_values(mapcode, solution, cb) {
     bm_board= parse_board(mapcode);
     bm_graph = new PatheryGraph(bm_board);
 
@@ -481,7 +479,7 @@ exports.compute_values = function(mapcode, solution) {
                 var blocking;
                 if (block in bm_current_blocks) {
                     blocking = true;
-                    if (isNaN(bm_solution_value)) { 
+                    if (isNaN(bm_solution_value)) {
                       diff = '-';
                     } else {
                       delete bm_current_blocks[block];
@@ -492,7 +490,7 @@ exports.compute_values = function(mapcode, solution) {
                     }
                 } else if (block in bm_relevant_blocks) {
                     blocking = false;
-                    if (isNaN(bm_solution_value)) { 
+                    if (isNaN(bm_solution_value)) {
                       diff = '';
                     } else {
                       bm_current_blocks[block] = true;
@@ -502,7 +500,7 @@ exports.compute_values = function(mapcode, solution) {
                       if (isNaN(diff)) {diff = '-';}
                       delete bm_current_blocks[block];
 
-                      if (Math.abs(diff) > 2222222222) {diff = '-';}
+                      if (Math.abs(diff) > 2222222222) {diff = '-';} // TODO : make less hackish
                       else if (diff == 0) {diff = '';}
                     }
                 } else {
@@ -513,7 +511,18 @@ exports.compute_values = function(mapcode, solution) {
             }
         }
     }
-    return {value: bm_solution_value, values_list: values_list, find_pathery_path_count: find_pathery_path_count};
+    var retval = {value: bm_solution_value, values_list: values_list, find_pathery_path_count: find_pathery_path_count};
+    if (cb) {cb(retval);}
+    return retval;
 }
+exports.compute_values = compute_values;
+
+function place_greedy(mapcode, solution, remaining, cb) {
+  var retval = {testing: 'hooray', hmm: 'ok'};
+  if (cb) {cb(retval);}
+  return retval;
+}
+exports.place_greedy = place_greedy;
+
 
 })(typeof exports === "undefined" ? (window.PatherySolver={}, window.PatherySolver) : module.exports)
