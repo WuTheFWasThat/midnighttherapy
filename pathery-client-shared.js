@@ -959,6 +959,16 @@ bm_loadScripts([
     refresh_solution_store_display();
   })
 
+
+// TODO: temporary hack to load painter
+exports.click_block_untriggered = click_block_untriggered;
+exports.is_block_there = is_block_there;
+exports.refresh_score = refresh_score;
+$.getScript('http://127.0.0.1:2222/painter.js', function() {
+    console.log('painter loaded');
+});
+
+
 })(typeof exports === "undefined" ? (window.PatheryAssist={}, window.PatheryAssist) : module.exports, PatherySolver)
 });
 

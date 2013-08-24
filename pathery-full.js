@@ -1,4 +1,5 @@
 // NOTE: set bm_local_testing to use local version
+bm_local_testing = true;
 
 ///////////////////////////////////////
 // SERVER
