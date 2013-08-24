@@ -624,7 +624,7 @@ bm_loadScripts([
     var is_there = this.cv; // note: can be undefined
 
     if (shiftkey_held) {
-      // Undo previous click.  That way this is the last block clicked. (2 simple clicks on same grid is always a no-op).
+      // Undo previous click.  That way this is the last block clicked (if we make it that far). (2 simple clicks on same grid is always a no-op).
       if (is_there) { click_block_untriggered(mapid, block); }
       var painted = paint_line_to(block, mapid);
       return;
@@ -645,6 +645,7 @@ bm_loadScripts([
     var id = id_from_block(mapid, block);
     var block_div = "[id='" + id + "']";
     // Only click the block if it's clickable (e.g. not a transporter/pre-placed block/checkpoint etc).
+    // TODO: this stops being true for clickable blocks after placement and erase
     if (!$(block_div).hasClass('o')) { return; }
     grid_click($(block_div)[0]);
   }
@@ -709,7 +710,6 @@ bm_loadScripts([
 
   hotkey_handler[GO_KEY] = function(e) {
     var mapid = get_mapid();
-    return doSend(mapid);
     if (solver.is_remote) {
       solver.place_greedy(get_code(mapid), get_solution(mapid), walls_remaining(mapid), function(result) {
         console.log(result);
