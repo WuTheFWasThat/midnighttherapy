@@ -861,6 +861,18 @@ loadScripts([
     button_toolbar.append(change_wall_button);
     change_wall_button.click(change_wall_image);
 
+    function change_rock_image() {
+      var url = $('#bm_change_rock_input').val();
+      set_custom('rock_image', url);
+      update_rock_images();
+    }
+
+    var change_rock_input = $('<input id="bm_change_rock_input" placeholder="Image url (blank to use default)">');
+    button_toolbar.append(change_rock_input);
+    var change_rock_button = $('<button id="bm_change_rock">Set rock image</button>');
+    button_toolbar.append(change_rock_button);
+    change_rock_button.click(change_rock_image);
+
     var hotkeys_button = $('<button id="bm_show_hotkeys">Hotkeys</button>');
     hotkeys_button.css({
       'margin': '20px',
@@ -884,12 +896,12 @@ loadScripts([
     //hotkeys_dropdown.hide();
   }
 
-  // NOTE: currently unused
-  function update_block_images() {
-    var block_image = get_custom('block_image');
-    if (block_image) {
-      $('.mapcell.r').css('background-image', "url(" + block_image + ")")
+  function update_rock_images() {
+    var rock_image = get_custom('rock_image');
+    if (!rock_image) {
+      rock_image = 'http://www.pathery.com/images/OverlayTileFaceted50b.png';
     };
+    $('.mapcell.r').css('background-image', "url(" + rock_image + ")")
   }
 
   function update_wall_images() {
@@ -898,11 +910,9 @@ loadScripts([
       setWallStyle(userObj);
       wall_image = linkEmblem(wallEmblem, wallOrientation)
     }
-    if (wall_image) {
-      $('.playable > div').each(function(x, y) {
-        if (this.cv) {$(this).css('background-image', "url(" + wall_image + ")")};
-      })
-    }
+    $('.playable > div').each(function(x, y) {
+      if (this.cv) {$(this).css('background-image', "url(" + wall_image + ")")};
+    })
   }
 
 
@@ -939,7 +949,7 @@ loadScripts([
     // disable flashing of stuff
     flashelement = function() {}
 
-    update_block_images();
+    update_rock_images();
 
     update_wall_images();
 
