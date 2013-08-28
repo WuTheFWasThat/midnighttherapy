@@ -92,7 +92,43 @@ DenseMap.prototype.placeRandomly = function(val, numTimes) {
   }
 }
 
-//DenseMap.prototype.placeRandomlyInArea
+//Randomly place the nonempty value given, somewhere in the region defined by IxJ.
+//Do this numTimes (default 1) 
+DenseMap.prototype.placeRandomlyInArea = function(val, I, J, numTimes) {
+  if (numTimes == undefined) {
+    numTimes = 1;
+  }
+
+  if (val == ' ') {
+    throw new Error("placeRandomly: expected nonempty tile type");
+  }
+  if (typeof I !== 'object') {
+    I = [I];
+  }
+  if (typeof J !== 'object') {
+    J = [J];
+  }
+
+  //TODO: make sure the rejection sampling terminates
+  var tries = 0;
+  while (numTimes > 0 && tries < 100) {
+    var idxI = I[getRandomInt(0, I.length-1)];
+    var idxJ = J[getRandomInt(0, J.length-1)];
+    var idx = this.sub2ind(idxI, idxJ);
+    if (this.tiles[idx] !== ' ') {
+      tries++;
+    } else {
+      this.tiles[idx] = val;
+      numTimes--;
+      tries = 0;
+    }
+  }
+
+  //rejection sampling failed
+  if (numTimes != 0) {
+    throw new Error("placeRandomlyInArea: rejection sampling failed too many times");
+  }
+}
 
 DenseMap.prototype.toMapCode = function() {
   //create header
