@@ -1,56 +1,47 @@
 (function(exports) {
 
-teleports_map = {
-  '1': '!',
-  '2': '@',
-  '3': '#',
-  '4': '$',
-  '5': '%',
-  //'6': '^',
-  //'7': '&',
-  //'8': '*',
-  //'9': '(',
-  //'0': ')',
-}
+ROCK_1             = 'r';
+ROCK_2             = 'R';  // never used?
+ROCK_3             = 'q';  // used in seeing double, same as rock?
 
-TYPE_MAP = {
-    // CHECKPOINTS
-    'a': 'A',
-    'b': 'B',
-    'c': 'C',
-    'd': 'D',
-    'e': 'E',
+PATCH              = 'p';  // can't place blocks, but path can pass
 
-    // start
-    's': 's',
-    'S': 'S', // red start
-    // finish
-    'f': 't',
+GREEN_THROUGH_ONLY = 'x';  // colored green, blocks red
+RED_THROUGH_ONLY   = 'X';  // colored red, blocks green
 
-    // block
-    'r': 'X',
-    'x': 'r', // colored red, blocks green
-    'X': 'g', // colored green, blocks red
-    'p': 'p', // PATCH.  Can't block here!
-    'q': 'X', // empty space, used in seeing double.  Same as regular block?
+GREEN_START        = 's';
+RED_START          = 'S';
 
-    // TELEPORTS
-    // dark blue
-    't': '1',
-    'u': '!',
-    // green
-    'm': '2',
-    'n': '@',
-    // red
-    'g': '3',
-    'h': '#',
-    // light blue
-    'i': '4',
-    'j': '$',
-    // light green
-    'k': '5',
-    'l': '%',
-}
+FINISH             = 'f';
+
+CHECKPOINT_1       = 'a';
+CHECKPOINT_2       = 'b';
+CHECKPOINT_3       = 'c';
+CHECKPOINT_4       = 'd';
+CHECKPOINT_5       = 'e';
+
+// dark blue
+TELE_IN_1          = 't';
+TELE_OUT_1         = 'u';
+// green
+TELE_IN_2          = 'm';
+TELE_OUT_2         = 'n';
+// red
+TELE_IN_3          = 'g';
+TELE_OUT_3         = 'h';
+// light blue
+TELE_IN_4          = 'i';
+TELE_OUT_4         = 'j';
+// light green
+TELE_IN_5          = 'k';
+TELE_OUT_5         = 'l';
+
+teleports_map = {};
+teleports_map[TELE_IN_1] = TELE_OUT_1;
+teleports_map[TELE_IN_2] = TELE_OUT_2;
+teleports_map[TELE_IN_3] = TELE_OUT_3;
+teleports_map[TELE_IN_4] = TELE_OUT_4;
+teleports_map[TELE_IN_5] = TELE_OUT_5;
 
 function parse_board(code) {
     var head = code.split(':')[0];
@@ -91,8 +82,7 @@ function parse_board(code) {
             }
         }
         var type = item[item.length - 1];
-        if (!TYPE_MAP.hasOwnProperty(type)) {console.log('Unexpected type ' + type);}
-        data[i][j] = TYPE_MAP[type];
+        data[i][j] = type;
     }
 
     //var board = [];
@@ -132,24 +122,24 @@ function PatheryGraph(board) {
     }
   }
 
-  this.starts = this.boardstuff['s']; // list of keyified starts
-  this.has_regular = (this.starts !== undefined);
+  this.green_starts = this.boardstuff[GREEN_START]; // list of keyified starts
+  this.has_regular = (this.green_starts !== undefined);
 
-  this.alt_starts = this.boardstuff['S']; // list of keyified alt-starts
-  this.has_reverse = (this.alt_starts !== undefined);
+  this.red_starts = this.boardstuff[RED_START]; // list of keyified alt-starts
+  this.has_reverse = (this.red_starts !== undefined);
 
   this.checkpoints = []; // list of lists of intermediate targets, including starts and ends, all keyified
 
-  var letters = ['A', 'B', 'C', 'D', 'E'];
+  var checkpoint_types = [CHECKPOINT_1, CHECKPOINT_2, CHECKPOINT_3, CHECKPOINT_4, CHECKPOINT_5];
   for (var i = 0; i < 5; i++) {
-    var letter = letters[i];
-    if (!(this.boardstuff.hasOwnProperty(letter))) {
+    var checkpoint_type = checkpoint_types[i];
+    if (!(this.boardstuff.hasOwnProperty(checkpoint_type))) {
       break;
     }
-    this.checkpoints.push(this.boardstuff[letter]);
+    this.checkpoints.push(this.boardstuff[checkpoint_type]);
   }
 
-  this.finishes = this.boardstuff['t']; // list of keyified finishes
+  this.finishes = this.boardstuff[FINISH]; // list of keyified finishes
 
   this.teleports = {};
   for (teleport_key in teleports_map) {
@@ -179,12 +169,12 @@ function PatheryGraph(board) {
         xp = x + this.moves[i][0];
         yp = y + this.moves[i][1];
 
-        // fill edge with 'X' so we don't need this check?
+        // fill edge with rocks so we don't need this check?
         if (((0 <= xp) && (xp < this.n)) && ((0 <= yp) && (yp < this.m))) {
           val = this.board[xp][yp];
-          if (val == 'X') {continue;}
-          if (val == 'x') {continue;}
-          if (val == '*') {continue;}
+          if (val == ROCK_1) {continue;}
+          if (val == ROCK_2) {continue;}
+          if (val == ROCK_3) {continue;}
           neighbors_list.push(this.keyify_coordinates(xp, yp));
         }
       }
@@ -304,11 +294,11 @@ function find_full_path(graph, blocks, reversed){
   var cur; // current list of start points
   var extra_block;
   if (reversed) {     // red path
-    cur = graph.alt_starts;
-    extra_block = 'g';
+    cur = graph.red_starts;
+    extra_block = GREEN_THROUGH_ONLY;
   } else {            // green path
-    cur = graph.starts;
-    extra_block = 'r';
+    cur = graph.green_starts;
+    extra_block = RED_THROUGH_ONLY;
   }
   var num_teleports_used = 0;
   // TODO: REMOVE BRIDGES FROM RELEVANT BLOCKS (i.e. take care of all those - values in one sweep)

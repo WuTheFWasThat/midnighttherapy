@@ -4,17 +4,23 @@
   "version": "0.0.1",
   "author": "Jeff Wu <wuthefwasthat@gmail.com>",
   "description": "An assist for the game Pathery (www.pathery.com)",
-  "contributors": [ 
+  "contributors": [
     {
       "name": "Jeff Wu",
       "email": "wuthefwasthat@gmail.com"
     },
     {
+      "name": "Joy Zhang"
+    },
+    {
+      "name": "BlueRaja"
+    },
+    {
       "name": "Shaunak Kishore"
     },
     {
-      "name": "Joy Zhang"
-    } 
+      "name": "George Xing"
+    }
   ],
   "scripts": {
     "start": "node ./pathery-server"
@@ -33,7 +39,7 @@
   "devDependencies": {
   },
   "bundledDependencies": [
-  ],  
+  ],
   "license": "MIT",
   "engines": {
     "node": ">=0.6"
