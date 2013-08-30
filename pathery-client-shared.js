@@ -2,6 +2,7 @@
 // LOAD SCRIPTS
 ////////////////////////////////////////////////////////////
 
+console.log('url', url);
 (function() {
 // CREDIT TO:  http://stackoverflow.com/questions/1866717/document-createelementscript-adding-two-scripts-with-one-callback
 
@@ -26,8 +27,8 @@ function loadScripts(array,callback){
 }
 
 loadScripts([
-   "http://html2canvas.hertzen.com/build/html2canvas.js",
-   "https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js"
+   bm_url + 'lib/html2canvas.js', // "http://html2canvas.hertzen.com/build/html2canvas.js",
+   bm_url + 'lib/jquery.cookie.js' // "https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js"
 ] , function() {
 
 (function(exports, solver) {
@@ -147,7 +148,7 @@ loadScripts([
       if (outer_grid.length > 0) {
         exports.mapid =  parseInt(outer_grid.attr('id').split(',')[0]);
       } else {
-        exports.mapid = -1;
+        exports.mapid = -1; // mapeditor mapid
       }
 
       if (old_mapid !== exports.mapid) {refresh_all();}
@@ -360,7 +361,7 @@ loadScripts([
         var existing_names = solution_storage.get_solutions(mapid);
         var suffix = 2;
         while (name in existing_names) {
-          name = raw_name + ' (' + (suffix++) + ')';
+          name = raw_name + '(' + (suffix++) + ')';
         }
         add_solution();
       })
@@ -391,8 +392,14 @@ loadScripts([
     //var current_solution = get_current_solution();
 
     var store = solution_storage.get_solutions(mapid);
+
+    var names = [];
+    for (var name in store) {names.push(name)};
+    names.sort();
+
     $('#bm_save_solution_list').empty();
-    for (var name in store) {
+    for (var k in names) {
+      var name = names[k];
       var solution = store[name];
       //load_solution(mapid, solution);
       var solution_el = $('<div>' + name + '</div>')
@@ -819,7 +826,14 @@ loadScripts([
       'padding' : '8px 0px',
       'margin-top' : '21px'
     })
-    $('#difficulties').after(button_toolbar);
+
+    if ($('#difficulties').length > 0) {
+      $('#difficulties').after(button_toolbar);
+    } else {
+      //button_toolbar.css('position', 'static');
+      //$($('.divide')[0]).after(button_toolbar);
+      // mapeditor
+    }
 
     var show_values_button = $('<button id="bm_show_values">Show values</button>');
     show_values_button.css({

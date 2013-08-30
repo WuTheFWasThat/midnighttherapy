@@ -1,18 +1,19 @@
 // NOTE: set bm_local_testing to use local version
 
+if (typeof bm_local_testing === 'undefined') {
+  var bm_url = 'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/'
+} else {
+  var bm_url = 'http://127.0.0.1:2222/';
+}
+
 (function() {
-  if (typeof bm_local_testing === 'undefined') {
-    var url = 'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/'
-  } else {
-    var url = 'http://127.0.0.1:2222/';
-  }
 
   ///////////////////////////////////////
   // SERVER
   ///////////////////////////////////////
 
   function get_shared_server(cb) {
-    $.getScript(url + '/pathery-server-shared.js', cb)
+    $.getScript(bm_url + '/pathery-server-shared.js', cb)
   }
 
   ///////////////////////////////////////
@@ -21,7 +22,7 @@
 
   // SHARED WITH PATHERY-CLIENT
   function get_shared_client(cb) {
-    $.getScript(url + '/pathery-client-shared.js', cb)
+    $.getScript(bm_url + '/pathery-client-shared.js', cb)
   }
 
   function start_up() {
