@@ -2,7 +2,6 @@
 // LOAD SCRIPTS
 ////////////////////////////////////////////////////////////
 
-console.log('url', url);
 (function() {
 // CREDIT TO:  http://stackoverflow.com/questions/1866717/document-createelementscript-adding-two-scripts-with-one-callback
 

@@ -17,7 +17,7 @@ if (typeof bm_local_testing === 'undefined') {
 
   PatherySolver.compute_values = function(code, solution, cb) {
     $.ajax({
-      bm_url: 'http://127.0.0.1:2222/compute_values',
+      url: 'http://127.0.0.1:2222/compute_values',
       type: 'POST',
       data: {'mapcode': code, 'solution': solution},
       dataType: 'json',
@@ -27,7 +27,7 @@ if (typeof bm_local_testing === 'undefined') {
 
   PatherySolver.compute_value = function(code, solution, cb) {
     $.ajax({
-      bm_url: 'http://127.0.0.1:2222/compute_value',
+      url: 'http://127.0.0.1:2222/compute_value',
       type: 'POST',
       data: {'mapcode': code, 'solution': solution},
       dataType: 'json',
@@ -37,7 +37,7 @@ if (typeof bm_local_testing === 'undefined') {
 
   PatherySolver.place_greedy = function(code, solution, remaining, cb) {
     $.ajax({
-      bm_url: 'http://127.0.0.1:2222/place_greedy',
+      url: 'http://127.0.0.1:2222/place_greedy',
       type: 'POST',
       data: {'mapcode': code, 'solution': solution, 'remaining': remaining},
       dataType: 'json',
