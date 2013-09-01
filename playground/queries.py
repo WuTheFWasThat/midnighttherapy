@@ -30,6 +30,13 @@ map_types = [
 
 
 ###########################
+# PRINT UTILS
+###########################
+
+def isodate(date):
+  return date.isoformat().split('T')[0]
+
+###########################
 # REQUESTS
 ###########################
 # see for API :
@@ -52,13 +59,16 @@ def get_scores(mapid, page):
 def get_map_info(mapid):
   return make_request(domain + '/a/map/' + str(mapid) + '.js')
 
+def get_map_type(mapid):
+  return get_map_info(mapid)[u'name']
+
 ###############################
 # various helper functions
 ###############################
 
 # get mapids for a day
 def get_mapids(date):
-  r = requests.get(domain + '/a/mapsbydate/' + date.isoformat().split('T')[0] + '.js')
+  r = requests.get(domain + '/a/mapsbydate/' + isodate(date) + '.js')
   return json.loads(r.text)
 
 def get_todays_mapids():
@@ -79,7 +89,7 @@ def find_max_score(mapid):
 
 def find_max_user(mapid):
   res = find_max_helper(mapid)
-  return None if (res is None) else res[u'ID']
+  return None if (res is None) else int(res[u'ID'])
 
 def find_max_display(mapid):
   res = find_max_helper(mapid)
@@ -113,12 +123,12 @@ def find_user_rank(mapid, userid):
 ###############################
 
 # find the missed maps of a user
-def find_missed_maps(userid):
+def find_missed_maps(userid, include_unattempted = True):
   mapid = get_todays_mapids()[3]
   while mapid > -1:
     user_score = find_user_score(mapid, userid)
     max_score = find_max_score(mapid)
-    if user_score != max_score:
+    if (user_score != max_score) and (include_unattempted or (user_score is not None)):
       print mapid, 'unmaxed:', user_score, max_score
     mapid -= 1
 
@@ -144,7 +154,7 @@ def find_sweeps():
         potential_sweeper = None
         break
     if potential_sweeper is not None:
-      print potential_sweeper.ljust(20), 'swept on day', date.isoformat().split('T')[0]
+      print potential_sweeper.ljust(20), 'swept on day', isodate(date)
     date -= datetime.timedelta(days=1)
 
 def find_win_amounts(userid):
@@ -155,11 +165,11 @@ def find_win_amounts(userid):
     mapids = get_mapids(date)
     nwins = 0
     for i in range(0,4):
-      if int(find_max_user(mapids[i])) == userid:
+      if find_max_user(mapids[i]) == userid:
         nwins += 1
     if nwins > 0:
       counts[nwins -1] += 1
-      print nwins, 'wins on day', date.isoformat().split('T')[0]
+      print nwins, 'wins on day', isodate(date)
       print counts
     date -= datetime.timedelta(days=1)
 
@@ -167,9 +177,8 @@ def find_win_types(userid):
   mapid = get_todays_mapids()[3]
   type_count = {}
   while mapid > -1:
-    if int(find_max_user(mapid)) == userid:
-      info = get_map_info(mapid)
-      maptype = info[u'name']
+    if find_max_user(mapid) == userid:
+      maptype = get_map_type(mapid)
       if maptype in type_count:
         type_count[maptype] += 1
       else:
@@ -181,8 +190,7 @@ def find_winners_for_type(maptype):
   mapid = get_todays_mapids()[3]
   winners = {}
   while mapid > -1:
-    info = get_map_info(mapid)
-    thismaptype = info[u'name']
+    thismaptype = get_map_type(mapid)
     if thismaptype == maptype:
       winner = find_max_display(mapid)
       if winner in winners:
@@ -197,16 +205,42 @@ def find_winners_for_type(maptype):
     mapid -= 1
 
 
+def print_user_history(userid, firstdate, options):
+  date = firstdate
+  while True:
+    mapids = get_mapids(date)
+    nwins = 0
+    print isodate(date)
+    for i in range(0,4):
+      mapid = mapids[i]
+      score = find_user_score(mapid, userid)
+      if score is not None:
+        maxscore = find_max_score(mapid)
+        maptype = get_map_type(mapid)
+        won = False
+        if maxscore == score:
+          if find_max_user(mapid) == userid:
+            won = True
+          verb = 'tied on'
+        else:
+          verb = 'attempted'
+        message = '    ' + ' '.join([user, verb.ljust(9), maptype.ljust(20)])
+        if won:
+          message += ' and won!'
+        print message
+    date += datetime.timedelta(days=1)
 
 
 
-userid = user_id_map['wu']
+user = 'vzl'
+userid = user_id_map[user]
 
 #find_missed_maps(userid)
 #get_rank_distribution(userid)
 #find_sweeps()
 #find_win_amounts(userid)
-#find_win_types(userid)
+find_win_types(userid)
 #find_winners_for_type(u'Ultra Complex')
-find_winners_for_type(u'Dualing paths')
+#find_winners_for_type(u'Dualing paths')
+#print_user_history(userid, datetime.datetime(2013, 8, 11 ))
 

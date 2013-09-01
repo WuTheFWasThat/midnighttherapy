@@ -1,9 +1,22 @@
 ////////////////////////////////////////////////////////////
+// THERAPIST
+////////////////////////////////////////////////////////////
+
+// The therapist is an intermediary between the client and analyst.
+// It provides hotkeys, saving/loading of solutions, etc. and only runs in the browser
+
+////////////////////////////////////////////////////////////
 // LOAD SCRIPTS
 ////////////////////////////////////////////////////////////
 
-(function() {
+(function(exports, solver) {
 // CREDIT TO:  http://stackoverflow.com/questions/1866717/document-createelementscript-adding-two-scripts-with-one-callback
+
+var hotkey_handler = {};
+function register_hotkey(key, handler) {hotkey_handler[key] = handler;}
+exports.register_hotkey = register_hotkey;
+
+exports.showing_values = false;
 
 function loadScripts(array,callback){
     var loader = function(src,handler){
@@ -26,11 +39,9 @@ function loadScripts(array,callback){
 }
 
 loadScripts([
-   bm_url + 'lib/html2canvas.js', // "http://html2canvas.hertzen.com/build/html2canvas.js",
-   bm_url + 'lib/jquery.cookie.js' // "https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js"
+   mt_url + 'lib/html2canvas.js', // "http://html2canvas.hertzen.com/build/html2canvas.js",
+   mt_url + 'lib/jquery.cookie.js' // "https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js"
 ] , function() {
-
-(function(exports, solver) {
 
   ////////////////////////////
   // GET USER ID
@@ -101,7 +112,7 @@ loadScripts([
     solver.compute_value(get_code(mapid), get_solution(mapid), function(values) {
       write_score_value(values);
     })
-    if (show_values) { draw_values(); }
+    if (exports.showing_values) { draw_values(); }
   };
 
   function draw_single_value(mapid, i, j, value, blocking, maxValue) {
@@ -156,15 +167,17 @@ loadScripts([
   }
   exports.get_mapid = get_mapid;
 
-  var show_values = false;
-  function toggle_values() {
-    if (show_values) {
-      $('.map .child').text('');
-      $('#bm_show_values').text('Show values')
+  function update_show_values() {
+    if (exports.showing_values) {
+      $('#mt_show_values').text('Hide values')
     } else {
-      $('#bm_show_values').text('Hide values')
+      $('.map .child').text('');
+      $('#mt_show_values').text('Show values')
     }
-    show_values = !show_values;
+  }
+  function toggle_values() {
+    exports.showing_values = !exports.showing_values;
+    update_show_values();
   }
   exports.toggle_values = toggle_values;
 
@@ -190,7 +203,7 @@ loadScripts([
     if (supports_HTML5_Storage()) {
       return localStorage['custom' + '.' + item_name];
     } else {
-      return $.cookie('bm_' + item_name);
+      return $.cookie('mt_' + item_name);
     }
   }
 
@@ -198,7 +211,7 @@ loadScripts([
     if (supports_HTML5_Storage()) {
       localStorage['custom' + '.' + item_name] = val;
     } else {
-      $.cookie('bm_' + item_name, val);
+      $.cookie('mt_' + item_name, val);
     }
   }
 
@@ -210,11 +223,11 @@ loadScripts([
   // html5 storage
   //////////////////
 
-  function PatheryHTML5Storage() {
+  function HTML5_SolutionStorage() {
   }
 
   // TODO:  no need to preface everything with pathery... (make the change after there's a new UC)
-  PatheryHTML5Storage.prototype.add_solution = function(mapid, solution, name) {
+  HTML5_SolutionStorage.prototype.add_solution = function(mapid, solution, name) {
     var map_storage;
     if (localStorage['pathery' + '.' + mapid] === undefined) {
       map_storage = {};
@@ -226,11 +239,11 @@ loadScripts([
     localStorage['pathery' + '.' + mapid + '.' + name] = JSON.stringify(solution);
   }
 
-  PatheryHTML5Storage.prototype.get_solution = function(mapid, name) {
+  HTML5_SolutionStorage.prototype.get_solution = function(mapid, name) {
     return JSON.parse(localStorage['pathery' + '.' + mapid + '.' + name])
   }
 
-  PatheryHTML5Storage.prototype.get_solutions = function(mapid) {
+  HTML5_SolutionStorage.prototype.get_solutions = function(mapid) {
     var solutions = {};
 
     if (localStorage['pathery' + '.' + mapid] !== undefined) {
@@ -242,7 +255,7 @@ loadScripts([
     return solutions;
   }
 
-  PatheryHTML5Storage.prototype.delete_solution = function(mapid, name) {
+  HTML5_SolutionStorage.prototype.delete_solution = function(mapid, name) {
     var map_storage = JSON.parse(localStorage['pathery' + '.' + mapid]);
     delete map_storage[name];
     localStorage['pathery' + '.' + mapid] = JSON.stringify(map_storage);
@@ -250,7 +263,7 @@ loadScripts([
     delete localStorage['pathery' + '.' + mapid + '.' + name]
   }
 
-  PatheryHTML5Storage.prototype.clear_all = function(mapid, name) {
+  HTML5_SolutionStorage.prototype.clear_all = function(mapid, name) {
     for (var k in localStorage) {
       if (k.slice(0, 7) == 'pathery') {
         delete localStorage[k];
@@ -287,24 +300,24 @@ loadScripts([
   // regular storage
   //////////////////
 
-  function PatheryJSStorage() {
+  function JS_SolutionStorage() {
     this.storage =  {};
   }
 
-  PatheryJSStorage.prototype.add_solution = function(mapid, solution, name) {
+  JS_SolutionStorage.prototype.add_solution = function(mapid, solution, name) {
     if (this.storage[mapid] === undefined) { this.storage[mapid] = {}; }
     this.storage[mapid][name] = solution;
   }
 
-  PatheryJSStorage.prototype.get_solution = function(mapid, name) {
+  JS_SolutionStorage.prototype.get_solution = function(mapid, name) {
     return this.storage[mapid][name];
   }
 
-  PatheryJSStorage.prototype.get_solutions = function(mapid) {
+  JS_SolutionStorage.prototype.get_solutions = function(mapid) {
     return (this.storage[mapid] || {})
   }
 
-  PatheryJSStorage.prototype.delete_solution = function(mapid, name) {
+  JS_SolutionStorage.prototype.delete_solution = function(mapid, name) {
     delete this.storage[mapid][name];
   }
 
@@ -329,9 +342,9 @@ loadScripts([
 
   if (!supports_HTML5_Storage()) {
     add_message('<p style="font-size:15px;color:yellow">Your browser doesn\'t support HTML5 local storage, so your solutions will not be remembered upon refresh.</p>')
-    solution_storage = new PatheryJSStorage();
+    solution_storage = new JS_SolutionStorage();
   }  else {
-    solution_storage = new PatheryHTML5Storage();
+    solution_storage = new HTML5_SolutionStorage();
   }
 
   // TODO: auto-save best
@@ -339,8 +352,8 @@ loadScripts([
   function save_current_solution() {
     var mapid = get_mapid();
     var solution = get_current_solution();
-    var name = $('#bm_save_solution_name').val();
-    $('#bm_save_solution_name').val('');
+    var name = $('#mt_save_solution_name').val();
+    $('#mt_save_solution_name').val('');
 
     function add_solution() {
       solution_storage.add_solution(mapid, solution, name);
@@ -396,7 +409,7 @@ loadScripts([
     for (var name in store) {names.push(name)};
     names.sort();
 
-    $('#bm_save_solution_list').empty();
+    $('#mt_save_solution_list').empty();
     for (var k in names) {
       var name = names[k];
       var solution = store[name];
@@ -424,7 +437,7 @@ loadScripts([
       })
       solution_el.append(delete_button);
 
-      $('#bm_save_solution_list').append(solution_el);
+      $('#mt_save_solution_list').append(solution_el);
 
       // TODO: problem is that the div changes during this loop.  need async queue
       //function render_solution(el) {
@@ -441,8 +454,8 @@ loadScripts([
       //render_solution(solution_el)
     }
 
-    if ($('#bm_save_solution_list').children().length == 0) {
-      $('#bm_save_solution_list').append('No solutions saved!')
+    if ($('#mt_save_solution_list').children().length == 0) {
+      $('#mt_save_solution_list').append('No solutions saved!')
     }
 
     //load_solution(mapid, current_solution);
@@ -709,38 +722,29 @@ loadScripts([
     refresh_all();
   }
 
-  var hotkey_handler = {};
+  register_hotkey(MAP_SWITCH_KEY_1, function(e) {switch_map(1)});
+  register_hotkey(MAP_SWITCH_KEY_2, function(e) {switch_map(2)});
+  register_hotkey(MAP_SWITCH_KEY_3, function(e) {switch_map(3)});
+  register_hotkey(MAP_SWITCH_KEY_4, function(e) {switch_map(4)});
+  register_hotkey(MAP_SWITCH_KEY_5, function(e) {switch_map(5)});
 
-  hotkey_handler[MAP_SWITCH_KEY_1] = function(e) {switch_map(1)};
-  hotkey_handler[MAP_SWITCH_KEY_2] = function(e) {switch_map(2)};
-  hotkey_handler[MAP_SWITCH_KEY_3] = function(e) {switch_map(3)};
-  hotkey_handler[MAP_SWITCH_KEY_4] = function(e) {switch_map(4)};
-  hotkey_handler[MAP_SWITCH_KEY_5] = function(e) {switch_map(5)};
-
-  hotkey_handler[GO_KEY] = function(e) {
+  register_hotkey(GO_KEY, function(e) {
     var mapid = get_mapid();
-//    if (solver.is_remote) {
-//      solver.place_greedy(get_code(mapid), get_solution(mapid), walls_remaining(mapid), function(result) {
-//        console.log(result);
-//        //place_solution(mapid, result);
-//      })
-//    } else {
-      doSend(mapid);
-//    }
-  };
+    doSend(mapid);
+  });
 
-  hotkey_handler[RESET_KEY] = function(e) {
+  register_hotkey(RESET_KEY, function(e) {
       var old_solution = get_current_solution();
       var mapid = get_mapid();
       add_move_to_history(mapid, new ChangeBoardMove(mapid, old_solution, []))
       clearwalls(exports.mapid);
-  };
+  });
 
-  hotkey_handler[SAVE_KEY] = function(e) {
+  register_hotkey(SAVE_KEY, function(e) {
       save_current_solution();
-  };
+  });
 
-  hotkey_handler[LOAD_KEY] = function(e) {
+  register_hotkey(LOAD_KEY, function(e) {
       var old_solution = get_current_solution();
       var mapid = get_mapid();
       requestSol(exports.mapid);
@@ -748,35 +752,35 @@ loadScripts([
       var new_solution = get_current_solution();
       add_move_to_history(mapid, new ChangeBoardMove(mapid, old_solution, new_solution))
       setTimeout(refresh_score, load_best_timeout);
-  };
+  });
 
-  hotkey_handler[MUTE_KEY] = function(e) {
+  register_hotkey(MUTE_KEY, function(e) {
       setMute();
-  };
+  });
 
-  hotkey_handler[TOGGLE_VALUES_KEY] = function(e) {
+  register_hotkey(TOGGLE_VALUES_KEY, function(e) {
       toggle_values();
-  };
+  });
 
-  hotkey_handler[PAINT_BLOCK_KEY] = function(e) {
+  register_hotkey(PAINT_BLOCK_KEY, function(e) {
       if (cur_block) {paint_block(cur_block)}
-  };
+  });
 
-  hotkey_handler[ERASE_KEY] = function(e) {
+  register_hotkey(ERASE_KEY, function(e) {
       if (cur_block) {erase_block(cur_block)}
-  };
+  });
 
-  hotkey_handler[TOGGLE_BLOCK_KEY] = function(e) {
+  register_hotkey(TOGGLE_BLOCK_KEY, function(e) {
       if (cur_block) {toggle_block(cur_block)}
-  };
+  });
 
-  hotkey_handler[REDO_KEY] = function(e) {
+  register_hotkey(REDO_KEY, function(e) {
       redo_move_history(get_mapid());
-  };
+  });
 
-  hotkey_handler[UNDO_KEY] = function(e) {
+  register_hotkey(UNDO_KEY, function(e) {
       undo_move_history(get_mapid());
-  };
+  });
 
   var shiftkey_held = false;
   var controlkey_held = false;
@@ -811,8 +815,8 @@ loadScripts([
   });
 
   function initialize_toolbar() {
-    $('#bm_left_bar').remove();
-    var button_toolbar = $('<div id="bm_left_bar"></div>')
+    $('#mt_left_bar').remove();
+    var button_toolbar = $('<div id="mt_left_bar"></div>')
     button_toolbar.css({
       'position' : 'absolute',
       'left' : '50px',
@@ -834,7 +838,7 @@ loadScripts([
       // mapeditor
     }
 
-    var show_values_button = $('<button id="bm_show_values">Show values</button>');
+    var show_values_button = $('<button id="mt_show_values"></button>');
     show_values_button.css({
       'margin': '10px 0px 20px 0px'
     })
@@ -842,17 +846,15 @@ loadScripts([
     button_toolbar.append(show_values_button);
     show_values_button.click(toggle_values);
     button_toolbar.append('<br/>');
+    update_show_values();
 
-    // show values automatically enabled only if using server
-    if (solver.is_remote) { show_values_button.click(); }
-
-    var save_solution_input = $('<input id="bm_save_solution_name" placeholder="solution label/name (optional)">');
+    var save_solution_input = $('<input id="mt_save_solution_name" placeholder="solution label/name (optional)">');
     button_toolbar.append(save_solution_input);
-    var save_solution_button = $('<button id="bm_save_solution">Save solution</button>');
+    var save_solution_button = $('<button id="mt_save_solution">Save solution</button>');
     button_toolbar.append(save_solution_button);
     save_solution_button.click(save_current_solution);
 
-    var solutions_list = $('<div id="bm_save_solution_list"></div>')
+    var solutions_list = $('<div id="mt_save_solution_list"></div>')
     solutions_list.css({
       'text-align': 'center',
       'border':'1px solid white',
@@ -863,30 +865,30 @@ loadScripts([
     button_toolbar.append(solutions_list);
 
     function change_wall_image() {
-      var url = $('#bm_change_wall_input').val();
+      var url = $('#mt_change_wall_input').val();
       set_custom('wall_image', url);
       update_wall_images();
     }
 
-    var change_wall_input = $('<input id="bm_change_wall_input" placeholder="Image url (blank to use default)">');
+    var change_wall_input = $('<input id="mt_change_wall_input" placeholder="Image url (blank to use default)">');
     button_toolbar.append(change_wall_input);
-    var change_wall_button = $('<button id="bm_change_wall">Set wall image</button>');
+    var change_wall_button = $('<button id="mt_change_wall">Set wall image</button>');
     button_toolbar.append(change_wall_button);
     change_wall_button.click(change_wall_image);
 
     function change_rock_image() {
-      var url = $('#bm_change_rock_input').val();
+      var url = $('#mt_change_rock_input').val();
       set_custom('rock_image', url);
       update_rock_images();
     }
 
-    var change_rock_input = $('<input id="bm_change_rock_input" placeholder="Image url (blank to use default)">');
+    var change_rock_input = $('<input id="mt_change_rock_input" placeholder="Image url (blank to use default)">');
     button_toolbar.append(change_rock_input);
-    var change_rock_button = $('<button id="bm_change_rock">Set rock image</button>');
+    var change_rock_button = $('<button id="mt_change_rock">Set rock image</button>');
     button_toolbar.append(change_rock_button);
     change_rock_button.click(change_rock_image);
 
-    var hotkeys_button = $('<button id="bm_show_hotkeys">Hotkeys</button>');
+    var hotkeys_button = $('<button id="mt_show_hotkeys">Hotkeys</button>');
     hotkeys_button.css({
       'margin': '20px',
     });
@@ -987,8 +989,7 @@ loadScripts([
 
     refresh_solution_store_display();
   })
-
-})(typeof exports === "undefined" ? (window.PatheryAssist={}, window.PatheryAssist) : module.exports, PatherySolver)
 });
 
-})()
+})(typeof exports === "undefined" ? Therapist : module.exports, Analyst)
+

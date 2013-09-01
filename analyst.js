@@ -1,3 +1,9 @@
+////////////////////////////////////////////////////////////
+// ANALYST
+////////////////////////////////////////////////////////////
+
+// The analyst does all the heavy computation.  It can be in the client, but it is recommended that you run it through the server.
+
 (function(exports) {
 
 ROCK_1             = 'r';
@@ -276,17 +282,6 @@ PatheryGraph.prototype.find_path = function(
   return null;
 }
 
-// TODO: FIND BLOCKS WHERE I CAN'T PLACE BLOCKS WITHOUT BLOCKING THE PATH
-// BE VERY CAREFUL.  BECAUSE OF TELEPORTS... THIS IS TRICKY AND I DONT YET KNOW HOW TO DO IT
-PatheryGraph.prototype.find_bridges = function(
-             blocks, // currently placed blocks
-             extra_block, // unpassable square (used for green or red only)
-             sources, // list of source vertices, in order of priority
-             targets // set of target vertices
-            ) {
-
-}
-
 function find_full_path(graph, blocks, reversed){
   var used_teleports = {};
   var index = 0;
@@ -384,20 +379,106 @@ function find_pathery_path(graph, blocks){
 
 
 function compute_value(mapcode, solution, cb) {
-    bm_board= parse_board(mapcode);
-    bm_graph = new PatheryGraph(bm_board);
+    var board= parse_board(mapcode);
+    var graph = new PatheryGraph(board);
 
-    bm_current_blocks = bm_graph.parse_blocks(solution);
-    bm_solution = find_pathery_path(bm_graph, bm_current_blocks);
+    var current_blocks = graph.parse_blocks(solution);
+    var solution = find_pathery_path(graph, current_blocks);
 
-    if (cb) {cb(bm_solution.values)}
-    return bm_solution.values;
+    if (cb) {cb(solution.values)}
+    return solution.values;
 }
 exports.compute_value = compute_value;
 
 function sum_values(array) {
   return array.reduce(function(x, y) {return x + y})
 }
+
+// TODO: FIND BLOCKS WHERE I CAN'T PLACE BLOCKS WITHOUT BLOCKING THE PATH
+// BE VERY CAREFUL.  BECAUSE OF TELEPORTS... THIS IS TRICKY AND I DONT YET KNOW HOW TO DO IT
+PatheryGraph.prototype.find_bridges = function(
+             blocks, // currently placed blocks
+             extra_block, // unpassable square (used for green or red only)
+             sources, // list of source vertices, in order of priority
+             targets // set of target vertices
+            ) {
+
+}
+
+
+function compute_values(mapcode, solution, cb) {
+    var board= parse_board(mapcode);
+    var graph = new PatheryGraph(board);
+
+    var current_blocks = graph.parse_blocks(solution);
+    var solution = find_pathery_path(graph, current_blocks);
+
+    var solution_path = solution.paths;
+    var solution_value = sum_values(solution.values);
+    var relevant_blocks = solution.relevant_blocks;
+
+    var find_pathery_path_count = 0;
+
+    var values_list = [];
+    for (var i = 0; i < graph.n; i ++) {
+        for (var j = 0; j < graph.m; j++) {
+            var block = graph.keyify_coordinates(i, j);
+            if (graph.serial_board[block] == ' ') {
+                var value;
+                var diff;
+                var blocking;
+                if (block in current_blocks) {
+                    blocking = true;
+                    if (isNaN(solution_value)) {
+                      diff = '-';
+                    } else {
+                      delete current_blocks[block];
+                      value = sum_values(find_pathery_path(graph, current_blocks).values);
+                      find_pathery_path_count++;
+                      diff = solution_value - value;
+                      current_blocks[block] = true;
+                    }
+                } else if (block in relevant_blocks) {
+                    blocking = false;
+                    if (isNaN(solution_value)) {
+                      diff = '';
+                    } else {
+                      current_blocks[block] = true;
+                      value = sum_values(find_pathery_path(graph, current_blocks).values);
+                      find_pathery_path_count++;
+                      diff = value - solution_value;
+                      if (isNaN(diff)) {diff = '-';}
+                      delete current_blocks[block];
+
+                      if (Math.abs(diff) > 2222222222) {diff = '-';} // TODO : make less hackish
+                      else if (diff == 0) {diff = '';}
+                    }
+                } else {
+                    diff = '';
+                    blocking = false;
+                }
+                values_list.push({i: i, j: j, val: diff, blocking: blocking});
+            }
+        }
+    }
+    var retval = {value: solution_value, values_list: values_list, find_pathery_path_count: find_pathery_path_count};
+    if (cb) {cb(retval);}
+    return retval;
+}
+exports.compute_values = compute_values;
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+// SOLVER
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+
+function place_greedy(mapcode, solution, remaining, cb) {
+  var retval = {testing: 'hooray', hmm: 'ok'};
+  if (cb) {cb(retval);}
+  return retval;
+}
+exports.place_greedy = place_greedy;
 
 // OPTIONS:
 // break_immediate:  break as soon as something better is found
@@ -445,73 +526,6 @@ function improve_solution(graph, blocks, options) {
   return null;
 }
 
-function compute_values(mapcode, solution, cb) {
-    bm_board= parse_board(mapcode);
-    bm_graph = new PatheryGraph(bm_board);
-
-    bm_current_blocks = bm_graph.parse_blocks(solution);
-    var bm_solution = find_pathery_path(bm_graph, bm_current_blocks);
-
-    var bm_solution_path = bm_solution.paths;
-    var bm_solution_value = sum_values(bm_solution.values);
-    var bm_relevant_blocks = bm_solution.relevant_blocks;
-
-    var find_pathery_path_count = 0;
-
-    var values_list = [];
-    for (var i = 0; i < bm_graph.n; i ++) {
-        for (var j = 0; j < bm_graph.m; j++) {
-            var block = bm_graph.keyify_coordinates(i, j);
-            if (bm_graph.serial_board[block] == ' ') {
-                var value;
-                var diff;
-                var blocking;
-                if (block in bm_current_blocks) {
-                    blocking = true;
-                    if (isNaN(bm_solution_value)) {
-                      diff = '-';
-                    } else {
-                      delete bm_current_blocks[block];
-                      value = sum_values(find_pathery_path(bm_graph, bm_current_blocks).values);
-                      find_pathery_path_count++;
-                      diff = bm_solution_value - value;
-                      bm_current_blocks[block] = true;
-                    }
-                } else if (block in bm_relevant_blocks) {
-                    blocking = false;
-                    if (isNaN(bm_solution_value)) {
-                      diff = '';
-                    } else {
-                      bm_current_blocks[block] = true;
-                      value = sum_values(find_pathery_path(bm_graph, bm_current_blocks).values);
-                      find_pathery_path_count++;
-                      diff = value - bm_solution_value;
-                      if (isNaN(diff)) {diff = '-';}
-                      delete bm_current_blocks[block];
-
-                      if (Math.abs(diff) > 2222222222) {diff = '-';} // TODO : make less hackish
-                      else if (diff == 0) {diff = '';}
-                    }
-                } else {
-                    diff = '';
-                    blocking = false;
-                }
-                values_list.push({i: i, j: j, val: diff, blocking: blocking});
-            }
-        }
-    }
-    var retval = {value: bm_solution_value, values_list: values_list, find_pathery_path_count: find_pathery_path_count};
-    if (cb) {cb(retval);}
-    return retval;
-}
-exports.compute_values = compute_values;
-
-function place_greedy(mapcode, solution, remaining, cb) {
-  var retval = {testing: 'hooray', hmm: 'ok'};
-  if (cb) {cb(retval);}
-  return retval;
-}
-exports.place_greedy = place_greedy;
 
 
-})(typeof exports === "undefined" ? (window.PatherySolver={}, window.PatherySolver) : module.exports)
+})(typeof exports === "undefined" ? Analyst : module.exports)

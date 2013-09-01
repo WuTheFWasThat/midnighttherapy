@@ -25,7 +25,7 @@
   "scripts": {
     "start": "node ./pathery-server"
   },
-  "main": "./pathery-server-shared",
+  "main": "./analyst",
   "repository": {
     "type": "git",
     "url": "https://github.com/WuTheFWasThat/midnighttherapy.git"
