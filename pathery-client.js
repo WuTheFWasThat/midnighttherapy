@@ -46,7 +46,7 @@ if (typeof mt_local_testing === 'undefined') {
 
   // SHARED WITH PATHERY-FULL
   function get_therapist(cb) {
-    $.getScript(mt_url + 'therapist.js', cb)
+    $.getScript(mt_url + 'src/therapist.js', cb)
   }
 
   function start_up() {

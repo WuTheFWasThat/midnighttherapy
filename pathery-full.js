@@ -16,7 +16,7 @@ if (typeof mt_local_testing === 'undefined') {
   ///////////////////////////////////////
 
   function get_analyst(cb) {
-    $.getScript(mt_url + '/analyst.js', cb)
+    $.getScript(mt_url + '/src/analyst.js', cb)
   }
 
   ///////////////////////////////////////
@@ -25,7 +25,7 @@ if (typeof mt_local_testing === 'undefined') {
 
   // SHARED WITH PATHERY-CLIENT
   function get_therapist(cb) {
-    $.getScript(mt_url + '/therapist.js', cb)
+    $.getScript(mt_url + '/src/therapist.js', cb)
   }
 
   function start_up() {
