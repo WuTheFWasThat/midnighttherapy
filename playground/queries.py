@@ -205,11 +205,18 @@ def find_winners_for_type(maptype):
     mapid -= 1
 
 
-def print_user_history(userid, firstdate, options):
-  date = firstdate
+def print_user_history(userid, options = {}):
+  if 'reverse' not in options:
+    options['reverse'] = False
+  if 'firstdate' in options:
+    date = firstdate
+  else:
+    if options['reverse']:
+      date = datetime.datetime.now()
+    else:
+      date = datetime.datetime(2011, 3, 30) # 3/3 was snap's join date, 3/11 starts having regular maps, 3/16-3/29 is broken
   while True:
     mapids = get_mapids(date)
-    nwins = 0
     print isodate(date)
     for i in range(0,4):
       mapid = mapids[i]
@@ -228,19 +235,22 @@ def print_user_history(userid, firstdate, options):
         if won:
           message += ' and won!'
         print message
-    date += datetime.timedelta(days=1)
+    if options['reverse']:
+      date -= datetime.timedelta(days=1)
+    else:
+      date += datetime.timedelta(days=1)
 
-
-
-user = 'vzl'
+user = 'snap'
 userid = user_id_map[user]
 
 #find_missed_maps(userid)
 #get_rank_distribution(userid)
 #find_sweeps()
 #find_win_amounts(userid)
-find_win_types(userid)
+#find_win_types(userid)
 #find_winners_for_type(u'Ultra Complex')
 #find_winners_for_type(u'Dualing paths')
-#print_user_history(userid, datetime.datetime(2013, 8, 11 ))
+#print_user_history(userid, {'reverse': False, 'firstdate': datetime.datetime(2012, 12, 11)})
+#print_user_history(userid, {'reverse': True})
+#print_user_history(userid)
 

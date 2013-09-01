@@ -58,7 +58,7 @@ if (typeof mt_local_testing === 'undefined') {
       if (walls_left) {
         Analyst.place_greedy(get_code(mapid), get_solution(mapid), walls_left, function(result) {
           console.log(result);
-          //place_solution(mapid, result);
+          Therapist.load_solution(mapid, result);
         })
       } else {
         doSend(mapid);

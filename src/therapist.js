@@ -5,18 +5,18 @@
 // The therapist is an intermediary between the client and analyst.
 // It provides hotkeys, saving/loading of solutions, etc. and only runs in the browser
 
-////////////////////////////////////////////////////////////
-// LOAD SCRIPTS
-////////////////////////////////////////////////////////////
-
 (function(exports, solver) {
-// CREDIT TO:  http://stackoverflow.com/questions/1866717/document-createelementscript-adding-two-scripts-with-one-callback
 
 var hotkey_handler = {};
 function register_hotkey(key, handler) {hotkey_handler[key] = handler;}
 exports.register_hotkey = register_hotkey;
 
 exports.showing_values = false;
+
+////////////////////////////////////////////////////////////
+// LOAD SCRIPTS
+////////////////////////////////////////////////////////////
+// CREDIT TO:  http://stackoverflow.com/questions/1866717/document-createelementscript-adding-two-scripts-with-one-callback
 
 function loadScripts(array,callback){
   var loader = function(src,handler){
@@ -964,6 +964,17 @@ loadScripts([
     // disable flashing of stuff
     flashelement = function() {}
 
+    // CUSTOM COUNTDOWN TIMER
+    clearInterval(countdownInt)
+    countdownInt = setInterval(function() {
+      var timerem = tomorrow.getTime() - new Date().getTime();
+      newMapStr = 'New maps: ' + formatedTomorrow + '<br/>Time remaining: ' + millisecondsToTimeString(timerem);
+      $("#countdown").html(newMapStr);
+      //TODO: dynamically load the new map w/o refresh?
+      if (timerem <= 100) {location.reload(true);}
+    }, 100)
+
+
     update_rock_images();
     update_wall_images();
 
@@ -986,7 +997,7 @@ loadScripts([
 
     initialize_toolbar();
 
-    refresh_solution_store_display();
+    refresh_all();
   })
 });
 
