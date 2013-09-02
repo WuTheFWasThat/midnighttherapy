@@ -292,7 +292,11 @@ function find_full_path(graph, blocks, reversed){
     extra_block = RED_THROUGH_ONLY;
   }
   var num_teleports_used = 0;
+
   // TODO: REMOVE BRIDGES FROM RELEVANT BLOCKS (i.e. take care of all those - values in one sweep)
+  // http://www.geeksforgeeks.org/bridge-in-a-graph/
+  // http://en.wikipedia.org/wiki/Bridge_(graph_theory)#Tarjan.27s_Bridge-finding_algorithm
+
   var relevant_blocks = {}; // The set of blocks which blocking may help
 
   while (index < graph.checkpoints.length  + 1) {
@@ -474,16 +478,13 @@ function place_greedy(mapcode, cur_blocks, remaining, cb) {
     var best_val= -1;
     var best_block = null;
     var values_list = compute_values(mapcode, cur_blocks).values_list;
-    console.log('remaining', remaining)
     for (var i = 0; i < values_list.length; i++) {
       var val_dict = values_list[i];
-      console.log(val_dict)
-      if ((typeof val_dict.val === 'number') && (val_dict.val > best_val)) {
+      if ((!val_dict.blocking) && (typeof val_dict.val === 'number') && (val_dict.val > best_val)) {
         best_val = val_dict.val;
         best_block = [val_dict.i, val_dict.j]
       }
     }
-    console.log('best', best_block, best_val)
 
     if (best_block) {
       cur_blocks.push(best_block);

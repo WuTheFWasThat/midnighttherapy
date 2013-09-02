@@ -52,18 +52,18 @@ if (typeof mt_local_testing === 'undefined') {
   function start_up() {
     Therapist.showing_values = true;  // note: must happen before scripts load for this to update button properly
 
-    //Therapist.register_hotkey('F', function(e) {
-    //  var mapid = Therapist.get_mapid();
-    //  var walls_left = Therapist.walls_remaining(mapid);
-    //  if (walls_left) {
-    //    Analyst.place_greedy(Therapist.get_code(mapid), Therapist.get_solution(mapid), walls_left, function(result) {
-    //      Therapist.load_solution(mapid, result);
-    //      doSend(mapid);
-    //    })
-    //  } else {
-    //    doSend(mapid);
-    //  }
-    //});
+    Therapist.register_hotkey('G', function(e) { // override existing GO
+      var mapid = Therapist.get_mapid();
+      var walls_left = Therapist.walls_remaining(mapid);
+      if (walls_left) {
+        Analyst.place_greedy(Therapist.get_code(mapid), Therapist.get_solution(mapid), walls_left, function(result) {
+          Therapist.load_solution(mapid, result);
+          doSend(mapid);
+        })
+      } else {
+        doSend(mapid);
+      }
+    });
   }
 
   get_therapist(start_up);
