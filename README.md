@@ -133,8 +133,6 @@ None, at the moment.  Let me know if you find any!
 
 - Toggle showing the path animation
 
-- Make reset button do my reset
-
 - Make load best into a custom thing?
 
 - Cleanup of old saved solutions

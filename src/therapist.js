@@ -277,41 +277,49 @@ loadScripts([
   function HTML5_SolutionStorage() {
   }
 
+  HTML5_SolutionStorage.prototype.get_hash = function(mapid) {
+    return 'solutions:' + mapdata[mapid].code;
+  }
+
   // TODO:  no need to preface everything with pathery... (make the change after there's a new UC)
   HTML5_SolutionStorage.prototype.add_solution = function(mapid, solution, name) {
+    var hash = this.get_hash(mapid);
     var map_storage;
-    if (localStorage['pathery' + '.' + mapid] === undefined) {
+    if (localStorage[hash] === undefined) {
       map_storage = {};
     } else {
-      map_storage = JSON.parse(localStorage['pathery' + '.' + mapid]);
+      map_storage = JSON.parse(localStorage[hash]);
     }
     map_storage[name] = true;
-    localStorage['pathery' + '.' + mapid] = JSON.stringify(map_storage);
-    localStorage['pathery' + '.' + mapid + '.' + name] = JSON.stringify(solution);
+    localStorage[hash] = JSON.stringify(map_storage);
+    localStorage[hash + ':' + name] = JSON.stringify(solution);
   }
 
   HTML5_SolutionStorage.prototype.get_solution = function(mapid, name) {
-    return JSON.parse(localStorage['pathery' + '.' + mapid + '.' + name])
+    var hash = this.get_hash(mapid);
+    return JSON.parse(localStorage[hash + ':' + name])
   }
 
   HTML5_SolutionStorage.prototype.get_solutions = function(mapid) {
+    var hash = this.get_hash(mapid);
     var solutions = {};
 
-    if (localStorage['pathery' + '.' + mapid] !== undefined) {
-      var map_storage = JSON.parse(localStorage['pathery' + '.' + mapid]);
+    if (localStorage[hash] !== undefined) {
+      var map_storage = JSON.parse(localStorage[hash]);
       for (var name in map_storage) {
-        solutions[name] = JSON.parse(localStorage['pathery' + '.' + mapid + '.' + name]);
+        solutions[name] = JSON.parse(localStorage[hash + ':' + name]);
       }
     }
     return solutions;
   }
 
   HTML5_SolutionStorage.prototype.delete_solution = function(mapid, name) {
-    var map_storage = JSON.parse(localStorage['pathery' + '.' + mapid]);
+    var hash = this.get_hash(mapid);
+    var map_storage = JSON.parse(localStorage[hash]);
     delete map_storage[name];
-    localStorage['pathery' + '.' + mapid] = JSON.stringify(map_storage);
+    localStorage[hash] = JSON.stringify(map_storage);
 
-    delete localStorage['pathery' + '.' + mapid + '.' + name]
+    delete localStorage[hash + ':' + name]
   }
 
   HTML5_SolutionStorage.prototype.clear_all = function(mapid, name) {
@@ -623,53 +631,57 @@ loadScripts([
     return true;
   };
 
-  $('.playable > div').mousemove(function(e) {
-    var id = $(this).attr('id');
-    var first_comma_index = id.indexOf(',');
-
-    var mapid = parseInt(id.slice(0, first_comma_index));
-    if (mapid !== exports.mapid ) {return console.log('BUG FOUND!! NONMATCHING IDS: ' + mapid + ', ' + exports.mapid);}
-
-    var block = block_from_block_string(id.slice(first_comma_index+1));
-    var is_there = this.cv; // note: can be undefined
-
-    // Only attempt to add/remove blocks if you're not at the tile corner.
-    var x_offset = (e.pageX - $(this).offset().left) / $(this).width();
-    var y_offset = (e.pageY - $(this).offset().top) / $(this).height();
-    var on_corner = ((x_offset < 0.2 || x_offset > 0.8) &&
-                   (y_offset < 0.2 || y_offset > 0.8)) ;
-    if (on_corner) {return;}
-
-    if (paintkey_held) {paint_block(this);}
-    if (erasekey_held) {erase_block(this);}
-  });
-
   var cur_block;
-  $('.playable > div').mouseenter(function(e) { cur_block = this; })
-  $('.playable > div').mouseleave(function(e) { cur_block = null; })
+  function bind_block_events() {
+    $('.playable > div').unbind()
+    $('.playable > div').mousemove(function(e) {
+      var id = $(this).attr('id');
+      var first_comma_index = id.indexOf(',');
 
-  $('.playable > div').click(function(ev) {
-    var id = $(this).attr('id');
-    var first_comma_index = id.indexOf(',');
+      var mapid = parseInt(id.slice(0, first_comma_index));
+      if (mapid !== exports.mapid ) {return console.log('BUG FOUND!! NONMATCHING IDS: ' + mapid + ', ' + exports.mapid);}
 
-    var mapid = parseInt(id.slice(0, first_comma_index));
-    if (mapid !== exports.mapid ) {return console.log('BUG FOUND!! NONMATCHING IDS: ' + mapid + ', ' + exports.mapid);}
+      var block = block_from_block_string(id.slice(first_comma_index+1));
+      var is_there = this.cv; // note: can be undefined
 
-    var block = block_from_block_string(id.slice(first_comma_index+1));
-    var is_there = this.cv; // note: can be undefined
+      // Only attempt to add/remove blocks if you're not at the tile corner.
+      var x_offset = (e.pageX - $(this).offset().left) / $(this).width();
+      var y_offset = (e.pageY - $(this).offset().top) / $(this).height();
+      var on_corner = ((x_offset < 0.2 || x_offset > 0.8) &&
+                     (y_offset < 0.2 || y_offset > 0.8)) ;
+      if (on_corner) {return;}
 
-    if (shiftkey_held) {
-      // Undo previous click.  That way this is the last block clicked (if we make it that far). (2 simple clicks on same grid is always a no-op).
-      if (is_there) { click_block_untriggered(mapid, block); }
-      var painted = paint_line_to(block, mapid);
-      return;
-    }
+      if (paintkey_held) {paint_block(this);}
+      if (erasekey_held) {erase_block(this);}
+    });
 
-    // unless trying to add block while out of blocks, add to history
-    if (is_there || (!map_is_out(mapid))) {
-      add_move_to_history(mapid, new BlocksDiffMove(mapid, [block]));
-    }
-  });
+    $('.playable > div').mouseenter(function(e) { cur_block = this; })
+    $('.playable > div').mouseleave(function(e) { cur_block = null; })
+
+    $('.playable > div').click(function(ev) {
+      var id = $(this).attr('id');
+      var first_comma_index = id.indexOf(',');
+
+      var mapid = parseInt(id.slice(0, first_comma_index));
+      if (mapid !== exports.mapid ) {return console.log('BUG FOUND!! NONMATCHING IDS: ' + mapid + ', ' + exports.mapid);}
+
+      var block = block_from_block_string(id.slice(first_comma_index+1));
+      var is_there = this.cv; // note: can be undefined
+
+      if (shiftkey_held) {
+        // Undo previous click.  That way this is the last block clicked (if we make it that far). (2 simple clicks on same grid is always a no-op).
+        if (is_there) { click_block_untriggered(mapid, block); }
+        var painted = paint_line_to(block, mapid);
+        return;
+      }
+
+      // unless trying to add block while out of blocks, add to history
+      if (is_there || (!map_is_out(mapid))) {
+        add_move_to_history(mapid, new BlocksDiffMove(mapid, [block]));
+      }
+    });
+  }
+  bind_block_events();
 
   function is_block_there(mapid, block) {
     var id = id_from_block(mapid, block);
@@ -735,6 +747,13 @@ loadScripts([
     refresh_all();
   }
 
+  function reset_map(mapid) {
+      var old_solution = get_solution(mapid);
+      add_move_to_history(mapid, new ChangeBoardMove(mapid, old_solution, []))
+      clearwalls(exports.mapid);
+  }
+  resetwalls = reset_map; // override snap's function!
+
   register_hotkey(MAP_SWITCH_KEY_1, function(e) {switch_map(1)});
   register_hotkey(MAP_SWITCH_KEY_2, function(e) {switch_map(2)});
   register_hotkey(MAP_SWITCH_KEY_3, function(e) {switch_map(3)});
@@ -747,10 +766,8 @@ loadScripts([
   });
 
   register_hotkey(RESET_KEY, function(e) {
-      var old_solution = get_current_solution();
-      var mapid = get_mapid();
-      add_move_to_history(mapid, new ChangeBoardMove(mapid, old_solution, []))
-      clearwalls(exports.mapid);
+    var mapid = get_mapid();
+    reset_map(mapid);
   });
 
   register_hotkey(SAVE_KEY, function(e) {
@@ -846,9 +863,19 @@ loadScripts([
     if ($('#difficulties').length > 0) {
       $('#difficulties').after(button_toolbar);
     } else {
-      //button_toolbar.css('position', 'static');
-      //$($('.divide')[0]).after(button_toolbar);
       // mapeditor
+      button_toolbar.css('position', 'relative');
+      $('#playableMapDisplay').before(button_toolbar);
+      $('#playableMapDisplay').css('margin-left', '300px');
+      $('#playableMapDisplay').css('display', 'inline-block');
+      $('#playableMapDisplay').css('float', 'none');
+
+      $(window).click(function() {
+        refresh_all();
+        bind_block_events();
+      });
+//      button_toolbar.css('position', 'static');
+//      $($('.divide')[0]).after(button_toolbar);
     }
 
     var show_values_button = $('<button id="mt_show_values"></button>');
