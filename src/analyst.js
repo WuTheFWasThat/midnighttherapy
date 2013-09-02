@@ -1,3 +1,9 @@
+////////////////////////////////////////////////////////////
+// ANALYST
+////////////////////////////////////////////////////////////
+
+// The analyst does all the heavy computation.  It can be in the client, but it is recommended that you run it through the server.
+
 (function(exports) {
 
 ROCK_1             = 'r';
@@ -43,7 +49,9 @@ teleports_map[TELE_IN_3] = TELE_OUT_3;
 teleports_map[TELE_IN_4] = TELE_OUT_4;
 teleports_map[TELE_IN_5] = TELE_OUT_5;
 
-function parse_board(code) {
+PATH_BLOCKED_CONSTANT = NaN; // TODO: use this
+
+function parse_board(code) { // should client do this?
     var head = code.split(':')[0];
     var body = code.split(':')[1];
 
@@ -196,18 +204,12 @@ PatheryGraph.prototype.unkeyify = function(blockkey) {
   return [Math.floor(blockkey / this.m), blockkey % this.m];
 }
 
-PatheryGraph.prototype.parse_blocks = function(blocksstring) {
-  var blocks = {};
-  var str_blocks = blocksstring.split('.');
-  for (var k in str_blocks) {
-    var str_block = str_blocks[k];
-    if (str_blocks[k]) {
-      var x = parseInt(str_block.split(',')[0]);
-      var y = parseInt(str_block.split(',')[1]);
-      blocks[this.keyify_coordinates(x-1 , y)] = true;
-    }
+PatheryGraph.prototype.parse_blocks = function(blocks) {
+  var parsed_blocks = {};
+  for (var i =0; i < blocks.length; i++) {
+    parsed_blocks[this.keyify(blocks[i])] = true;
   }
-  return blocks;
+  return parsed_blocks;
 }
 
 PatheryGraph.prototype.teleport = function(block, used_teleports) {
@@ -276,17 +278,6 @@ PatheryGraph.prototype.find_path = function(
   return null;
 }
 
-// TODO: FIND BLOCKS WHERE I CAN'T PLACE BLOCKS WITHOUT BLOCKING THE PATH
-// BE VERY CAREFUL.  BECAUSE OF TELEPORTS... THIS IS TRICKY AND I DONT YET KNOW HOW TO DO IT
-PatheryGraph.prototype.find_bridges = function(
-             blocks, // currently placed blocks
-             extra_block, // unpassable square (used for green or red only)
-             sources, // list of source vertices, in order of priority
-             targets // set of target vertices
-            ) {
-
-}
-
 function find_full_path(graph, blocks, reversed){
   var used_teleports = {};
   var index = 0;
@@ -301,7 +292,11 @@ function find_full_path(graph, blocks, reversed){
     extra_block = RED_THROUGH_ONLY;
   }
   var num_teleports_used = 0;
+
   // TODO: REMOVE BRIDGES FROM RELEVANT BLOCKS (i.e. take care of all those - values in one sweep)
+  // http://www.geeksforgeeks.org/bridge-in-a-graph/
+  // http://en.wikipedia.org/wiki/Bridge_(graph_theory)#Tarjan.27s_Bridge-finding_algorithm
+
   var relevant_blocks = {}; // The set of blocks which blocking may help
 
   while (index < graph.checkpoints.length  + 1) {
@@ -319,7 +314,7 @@ function find_full_path(graph, blocks, reversed){
     }
     var path = graph.find_path(blocks, extra_block, cur, target_dict);
     if (path == null) {
-      return {path: null, value: NaN, relevant_blocks: {}};
+      return {path: null, value: PATH_BLOCKED_CONSTANT, relevant_blocks: {}};
     }
     var out_blocks = null;
 
@@ -379,25 +374,130 @@ function find_pathery_path(graph, blocks){
   }
   return {paths: paths,
           values: values,
+          value: sum_values(values),
           relevant_blocks: relevant_blocks};
 }
 
 
-function compute_value(mapcode, solution, cb) {
-    bm_board= parse_board(mapcode);
-    bm_graph = new PatheryGraph(bm_board);
+function compute_value(mapcode, cur_blocks, cb) {
+    var board= parse_board(mapcode);
+    var graph = new PatheryGraph(board);
 
-    bm_current_blocks = bm_graph.parse_blocks(solution);
-    bm_solution = find_pathery_path(bm_graph, bm_current_blocks);
+    var current_blocks = graph.parse_blocks(cur_blocks);
+    var solution = find_pathery_path(graph, current_blocks);
 
-    if (cb) {cb(bm_solution.values)}
-    return bm_solution.values;
+    if (cb) {cb(solution.values)}
+    return solution.values;
 }
 exports.compute_value = compute_value;
 
 function sum_values(array) {
+  if (array.length == 0) {return PATH_BLOCKED_CONSTANT;}
   return array.reduce(function(x, y) {return x + y})
 }
+
+// TODO: FIND BLOCKS WHERE I CAN'T PLACE BLOCKS WITHOUT BLOCKING THE PATH
+// BE VERY CAREFUL.  BECAUSE OF TELEPORTS... THIS IS TRICKY AND I DONT YET KNOW HOW TO DO IT
+PatheryGraph.prototype.find_bridges = function(
+             blocks, // currently placed blocks
+             extra_block, // unpassable square (used for green or red only)
+             sources, // list of source vertices, in order of priority
+             targets // set of target vertices
+            ) {
+
+}
+
+
+function compute_values(mapcode, cur_blocks, cb) {
+    var board= parse_board(mapcode);
+    var graph = new PatheryGraph(board);
+
+    var current_blocks = graph.parse_blocks(cur_blocks);
+    var solution = find_pathery_path(graph, current_blocks);
+
+    var solution_path = solution.paths;
+    var solution_value = solution.value;
+    var relevant_blocks = solution.relevant_blocks;
+
+    var find_pathery_path_count = 0;
+
+    var values_list = [];
+    var value; var diff; var blocking;
+
+    for (var i = 0; i < graph.n; i ++) {
+        for (var j = 0; j < graph.m; j++) {
+            var block = graph.keyify_coordinates(i, j);
+            if (graph.serial_board[block] == ' ') {
+                if (block in current_blocks) {
+                    blocking = true;
+                    if (isNaN(solution_value)) {
+                      diff = '-';
+                    } else {
+                      delete current_blocks[block];
+                      value = find_pathery_path(graph, current_blocks).value;
+                      find_pathery_path_count++;
+                      diff = solution_value - value;
+                      current_blocks[block] = true;
+                    }
+                } else if (block in relevant_blocks) {
+                    blocking = false;
+                    if (isNaN(solution_value)) {
+                      diff = '';
+                    } else {
+                      current_blocks[block] = true;
+                      value = find_pathery_path(graph, current_blocks).value;
+                      find_pathery_path_count++;
+                      diff = value - solution_value;
+                      if (isNaN(diff)) {diff = '-';}
+                      delete current_blocks[block];
+
+                      if (Math.abs(diff) > 2222222222) {diff = '-';} // TODO : make less hackish
+                      else if (diff == 0) {diff = '';}
+                    }
+                } else {
+                    diff = '';
+                    blocking = false;
+                }
+                values_list.push({i: i, j: j, val: diff, blocking: blocking});
+            }
+        }
+    }
+    var retval = {value: solution_value, values_list: values_list, find_pathery_path_count: find_pathery_path_count};
+    if (cb) {cb(retval);}
+    return retval;
+}
+exports.compute_values = compute_values;
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+// SOLVER
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+function place_greedy(mapcode, cur_blocks, remaining, cb) {
+  while (remaining > 0) {
+    var best_val= -1;
+    var best_block = null;
+    var values_list = compute_values(mapcode, cur_blocks).values_list;
+    for (var i = 0; i < values_list.length; i++) {
+      var val_dict = values_list[i];
+      if ((!val_dict.blocking) && (typeof val_dict.val === 'number') && (val_dict.val > best_val)) {
+        best_val = val_dict.val;
+        best_block = [val_dict.i, val_dict.j]
+      }
+    }
+
+    if (best_block) {
+      cur_blocks.push(best_block);
+    } else {
+      break; // this should essentially never happen
+    }
+
+    remaining -= 1;
+  }
+  if (cb) {cb(cur_blocks);}
+  return cur_blocks;
+}
+exports.place_greedy = place_greedy;
 
 // OPTIONS:
 // break_immediate:  break as soon as something better is found
@@ -405,7 +505,7 @@ function sum_values(array) {
 function improve_solution(graph, blocks, options) {
   var solution = find_pathery_path(graph, blocks);
 
-  var best_val = sum_values(solution.values);
+  var best_val = solution.value;
   var best_remove_block = null;
   var best_add_block = null;
   var num_tied = 1;
@@ -420,7 +520,7 @@ function improve_solution(graph, blocks, options) {
     for (var add_block in relevant_blocks) {
       blocks[add_block] = true;
       solution = find_pathery_path(graph, blocks);
-      val = sum_values(solution.values);
+      val = solution.value;
       if (val > best_val) {
         num_tied = 1;
         if (options.break_immediate) {
@@ -445,73 +545,6 @@ function improve_solution(graph, blocks, options) {
   return null;
 }
 
-function compute_values(mapcode, solution, cb) {
-    bm_board= parse_board(mapcode);
-    bm_graph = new PatheryGraph(bm_board);
-
-    bm_current_blocks = bm_graph.parse_blocks(solution);
-    var bm_solution = find_pathery_path(bm_graph, bm_current_blocks);
-
-    var bm_solution_path = bm_solution.paths;
-    var bm_solution_value = sum_values(bm_solution.values);
-    var bm_relevant_blocks = bm_solution.relevant_blocks;
-
-    var find_pathery_path_count = 0;
-
-    var values_list = [];
-    for (var i = 0; i < bm_graph.n; i ++) {
-        for (var j = 0; j < bm_graph.m; j++) {
-            var block = bm_graph.keyify_coordinates(i, j);
-            if (bm_graph.serial_board[block] == ' ') {
-                var value;
-                var diff;
-                var blocking;
-                if (block in bm_current_blocks) {
-                    blocking = true;
-                    if (isNaN(bm_solution_value)) {
-                      diff = '-';
-                    } else {
-                      delete bm_current_blocks[block];
-                      value = sum_values(find_pathery_path(bm_graph, bm_current_blocks).values);
-                      find_pathery_path_count++;
-                      diff = bm_solution_value - value;
-                      bm_current_blocks[block] = true;
-                    }
-                } else if (block in bm_relevant_blocks) {
-                    blocking = false;
-                    if (isNaN(bm_solution_value)) {
-                      diff = '';
-                    } else {
-                      bm_current_blocks[block] = true;
-                      value = sum_values(find_pathery_path(bm_graph, bm_current_blocks).values);
-                      find_pathery_path_count++;
-                      diff = value - bm_solution_value;
-                      if (isNaN(diff)) {diff = '-';}
-                      delete bm_current_blocks[block];
-
-                      if (Math.abs(diff) > 2222222222) {diff = '-';} // TODO : make less hackish
-                      else if (diff == 0) {diff = '';}
-                    }
-                } else {
-                    diff = '';
-                    blocking = false;
-                }
-                values_list.push({i: i, j: j, val: diff, blocking: blocking});
-            }
-        }
-    }
-    var retval = {value: bm_solution_value, values_list: values_list, find_pathery_path_count: find_pathery_path_count};
-    if (cb) {cb(retval);}
-    return retval;
-}
-exports.compute_values = compute_values;
-
-function place_greedy(mapcode, solution, remaining, cb) {
-  var retval = {testing: 'hooray', hmm: 'ok'};
-  if (cb) {cb(retval);}
-  return retval;
-}
-exports.place_greedy = place_greedy;
 
 
-})(typeof exports === "undefined" ? (window.PatherySolver={}, window.PatherySolver) : module.exports)
+})(typeof exports === "undefined" ? Analyst : module.exports)

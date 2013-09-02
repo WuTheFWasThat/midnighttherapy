@@ -73,7 +73,7 @@ I provide a number of hotkeys to make playing easier and faster:
 | Hotkey        | Action                           |
 | ------------- |:-------------------------------- |
 | 1-5           | Switch between maps              |
-| G             | Go!                              |
+| G             | Go! (hold shift to animate)      |
 | R             | Reset                            |
 | L             | Load best solution               |
 | S             | Save solution                    |
@@ -130,10 +130,6 @@ None, at the moment.  Let me know if you find any!
 ## FUTURE WORK: ##
 
 - Disable new day alert, auto refresh
-
-- Toggle showing the path animation
-
-- Make reset button do my reset
 
 - Make load best into a custom thing?
 

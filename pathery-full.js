@@ -1,18 +1,22 @@
-// NOTE: set bm_local_testing to use local version
+// NOTE: set mt_local_testing to use local version
+
+// globals all mentioned here
+var Analyst  = {};
+var Therapist  = {};
+if (typeof mt_local_testing === 'undefined') {
+  var mt_url = 'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/'
+} else {
+  var mt_url = 'http://127.0.0.1:2222/';
+}
 
 (function() {
-  if (typeof bm_local_testing === 'undefined') {
-    var url = 'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/'
-  } else {
-    var url = 'http://127.0.0.1:2222/';
-  }
 
   ///////////////////////////////////////
   // SERVER
   ///////////////////////////////////////
 
-  function get_shared_server(cb) {
-    $.getScript(url + '/pathery-server-shared.js', cb)
+  function get_analyst(cb) {
+    $.getScript(mt_url + '/src/analyst.js', cb)
   }
 
   ///////////////////////////////////////
@@ -20,17 +24,15 @@
   ///////////////////////////////////////
 
   // SHARED WITH PATHERY-CLIENT
-  function get_shared_client(cb) {
-    $.getScript(url + '/pathery-client-shared.js', cb)
+  function get_therapist(cb) {
+    $.getScript(mt_url + '/src/therapist.js', cb)
   }
 
   function start_up() {
   }
 
-  get_shared_server(function() {
-    PatherySolver.is_remote = false;
-
-    get_shared_client(
+  get_analyst(function() {
+    get_therapist(
       start_up
     )
   });
