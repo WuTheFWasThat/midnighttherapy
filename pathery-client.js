@@ -58,10 +58,10 @@ if (typeof mt_local_testing === 'undefined') {
       if (walls_left) {
         Analyst.place_greedy(Therapist.get_code(mapid), Therapist.get_solution(mapid), walls_left, function(result) {
           Therapist.load_solution(mapid, result);
-          doSend(mapid);
+          Therapist.send_solution(mapid);
         })
       } else {
-        doSend(mapid);
+        Therapist.send_solution(mapid);
       }
     });
   }

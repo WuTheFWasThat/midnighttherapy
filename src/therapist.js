@@ -129,6 +129,10 @@ function get_current_solution() {
 }
 exports.get_current_solution = get_current_solution;
 
+function send_solution(mapid) {
+  doSend(mapid);
+}
+exports.send_solution = send_solution;
 
 function walls_remaining(mapid) {
   return parseInt(mapdata[mapid].usedWallCount);
@@ -150,6 +154,15 @@ function reset_map(mapid) {
     clearwalls(exports.mapid);
 }
 resetwalls = reset_map; // override snap's function!
+
+var __old_animatePath__ = animatePath;
+function update_animate_path() {
+  if (shiftkey_held) {
+    animatePath = __old_animatePath__;
+  } else {
+    animatePath = function() {};
+  }
+}
 
 ////////////////////////////////
 // drawing values and scores
@@ -226,17 +239,16 @@ function refresh_all() {
 
 function update_show_values() {
   if (exports.showing_values) {
-    $('#mt_show_values').text('Hide values')
+    $('#mt_show_values').text('Hide values');
   } else {
     $('.map .child').text('');
-    $('#mt_show_values').text('Show values')
+    $('#mt_show_values').text('Show values');
   }
 }
 function toggle_values() {
   exports.showing_values = !exports.showing_values;
   update_show_values();
 }
-exports.toggle_values = toggle_values;
 
 function get_score_total(values) {
   var sum = 0;
@@ -718,39 +730,39 @@ function click_block(mapid, block)  {
 // HOTKEYS
 ////////////////////////////////////////////
 
-var MAP_SWITCH_KEY_1  = '1'
-  , MAP_SWITCH_KEY_2  = '2'
-  , MAP_SWITCH_KEY_3  = '3'
-  , MAP_SWITCH_KEY_4  = '4'
-  , MAP_SWITCH_KEY_5  = '5'
-  , SAVE_KEY          = 'S'
-  , LOAD_KEY          = 'L'
-  , GO_KEY            = 'G'
-  , RESET_KEY         = 'R'
-  , MUTE_KEY          = 'M'
-  , TOGGLE_VALUES_KEY = 'V'
-  , REDO_KEY          = 'Y'
-  , UNDO_KEY          = 'Z'
-  , TOGGLE_BLOCK_KEY  = 'X'
-  , PAINT_BLOCK_KEY   = 'W'
-  , ERASE_KEY         = 'E'
+var MAP_SWITCH_KEY_1      = '1'
+  , MAP_SWITCH_KEY_2      = '2'
+  , MAP_SWITCH_KEY_3      = '3'
+  , MAP_SWITCH_KEY_4      = '4'
+  , MAP_SWITCH_KEY_5      = '5'
+  , SAVE_KEY              = 'S'
+  , LOAD_KEY              = 'L'
+  , GO_KEY                = 'G'
+  , RESET_KEY             = 'R'
+  , TOGGLE_MUTE_KEY       = 'M'
+  , TOGGLE_VALUES_KEY     = 'V'
+  , REDO_KEY              = 'Y'
+  , UNDO_KEY              = 'Z'
+  , TOGGLE_BLOCK_KEY      = 'X'
+  , PAINT_BLOCK_KEY       = 'W'
+  , ERASE_KEY             = 'E'
 ;
 
 var hotkeys_text =
   '<table style="border:1px solid black; text-align: left;">' +
-  '<tr><td>' + MAP_SWITCH_KEY_1 + '-' + MAP_SWITCH_KEY_5 + '</td><td>' + 'Switch maps'    + '</td></tr>' +
-  '<tr><td>' + SAVE_KEY                                  + '</td><td>' + 'Save'           + '</td></tr>' +
-  '<tr><td>' + LOAD_KEY                                  + '</td><td>' + 'Load best'      + '</td></tr>' +
-  '<tr><td>' + GO_KEY                                    + '</td><td>' + 'Go!'            + '</td></tr>' +
-  '<tr><td>' + RESET_KEY                                 + '</td><td>' + 'Reset'          + '</td></tr>' +
-  '<tr><td>' + MUTE_KEY                                  + '</td><td>' + 'Toggle mute'    + '</td></tr>' +
-  '<tr><td>' + TOGGLE_VALUES_KEY                         + '</td><td>' + 'Toggle values'  + '</td></tr>' +
-  '<tr><td>' + REDO_KEY                                  + '</td><td>' + 'Redo'           + '</td></tr>' +
-  '<tr><td>' + UNDO_KEY                                  + '</td><td>' + 'Undo'           + '</td></tr>' +
-  '<tr><td>' + TOGGLE_BLOCK_KEY                          + '</td><td>' + 'Toggle block'   + '</td></tr>' +
-  '<tr><td>' + PAINT_BLOCK_KEY                           + '</td><td>' + 'Wall (paint)'   + '</td></tr>' +
-  '<tr><td>' + ERASE_KEY                                 + '</td><td>' + 'Erase (paint)'  + '</td></tr>' +
-  '<tr><td>' + 'Shift+Click'                             + '</td><td>' + 'Draw line to'   + '</td></tr>' +
+  '<tr><td>' + MAP_SWITCH_KEY_1 + '-' + MAP_SWITCH_KEY_5 + '</td><td>' + 'Switch maps'                               + '</td></tr>' +
+  '<tr><td>' + SAVE_KEY                                  + '</td><td>' + 'Save'                                      + '</td></tr>' +
+  '<tr><td>' + LOAD_KEY                                  + '</td><td>' + 'Load best'                                 + '</td></tr>' +
+  '<tr><td>' + GO_KEY                                    + '</td><td>' + 'Go! (Hold shift to animate)'                + '</td></tr>' +
+  '<tr><td>' + RESET_KEY                                 + '</td><td>' + 'Reset'                                      + '</td></tr>' +
+  '<tr><td>' + TOGGLE_MUTE_KEY                           + '</td><td>' + 'Toggle mute'                                + '</td></tr>' +
+  '<tr><td>' + TOGGLE_VALUES_KEY                         + '</td><td>' + 'Toggle values'                              + '</td></tr>' +
+  '<tr><td>' + REDO_KEY                                  + '</td><td>' + 'Redo'                                       + '</td></tr>' +
+  '<tr><td>' + UNDO_KEY                                  + '</td><td>' + 'Undo'                                       + '</td></tr>' +
+  '<tr><td>' + TOGGLE_BLOCK_KEY                          + '</td><td>' + 'Toggle block'                               + '</td></tr>' +
+  '<tr><td>' + PAINT_BLOCK_KEY                           + '</td><td>' + 'Wall (paint)'                               + '</td></tr>' +
+  '<tr><td>' + ERASE_KEY                                 + '</td><td>' + 'Erase (paint)'                              + '</td></tr>' +
+  '<tr><td>' + 'Shift+Click'                             + '</td><td>' + 'Draw line to'                               + '</td></tr>' +
   '</table>';
 
 var hotkey_handler = {};
@@ -765,7 +777,7 @@ register_hotkey(MAP_SWITCH_KEY_5, function(e) {switch_map(5)});
 
 register_hotkey(GO_KEY, function(e) {
   var mapid = get_mapid();
-  doSend(mapid);
+  send_solution(mapid);
 });
 
 register_hotkey(RESET_KEY, function(e) {
@@ -787,13 +799,8 @@ register_hotkey(LOAD_KEY, function(e) {
     setTimeout(refresh_score, load_best_timeout);
 });
 
-register_hotkey(MUTE_KEY, function(e) {
-    setMute();
-});
-
-register_hotkey(TOGGLE_VALUES_KEY, function(e) {
-    toggle_values();
-});
+register_hotkey(TOGGLE_MUTE_KEY, setMute);
+register_hotkey(TOGGLE_VALUES_KEY, toggle_values);
 
 register_hotkey(PAINT_BLOCK_KEY, function(e) {
     if (cur_block) {paint_block(cur_block)}
@@ -821,6 +828,7 @@ var paintkey_held = false;
 var erasekey_held = false;
 $(document).bind('keyup keydown', function(e) {
   shiftkey_held = e.shiftKey;
+  update_animate_path();
   controlkey_held = e.ctrlKey;
   return true;
 });
@@ -849,6 +857,9 @@ $(document).bind('keydown', function(e){
 
 function initialize_toolbar() {
   $('#mt_left_bar').remove();
+
+  $('#difficulties').parent().css('margin-left', '300px');
+
   var button_toolbar = $('<div id="mt_left_bar"></div>')
   button_toolbar.css({
     'position' : 'absolute',
@@ -1035,8 +1046,6 @@ $(document).ready(function() {
     }, new_map_timeout);
   });
   get_mapid();
-
-  $('#difficulties').parent().css('margin-left', '300px');
 
   initialize_toolbar();
 
