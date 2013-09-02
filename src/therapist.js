@@ -62,7 +62,7 @@ loadScripts([
   var last_compute_values_time = Date.now();
   var compute_values_interval = 500;
   var load_best_timeout = 500;
-  var new_mapid_timeout = 100;
+  var new_map_timeout = 100;
   var draw_values_var = null;
 
   /////////////////////
@@ -633,15 +633,23 @@ loadScripts([
 
   var cur_block;
   function bind_block_events() {
-    $('.playable > div').unbind()
-    $('.playable > div').mousemove(function(e) {
-      var id = $(this).attr('id');
+    $('.playable > div').unbind();
+
+    function get_block_from_obj(block_obj) {
+      var id = $(block_obj).attr('id');
       var first_comma_index = id.indexOf(',');
 
       var mapid = parseInt(id.slice(0, first_comma_index));
-      if (mapid !== exports.mapid ) {return console.log('BUG FOUND!! NONMATCHING IDS: ' + mapid + ', ' + exports.mapid);}
+      if (mapid == 0) {return;} // mapeditor's uneditable map
+      if (mapid !== exports.mapid ) {console.log('BUG FOUND!! NONMATCHING IDS: ' + mapid + ', ' + exports.mapid); return;}
 
       var block = block_from_block_string(id.slice(first_comma_index+1));
+      return block;
+    }
+
+    $('.playable > div').mousemove(function(e) {
+      var block = get_block_from_obj(this);
+      if (!block) {return;}
       var is_there = this.cv; // note: can be undefined
 
       // Only attempt to add/remove blocks if you're not at the tile corner.
@@ -659,14 +667,10 @@ loadScripts([
     $('.playable > div').mouseleave(function(e) { cur_block = null; })
 
     $('.playable > div').click(function(ev) {
-      var id = $(this).attr('id');
-      var first_comma_index = id.indexOf(',');
-
-      var mapid = parseInt(id.slice(0, first_comma_index));
-      if (mapid !== exports.mapid ) {return console.log('BUG FOUND!! NONMATCHING IDS: ' + mapid + ', ' + exports.mapid);}
-
-      var block = block_from_block_string(id.slice(first_comma_index+1));
+      var block = get_block_from_obj(this);
+      if (!block) {return;}
       var is_there = this.cv; // note: can be undefined
+      var mapid = get_mapid();
 
       if (shiftkey_held) {
         // Undo previous click.  That way this is the last block clicked (if we make it that far). (2 simple clicks on same grid is always a no-op).
@@ -873,9 +877,8 @@ loadScripts([
       $(window).click(function() {
         refresh_all();
         bind_block_events();
+        setTimeout(bind_block_events, new_map_timeout); // this is apparently not enough...
       });
-//      button_toolbar.css('position', 'static');
-//      $($('.divide')[0]).after(button_toolbar);
     }
 
     var show_values_button = $('<button id="mt_show_values"></button>');
@@ -1031,7 +1034,7 @@ loadScripts([
       setTimeout(function() {
         // trigger refresh
         get_mapid();
-      }, new_mapid_timeout);
+      }, new_map_timeout);
     });
     get_mapid();
 
