@@ -49,7 +49,7 @@ teleports_map[TELE_IN_3] = TELE_OUT_3;
 teleports_map[TELE_IN_4] = TELE_OUT_4;
 teleports_map[TELE_IN_5] = TELE_OUT_5;
 
-function parse_board(code) {
+function parse_board(code) { // should client do this?
     var head = code.split(':')[0];
     var body = code.split(':')[1];
 
@@ -202,18 +202,12 @@ PatheryGraph.prototype.unkeyify = function(blockkey) {
   return [Math.floor(blockkey / this.m), blockkey % this.m];
 }
 
-PatheryGraph.prototype.parse_blocks = function(blocksstring) {
-  var blocks = {};
-  var str_blocks = blocksstring.split('.');
-  for (var k in str_blocks) {
-    var str_block = str_blocks[k];
-    if (str_blocks[k]) {
-      var x = parseInt(str_block.split(',')[0]);
-      var y = parseInt(str_block.split(',')[1]);
-      blocks[this.keyify_coordinates(x-1 , y)] = true;
-    }
+PatheryGraph.prototype.parse_blocks = function(blocks) {
+  var parsed_blocks = {};
+  for (var i =0; i < blocks.length; i++) {
+    parsed_blocks[this.keyify(blocks[i])] = true;
   }
-  return blocks;
+  return parsed_blocks;
 }
 
 PatheryGraph.prototype.teleport = function(block, used_teleports) {
@@ -374,15 +368,16 @@ function find_pathery_path(graph, blocks){
   }
   return {paths: paths,
           values: values,
+          value: sum_values(values),
           relevant_blocks: relevant_blocks};
 }
 
 
-function compute_value(mapcode, solution, cb) {
+function compute_value(mapcode, cur_blocks, cb) {
     var board= parse_board(mapcode);
     var graph = new PatheryGraph(board);
 
-    var current_blocks = graph.parse_blocks(solution);
+    var current_blocks = graph.parse_blocks(cur_blocks);
     var solution = find_pathery_path(graph, current_blocks);
 
     if (cb) {cb(solution.values)}
@@ -406,34 +401,33 @@ PatheryGraph.prototype.find_bridges = function(
 }
 
 
-function compute_values(mapcode, solution, cb) {
+function compute_values(mapcode, cur_blocks, cb) {
     var board= parse_board(mapcode);
     var graph = new PatheryGraph(board);
 
-    var current_blocks = graph.parse_blocks(solution);
+    var current_blocks = graph.parse_blocks(cur_blocks);
     var solution = find_pathery_path(graph, current_blocks);
 
     var solution_path = solution.paths;
-    var solution_value = sum_values(solution.values);
+    var solution_value = solution.value;
     var relevant_blocks = solution.relevant_blocks;
 
     var find_pathery_path_count = 0;
 
     var values_list = [];
+    var value; var diff; var blocking;
+
     for (var i = 0; i < graph.n; i ++) {
         for (var j = 0; j < graph.m; j++) {
             var block = graph.keyify_coordinates(i, j);
             if (graph.serial_board[block] == ' ') {
-                var value;
-                var diff;
-                var blocking;
                 if (block in current_blocks) {
                     blocking = true;
                     if (isNaN(solution_value)) {
                       diff = '-';
                     } else {
                       delete current_blocks[block];
-                      value = sum_values(find_pathery_path(graph, current_blocks).values);
+                      value = find_pathery_path(graph, current_blocks).value;
                       find_pathery_path_count++;
                       diff = solution_value - value;
                       current_blocks[block] = true;
@@ -444,7 +438,7 @@ function compute_values(mapcode, solution, cb) {
                       diff = '';
                     } else {
                       current_blocks[block] = true;
-                      value = sum_values(find_pathery_path(graph, current_blocks).values);
+                      value = find_pathery_path(graph, current_blocks).value;
                       find_pathery_path_count++;
                       diff = value - solution_value;
                       if (isNaN(diff)) {diff = '-';}
@@ -472,11 +466,32 @@ exports.compute_values = compute_values;
 // SOLVER
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
+function place_greedy(mapcode, cur_blocks, remaining, cb) {
+  while (remaining > 0) {
+    var best_val= -1;
+    var best_block = null;
+    var values_list = compute_values(mapcode, cur_blocks).values_list;
+    console.log('remaining', remaining)
+    for (var i = 0; i < values_list.length; i++) {
+      var val_dict = values_list[i];
+      console.log(val_dict)
+      if ((typeof val_dict.val === 'number') && (val_dict.val > best_val)) {
+        best_val = val_dict.val;
+        best_block = [val_dict.i, val_dict.j]
+      }
+    }
+    console.log('best', best_block, best_val)
 
-function place_greedy(mapcode, solution, remaining, cb) {
-  var retval = {testing: 'hooray', hmm: 'ok'};
-  if (cb) {cb(retval);}
-  return retval;
+    if (best_block) {
+      cur_blocks.push(best_block);
+    } else {
+      break; // this should essentially never happen
+    }
+
+    remaining -= 1;
+  }
+  if (cb) {cb(cur_blocks);}
+  return cur_blocks;
 }
 exports.place_greedy = place_greedy;
 
@@ -486,7 +501,7 @@ exports.place_greedy = place_greedy;
 function improve_solution(graph, blocks, options) {
   var solution = find_pathery_path(graph, blocks);
 
-  var best_val = sum_values(solution.values);
+  var best_val = solution.value;
   var best_remove_block = null;
   var best_add_block = null;
   var num_tied = 1;
@@ -501,7 +516,7 @@ function improve_solution(graph, blocks, options) {
     for (var add_block in relevant_blocks) {
       blocks[add_block] = true;
       solution = find_pathery_path(graph, blocks);
-      val = sum_values(solution.values);
+      val = solution.value;
       if (val > best_val) {
         num_tied = 1;
         if (options.break_immediate) {

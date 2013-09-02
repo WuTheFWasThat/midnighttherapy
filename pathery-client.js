@@ -8,7 +8,7 @@ Analyst.compute_values = function(code, solution, cb) {
   $.ajax({
     url: Analyst.server + 'compute_values',
     type: 'POST',
-    data: {'mapcode': code, 'solution': solution},
+    data: {'mapcode': JSON.stringify(code), 'solution': JSON.stringify(solution)},
     dataType: 'json',
     success: cb
   });
@@ -18,7 +18,7 @@ Analyst.compute_value = function(code, solution, cb) {
   $.ajax({
     url: Analyst.server + 'compute_value',
     type: 'POST',
-    data: {'mapcode': code, 'solution': solution},
+    data: {'mapcode': JSON.stringify(code), 'solution': JSON.stringify(solution)},
     dataType: 'json',
     success: cb
   })
@@ -28,7 +28,7 @@ Analyst.place_greedy = function(code, solution, remaining, cb) {
   $.ajax({
     url: Analyst.server + 'place_greedy',
     type: 'POST',
-    data: {'mapcode': code, 'solution': solution, 'remaining': remaining},
+    data: {'mapcode': JSON.stringify(code), 'solution': JSON.stringify(solution), 'remaining': JSON.stringify(remaining)},
     dataType: 'json',
     success: cb
   })
@@ -52,18 +52,18 @@ if (typeof mt_local_testing === 'undefined') {
   function start_up() {
     Therapist.showing_values = true;  // note: must happen before scripts load for this to update button properly
 
-    Therapist.register_hotkey('g', function(e) {
-      var mapid = Therapist.get_mapid();
-      var walls_left = walls_remaining(mapid);
-      if (walls_left) {
-        Analyst.place_greedy(get_code(mapid), get_solution(mapid), walls_left, function(result) {
-          console.log(result);
-          Therapist.load_solution(mapid, result);
-        })
-      } else {
-        doSend(mapid);
-      }
-    });
+    //Therapist.register_hotkey('F', function(e) {
+    //  var mapid = Therapist.get_mapid();
+    //  var walls_left = Therapist.walls_remaining(mapid);
+    //  if (walls_left) {
+    //    Analyst.place_greedy(Therapist.get_code(mapid), Therapist.get_solution(mapid), walls_left, function(result) {
+    //      Therapist.load_solution(mapid, result);
+    //      doSend(mapid);
+    //    })
+    //  } else {
+    //    doSend(mapid);
+    //  }
+    //});
   }
 
   get_therapist(start_up);

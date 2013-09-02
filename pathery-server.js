@@ -17,7 +17,7 @@ app.post('/place_greedy', function(req, res){
   res.header("Access-Control-Allow-Origin", "*");
 
   var t = new Date().getTime();
-  var result = Analyst.place_greedy(req.param('mapcode'), req.param('solution'), req.param('remaining'));
+  var result = Analyst.place_greedy(JSON.parse(req.param('mapcode')), JSON.parse(req.param('solution')), JSON.parse(req.param('remaining')));
   console.log("\nPLACE GREEDY:")
   console.log("ms elapsed: " , new Date().getTime() - t)
 
@@ -29,7 +29,7 @@ app.post('/compute_value', function(req, res){
   res.header("Access-Control-Allow-Origin", "*");
 
   var t = new Date().getTime();
-  var result = Analyst.compute_value(req.param('mapcode'), req.param('solution'));
+  var result = Analyst.compute_value(JSON.parse(req.param('mapcode')), JSON.parse(req.param('solution')));
   //console.log("\nCOMPUTE VALUE:")
   //console.log("ms elapsed: " , new Date().getTime() - t)
 
@@ -41,7 +41,7 @@ app.post('/compute_values', function(req, res){
   res.header("Access-Control-Allow-Origin", "*");
 
   var t = new Date().getTime();
-  var result = Analyst.compute_values(req.param('mapcode'), req.param('solution'));
+  var result = Analyst.compute_values(JSON.parse(req.param('mapcode')), JSON.parse(req.param('solution')));
   var time_elapsed = new Date().getTime() - t;
 
   console.log("\nCOMPUTE VALUES:")

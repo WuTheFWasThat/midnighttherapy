@@ -65,22 +65,89 @@ loadScripts([
   var new_mapid_timeout = 100;
   var draw_values_var = null;
 
+  /////////////////////
+  // GENERAL UTILITIES
+  /////////////////////
+
+  function add_message(msg) {
+    $('#difficulties').before('<center>' + msg + '</center></br>');
+  }
+
+  // from div id to my representation of block
+  function id_from_block(mapid, block) {
+    var x = block[0] + 1;
+    var y = block[1];
+    var id = mapid + ',' + x + ',' + y;
+    return id;
+  }
+
+  // from my representation of block to pathery's 'x,y' representation
+  function block_from_block_string(block_string) {
+    var string_coordinates = block_string.split(',');
+    var x = parseInt(string_coordinates[0]) - 1;
+    var y = parseInt(string_coordinates[1]);
+    var block = [x, y];
+    return block;
+  }
+
+  // also updates the current mapid
+  function get_mapid() {
+      var old_mapid = exports.mapid;
+      var outer_grid = $('.shown-maps .grid_outer');
+      if (outer_grid.length > 0) {
+        exports.mapid =  parseInt(outer_grid.attr('id').split(',')[0]);
+      } else {
+        exports.mapid = -1; // mapeditor mapid
+      }
+
+      if (old_mapid !== exports.mapid) {refresh_all();}
+
+      return exports.mapid;
+  }
+  exports.get_mapid = get_mapid;
+
   function get_code(mapid) {
     return mapdata[mapid].code;
   }
+  exports.get_code = get_code;
+
+  function get_current_code() {
+    var mapid = get_mapid();
+    return get_code(mapid);
+  }
+  exports.get_current_code = get_current_code;
 
   function get_solution(mapid) {
-    return solution[mapid];
+    var solution_string = solution[mapid];
+    var solution_block_strings = solution_string.split('.').slice(1, -1);
+    var blocks = [];
+    for (var k in solution_block_strings) {
+      var block = block_from_block_string(solution_block_strings[k]);
+      blocks.push(block);
+    }
+    return blocks;
   }
+  exports.get_solution = get_solution;
+
+  function get_current_solution() {
+    var mapid = get_mapid();
+    return get_solution(mapid);
+  }
+  exports.get_current_solution = get_current_solution;
+
 
   function walls_remaining(mapid) {
-    return mapdata[mapid].usedWallCount;
+    return parseInt(mapdata[mapid].usedWallCount);
   }
+  exports.walls_remaining = walls_remaining;
 
   function map_is_out(mapid) {
     return (walls_remaining(mapid) < 1);
   }
 
+  ////////////////////////////////
+  // drawing values and scores
+  ////////////////////////////////
 
   function draw_values() {
       var mapid = get_mapid();
@@ -150,22 +217,6 @@ loadScripts([
     refresh_solution_store_display();
     refresh_score();
   }
-
-  // also updates the current mapid
-  function get_mapid() {
-      var old_mapid = exports.mapid;
-      var outer_grid = $('.shown-maps .grid_outer');
-      if (outer_grid.length > 0) {
-        exports.mapid =  parseInt(outer_grid.attr('id').split(',')[0]);
-      } else {
-        exports.mapid = -1; // mapeditor mapid
-      }
-
-      if (old_mapid !== exports.mapid) {refresh_all();}
-
-      return exports.mapid;
-  }
-  exports.get_mapid = get_mapid;
 
   function update_show_values() {
     if (exports.showing_values) {
@@ -271,31 +322,6 @@ loadScripts([
     }
   }
 
-  /////////////////////
-  // GENERAL UTILITIES
-  /////////////////////
-
-  function add_message(msg) {
-    $('#difficulties').before('<center>' + msg + '</center></br>');
-  }
-
-  // from div id to my representation of block
-  function id_from_block(mapid, block) {
-    var x = block[0] + 1;
-    var y = block[1];
-    var id = mapid + ',' + x + ',' + y;
-    return id;
-  }
-
-  // from my representation of block to pathery's 'x,y' representation
-  function block_from_block_string(block_string) {
-    var string_coordinates = block_string.split(',');
-    var x = parseInt(string_coordinates[0]) - 1;
-    var y = parseInt(string_coordinates[1]);
-    var block = [x, y];
-    return block;
-  }
-
   //////////////////
   // regular storage
   //////////////////
@@ -320,19 +346,6 @@ loadScripts([
   JS_SolutionStorage.prototype.delete_solution = function(mapid, name) {
     delete this.storage[mapid][name];
   }
-
-  function get_current_solution() {
-    var mapid = get_mapid();
-    var solution_string = solution[mapid];
-    var solution_block_strings = solution_string.split('.').slice(1, -1);
-    var blocks = [];
-    for (var k in solution_block_strings) {
-      var block = block_from_block_string(solution_block_strings[k]);
-      blocks.push(block);
-    }
-    return blocks;
-  }
-  exports.get_current_solution = get_current_solution;
 
   function supports_HTML5_Storage() {
     return (typeof(Storage) !== undefined);
@@ -965,14 +978,16 @@ loadScripts([
     flashelement = function() {}
 
     // CUSTOM COUNTDOWN TIMER
-    clearInterval(countdownInt)
-    countdownInt = setInterval(function() {
-      var timerem = tomorrow.getTime() - new Date().getTime();
-      newMapStr = 'New maps: ' + formatedTomorrow + '<br/>Time remaining: ' + millisecondsToTimeString(timerem);
-      $("#countdown").html(newMapStr);
-      //TODO: dynamically load the new map w/o refresh?
-      if (timerem <= 100) {location.reload(true);}
-    }, 100)
+    if (typeof countdownInt !== 'undefined') {
+      clearInterval(countdownInt)
+      countdownInt = setInterval(function() {
+        var timerem = tomorrow.getTime() - new Date().getTime();
+        newMapStr = 'New maps: ' + formatedTomorrow + '<br/>Time remaining: ' + millisecondsToTimeString(timerem);
+        $("#countdown").html(newMapStr);
+        //TODO: dynamically load the new map w/o refresh?
+        if (timerem <= 100) {location.reload(true);}
+      }, 100)
+    }
 
 
     update_rock_images();
