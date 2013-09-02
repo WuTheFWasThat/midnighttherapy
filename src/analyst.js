@@ -49,6 +49,8 @@ teleports_map[TELE_IN_3] = TELE_OUT_3;
 teleports_map[TELE_IN_4] = TELE_OUT_4;
 teleports_map[TELE_IN_5] = TELE_OUT_5;
 
+PATH_BLOCKED_CONSTANT = NaN; // TODO: use this
+
 function parse_board(code) { // should client do this?
     var head = code.split(':')[0];
     var body = code.split(':')[1];
@@ -308,7 +310,7 @@ function find_full_path(graph, blocks, reversed){
     }
     var path = graph.find_path(blocks, extra_block, cur, target_dict);
     if (path == null) {
-      return {path: null, value: NaN, relevant_blocks: {}};
+      return {path: null, value: PATH_BLOCKED_CONSTANT, relevant_blocks: {}};
     }
     var out_blocks = null;
 
@@ -386,6 +388,7 @@ function compute_value(mapcode, cur_blocks, cb) {
 exports.compute_value = compute_value;
 
 function sum_values(array) {
+  if (array.length == 0) {return PATH_BLOCKED_CONSTANT;}
   return array.reduce(function(x, y) {return x + y})
 }
 
