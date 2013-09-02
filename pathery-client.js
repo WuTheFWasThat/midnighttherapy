@@ -50,7 +50,7 @@ if (typeof mt_local_testing === 'undefined') {
   }
 
   function start_up() {
-    Therapist.showing_values = true;  // note: must happen before scripts load for this to update button properly
+    Therapist.toggle_values();  // note: must happen before scripts load for this to update button properly
 
     Therapist.register_hotkey('G', function(e) { // override existing GO
       var mapid = Therapist.get_mapid();

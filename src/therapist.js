@@ -7,8 +7,6 @@
 
 (function(exports, solver) {
 
-exports.showing_values = false;
-
 ////////////////////////////////////////////////////////////
 // LOAD SCRIPTS
 ////////////////////////////////////////////////////////////
@@ -67,15 +65,15 @@ function add_message(msg) {
   $('#difficulties').before('<center>' + msg + '</center></br>');
 }
 
-// from div id to my representation of block
+// from my representation of block to pathery's 'mapid,x,y' representation
 function id_from_block(mapid, block) {
   var x = block[0] + 1;
   var y = block[1];
-  var id = mapid + ',' + x + ',' + y;
+  var id = mapid + '\\,' + x + '\\,' + y;
   return id;
 }
 
-// from my representation of block to pathery's 'x,y' representation
+// from pathery's representation to my representation of block
 function block_from_block_string(block_string) {
   var string_coordinates = block_string.split(',');
   var x = parseInt(string_coordinates[0]) - 1;
@@ -148,6 +146,43 @@ function switch_map(map_num) {
   refresh_all();
 }
 
+////////////////////////////////////////////
+// OVERRIDE SNAP'S STUFF
+////////////////////////////////////////////
+
+var __old_grick_click__ = grid_click;
+grid_click = function() {
+  var custom_image = get_custom('wall_image');
+  if (custom_image) {wallEmblem = custom_image;}
+  var old_linkEmblem = linkEmblem;
+  if (custom_image) { linkEmblem = function() {return wallEmblem;} }
+  __old_grick_click__.apply(this, arguments);
+  if (custom_image) {linkEmblem = old_linkEmblem;}
+}
+
+// disable updating of the main score display
+var __old_updateDsp__ = updateDsp;
+updateDsp = function(mapid, element, data) {
+  if (element == 'dspCount') {return;}
+  __old_updateDsp__.apply(this, arguments);
+}
+
+// disable flashing of stuff
+var __old_flashelement__ = flashelement;
+flashelement = function() {}
+
+// CUSTOM COUNTDOWN TIMER
+if (typeof countdownInt !== 'undefined') {
+  clearInterval(countdownInt)
+  countdownInt = setInterval(function() {
+    var timerem = tomorrow.getTime() - new Date().getTime();
+    newMapStr = 'New maps: ' + formatedTomorrow + '<br/>Time remaining: ' + millisecondsToTimeString(timerem);
+    $("#countdown").html(newMapStr);
+    //TODO: dynamically load the new map w/o refresh?
+    if (timerem <= 100) {location.reload(true);}
+  }, 100)
+}
+
 function reset_map(mapid) {
     var old_solution = get_solution(mapid);
     add_move_to_history(mapid, new ChangeBoardMove(mapid, old_solution, []))
@@ -160,7 +195,9 @@ function update_animate_path() {
   if (shiftkey_held) {
     animatePath = __old_animatePath__;
   } else {
-    animatePath = function() {};
+    animatePath = function() {
+      __old_flashelement__(exports.mapid + ',dspCount', 2);
+    };
   }
 }
 
@@ -193,12 +230,13 @@ function draw_values() {
     }
 }
 
+var showing_values = false;
 function refresh_score() {
   var mapid = get_mapid();
   solver.compute_value(get_code(mapid), get_solution(mapid), function(values) {
     write_score_value(values);
   })
-  if (exports.showing_values) { draw_values(); }
+  if (showing_values) { draw_values(); }
 };
 
 function draw_single_value(mapid, i, j, value, blocking, maxValue) {
@@ -238,17 +276,19 @@ function refresh_all() {
 }
 
 function update_show_values() {
-  if (exports.showing_values) {
+  if (showing_values) {
     $('#mt_show_values').text('Hide values');
+    refresh_score();
   } else {
     $('.map .child').text('');
     $('#mt_show_values').text('Show values');
   }
 }
 function toggle_values() {
-  exports.showing_values = !exports.showing_values;
+  showing_values = !showing_values;
   update_show_values();
 }
+exports.toggle_values = toggle_values;
 
 function get_score_total(values) {
   var sum = 0;
@@ -708,22 +748,22 @@ bind_block_events();
 
 function is_block_there(mapid, block) {
   var id = id_from_block(mapid, block);
-  return $("[id='" + id + "']")[0].cv;
+  return $("#" + id)[0].cv;
 }
 
 function click_block_untriggered(mapid, block)  {
   var id = id_from_block(mapid, block);
-  var block_div = "[id='" + id + "']";
+  var block_div = $("#" + id);
   // Only click the block if it's clickable (e.g. not a transporter/pre-placed block/checkpoint etc).
   // TODO: this stops being true for clickable blocks after placement and erase
-  if (!$(block_div).hasClass('o')) { return; }
-  grid_click($(block_div)[0]);
+  if (!block_div.hasClass('o')) { return; }
+  grid_click(block_div[0]);
 }
 
 // NOTE: this is unused
 function click_block(mapid, block)  {
   var id = id_from_block(mapid, block);
-  $("[id='" + id + "']").click();
+  $("#" + id).click();
 }
 
 ////////////////////////////////////////////
@@ -992,42 +1032,6 @@ $(document).ready(function() {
 
   // NOTE:  DO NOT UNCOMMENT THIS LINE
   // $(document).on('click', function() {$('.map.playable .o').css('background-image', 'url(http://24.media.tumblr.com/tumblr_lg3ynmrMvc1qcpyl1o1_400.gif)')})
-
-  ////////////////////////////////////////////
-  // OVERRIDE SNAP'S STUFF
-  ////////////////////////////////////////////
-
-  var __old_grick_click__ = grid_click;
-  grid_click = function() {
-    var custom_image = get_custom('wall_image');
-    if (custom_image) {wallEmblem = custom_image;}
-    var old_linkEmblem = linkEmblem;
-    if (custom_image) { linkEmblem = function() {return wallEmblem;} }
-    __old_grick_click__.apply(this, arguments);
-    if (custom_image) {linkEmblem = old_linkEmblem;}
-  }
-
-  // disable updating of the main score display
-  var __old_updateDsp__ = updateDsp;
-  updateDsp = function(mapid, element, data) {
-    if (element == 'dspCount') {return;}
-    __old_updateDsp__.apply(this, arguments);
-  }
-
-  // disable flashing of stuff
-  flashelement = function() {}
-
-  // CUSTOM COUNTDOWN TIMER
-  if (typeof countdownInt !== 'undefined') {
-    clearInterval(countdownInt)
-    countdownInt = setInterval(function() {
-      var timerem = tomorrow.getTime() - new Date().getTime();
-      newMapStr = 'New maps: ' + formatedTomorrow + '<br/>Time remaining: ' + millisecondsToTimeString(timerem);
-      $("#countdown").html(newMapStr);
-      //TODO: dynamically load the new map w/o refresh?
-      if (timerem <= 100) {location.reload(true);}
-    }, 100)
-  }
 
   update_rock_images();
   update_wall_images();
