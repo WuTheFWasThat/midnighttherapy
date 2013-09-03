@@ -128,6 +128,7 @@ function get_current_solution() {
 exports.get_current_solution = get_current_solution;
 
 function send_solution(mapid) {
+  update_animate_path();
   doSend(mapid);
 }
 exports.send_solution = send_solution;
@@ -172,16 +173,16 @@ var __old_flashelement__ = flashelement;
 flashelement = function() {}
 
 // CUSTOM COUNTDOWN TIMER
-if (typeof countdownInt !== 'undefined') {
-  clearInterval(countdownInt)
-  countdownInt = setInterval(function() {
-    var timerem = tomorrow.getTime() - new Date().getTime();
-    newMapStr = 'New maps: ' + formatedTomorrow + '<br/>Time remaining: ' + millisecondsToTimeString(timerem);
-    $("#countdown").html(newMapStr);
-    //TODO: dynamically load the new map w/o refresh?
-    if (timerem <= 100) {location.reload(true);}
-  }, 100)
-}
+//if (typeof countdownInt !== 'undefined') {
+//  clearInterval(countdownInt)
+//  countdownInt = setInterval(function() {
+//    var timerem = tomorrow.getTime() - new Date().getTime();
+//    newMapStr = 'New maps: ' + formatedTomorrow + '<br/>Time remaining: ' + millisecondsToTimeString(timerem);
+//    $("#countdown").html(newMapStr);
+//    //TODO: dynamically load the new map w/o refresh?
+//    if (timerem <= 100) {location.reload(true);}
+//  }, 100)
+//}
 
 function reset_map(mapid) {
     var old_solution = get_solution(mapid);
@@ -197,6 +198,7 @@ function update_animate_path() {
   } else {
     animatePath = function() {
       __old_flashelement__(exports.mapid + ',dspCount', 2);
+      scoresRequestPage(exports.mapid, currentPage[exports.mapid])
     };
   }
 }
@@ -868,7 +870,6 @@ var paintkey_held = false;
 var erasekey_held = false;
 $(document).bind('keyup keydown', function(e) {
   shiftkey_held = e.shiftKey;
-  update_animate_path();
   controlkey_held = e.ctrlKey;
   return true;
 });
