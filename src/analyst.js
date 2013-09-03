@@ -12,8 +12,8 @@ ROCK_3             = 'q';  // used in seeing double, same as rock?
 
 PATCH              = 'p';  // can't place blocks, but path can pass
 
-GREEN_THROUGH_ONLY = 'x';  // colored green, blocks red
-RED_THROUGH_ONLY   = 'X';  // colored red, blocks green
+GREEN_THROUGH_ONLY = 'X';  // colored green, blocks red
+RED_THROUGH_ONLY   = 'x';  // colored red, blocks green
 
 GREEN_START        = 's';
 RED_START          = 'S';
