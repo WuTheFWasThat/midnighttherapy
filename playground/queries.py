@@ -8,27 +8,6 @@ domain = 'http://www.pathery.com';
 f = open('playground/user_id_map.json')
 user_id_map = json.loads(f.read())
 
-map_types = [
-  u'Simple',
-  u'Normal',
-  u'Complex',
-  u'Reverse Order',
-  u'Dualing paths',
-  u'Side to Side',
-  u'Thirty',
-  u'Unlimited',
-  u'Centralized',
-  u'Seeing Double',
-  u'Teleport Madness',
-  u'Rocky Maze',
-  u'Ultimate Random',
-  u'Finite',
-  u'Thirty Too',
-  u"ABC's ",
-  u'Ultra Complex',
-]
-
-
 ###########################
 # PRINT UTILS
 ###########################
@@ -46,10 +25,13 @@ request_cache = {}
 def make_request(url):
   if url in request_cache:
     return request_cache[url]
-  r = requests.get(url)
-  ans = json.loads(r.text)
-  request_cache[url] = ans
-  return ans
+  try:
+    r = requests.get(url)
+    ans = json.loads(r.text)
+    request_cache[url] = ans
+    return ans
+  except:
+    return None
 
 scores_cache = {}
 def get_scores(mapid, page):
@@ -60,7 +42,11 @@ def get_map_info(mapid):
   return make_request(domain + '/a/map/' + str(mapid) + '.js')
 
 def get_map_type(mapid):
-  return get_map_info(mapid)[u'name']
+  try:
+    maptype = get_map_info(mapid)[u'name']
+    return maptype
+  except:
+    return None
 
 ###############################
 # various helper functions
@@ -75,14 +61,18 @@ def get_todays_mapids():
   now = datetime.datetime.now()
   return get_mapids(now)
 
-# get max score of a day
 def find_max_helper(mapid):
-  r = get_scores(mapid, 1)[u'users']['1']
-  if u'moves' not in r:
-    print 'wtf first page has no users list ', r
+  r = get_scores(mapid, 1)
+  if u'users' not in r:
+    print 'users not in scores page?', mapid, r
     return None
-  return get_scores(mapid, 1)[u'users']['1']
+  s = get_scores(mapid, 1)[u'users']['1']
+  if u'moves' not in s:
+    print 'wtf first page has no users list ', s
+    return None
+  return s
 
+# get max score of a day
 def find_max_score(mapid):
   res = find_max_helper(mapid)
   return None if (res is None) else res[u'moves']
@@ -131,6 +121,29 @@ def find_missed_maps(userid, include_unattempted = True):
     if (user_score != max_score) and (include_unattempted or (user_score is not None)):
       print mapid, 'unmaxed:', user_score, max_score
     mapid -= 1
+
+# get score distribution
+def get_score_distribution(maptype = None):
+  mapid = get_todays_mapids()[3] + 1
+  score_dist = {}
+  score_array = [0] * 1000
+  while mapid > -1:
+    mapid -= 1
+    if (maptype is not None) and (maptype != get_map_type(mapid)):
+      continue
+    max_score = find_max_score(mapid)
+
+    if max_score is None:
+      continue
+    max_score = int(max_score)
+
+    score_array[max_score] += 1
+    if max_score in score_dist:
+      score_dist[max_score] += 1
+    else:
+      score_dist[max_score] = 1
+    #print score_dist
+    print score_array
 
 # get the distribution of ranks for a user
 def get_rank_distribution(userid, max_care_about = 10):
@@ -198,7 +211,7 @@ def find_winners_for_type(maptype):
       else:
         winners[winner] = 1
 
-      print 'Leaderboard:'
+      print 'Leaderboard:', mapid
       for winner in winners:
         print winner.ljust(20), ':', winners[winner]
       print
@@ -240,17 +253,42 @@ def print_user_history(userid, options = {}):
     else:
       date += datetime.timedelta(days=1)
 
-user = 'snap'
+user = 'uuu'
 userid = user_id_map[user]
 
 #find_missed_maps(userid)
-#get_rank_distribution(userid)
+#get_score_distribution()
+get_rank_distribution(userid)
 #find_sweeps()
 #find_win_amounts(userid)
-#find_win_types(userid)
+#find_win_types(user)
 #find_winners_for_type(u'Ultra Complex')
 #find_winners_for_type(u'Dualing paths')
 #print_user_history(userid, {'reverse': False, 'firstdate': datetime.datetime(2012, 12, 11)})
 #print_user_history(userid, {'reverse': True})
 #print_user_history(userid)
+#find_winners_for_type(u'Thirty')
+#find_winners_for_type(u'Thirty Too')
+#find_winners_for_type(u'Ultra Complex')
+
+map_types = [
+  u'Simple',
+  u'Normal',
+  u'Complex',
+  u'Reverse Order',
+  u'Dualing paths',
+  u'Side to Side',
+  u'Thirty',
+  u'Unlimited',
+  u'Centralized',
+  u'Seeing Double',
+  u'Teleport Madness',
+  u'Rocky Maze',
+  u'Ultimate Random',
+  u'Finite',
+  u'Thirty Too',
+  u"ABC's ",
+  u'Ultra Complex',
+]
+
 

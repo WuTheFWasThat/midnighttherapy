@@ -147,6 +147,13 @@ function switch_map(map_num) {
   refresh_all();
 }
 
+function update_scores_page() {
+  var mapid = get_mapid();
+  scoresShowPage(currentPage[mapid], mapid)
+}
+
+setInterval(update_scores_page, 1000);
+
 ////////////////////////////////////////////
 // OVERRIDE SNAP'S STUFF
 ////////////////////////////////////////////
@@ -820,6 +827,8 @@ register_hotkey(MAP_SWITCH_KEY_5, function(e) {switch_map(5)});
 register_hotkey(GO_KEY, function(e) {
   var mapid = get_mapid();
   send_solution(mapid);
+  update_scores_page();
+  setTimeout(update_scores_page, 300);
 });
 
 register_hotkey(RESET_KEY, function(e) {
@@ -906,6 +915,7 @@ function initialize_toolbar() {
     'position' : 'absolute',
     'left' : '50px',
     'width' : '275px',
+    'z-index' : '41',
     'text-align' : 'center',
     'background' : '-ms-linear-gradient(top, #555555 0%,#222222 100%)',
     'background' : 'linear-gradient(to bottom, #555555 0%,#222222 100%)',

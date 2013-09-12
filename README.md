@@ -86,10 +86,9 @@ I provide a number of hotkeys to make playing easier and faster:
 | Y             | Redo                             |
 | Shift+Click   | Draw line from most recent block |
 
-### CUSTOM BLOCK IMAGES ###
+### OTHER ###
 
-As you might have noticed, you can customize your block images.  Just tell me your Pathery user id and an image!
-
+- As you might have noticed, you can customize your block and wall images.
 
 ## SERVERSIDE PATHING ##
 
@@ -123,6 +122,8 @@ I'll get to this sometime...
 
 - After erasing a block, you can't shift click to it
 
+- Sometimes you can get into a state where clicking a block puts it somewhere else... (unclear how to reproduce)
+
 <!--
 None, at the moment.  Let me know if you find any!
 -->
@@ -135,9 +136,9 @@ None, at the moment.  Let me know if you find any!
 
 - Cleanup of old saved solutions
 
-- Dynamic scoreboard. Notifications when scores are beat?
+- Notifications when scores are beat?
 
-- More customization!  block images, choose shown values color, etc.
+- More customization? e.g. shown values colors, etc.
 
 - Chat in the main page
 
