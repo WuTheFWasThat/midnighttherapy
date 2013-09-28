@@ -3,6 +3,8 @@ import requests
 import json
 import datetime
 
+domain = 'http://beta.pathery.net';
+domain = 'http://blue.pathery.net';
 domain = 'http://www.pathery.com';
 
 f = open('playground/user_id_map.json')
@@ -44,7 +46,7 @@ def get_map_info(mapid):
 def get_map_type(mapid):
   try:
     maptype = get_map_info(mapid)[u'name']
-    return maptype
+    return str(maptype)
   except:
     return None
 
@@ -61,29 +63,48 @@ def get_todays_mapids():
   now = datetime.datetime.now()
   return get_mapids(now)
 
-def find_max_helper(mapid):
-  r = get_scores(mapid, 1)
+def find_nth_helper(mapid, n = 1):
+  page = (n-1) / 10 + 1
+
+  r = get_scores(mapid, page)
   if u'users' not in r:
     print 'users not in scores page?', mapid, r
     return None
-  s = get_scores(mapid, 1)[u'users']['1']
+
+  try:
+    s = get_scores(mapid, page)[u'users'][str(n)]
+  except:
+    return None
   if u'moves' not in s:
     print 'wtf first page has no users list ', s
     return None
   return s
 
 # get max score of a day
-def find_max_score(mapid):
-  res = find_max_helper(mapid)
-  return None if (res is None) else res[u'moves']
+def find_nth_score(mapid, n = 1):
+  res = find_nth_helper(mapid, n)
+  return None if (res is None) else int(res[u'moves'])
 
-def find_max_user(mapid):
-  res = find_max_helper(mapid)
+def find_nth_user(mapid, n = 1):
+  res = find_nth_helper(mapid, n)
   return None if (res is None) else int(res[u'ID'])
 
-def find_max_display(mapid):
-  res = find_max_helper(mapid)
+def find_nth_display(mapid, n = 1):
+  res = find_nth_helper(mapid, n)
   return None if (res is None) else res[u'display']
+
+def find_max_helper(mapid):
+  return find_nth_helper(mapid, 1);
+
+# get max score of a day
+def find_max_score(mapid):
+  return find_nth_score(mapid, 1);
+
+def find_max_user(mapid):
+  return find_nth_user(mapid, 1);
+
+def find_max_display(mapid):
+  return find_nth_display(mapid, 1);
 
 # find a give users' performance on a given map
 def find_user_helper(mapid, userid):
@@ -93,7 +114,7 @@ def find_user_helper(mapid, userid):
     if u'users' not in s: # reached last page
       return None
     for i in range(10):
-      rank = page * 10 + i - 9
+      rank = (page-1) * 10 + i + 1
       if str(rank) not in s[u'users']:
         return None
       if s[u'users'][str(rank)][u'ID'] == str(userid):
@@ -102,11 +123,24 @@ def find_user_helper(mapid, userid):
 
 def find_user_score(mapid, userid):
   res = find_user_helper(mapid, userid)
-  return None if (res is None) else res[1][u'moves']
+  return None if (res is None) else int(res[1][u'moves'])
+
+def find_user_points(mapid, userid):
+  res = find_user_helper(mapid, userid)
+  return None if (res is None) else int(res[1][u'points'])
 
 def find_user_rank(mapid, userid):
   res = find_user_helper(mapid, userid)
   return None if (res is None) else res[0]
+
+def get_num_ties(mapid):
+  maxscore = find_max_score(mapid)
+  score = maxscore
+  n = 2
+  while score == maxscore:
+    score = find_nth_score(mapid, n)
+    n = n + 1
+  return n - 2
 
 ###############################
 # useful routines
@@ -222,7 +256,7 @@ def print_user_history(userid, options = {}):
   if 'reverse' not in options:
     options['reverse'] = False
   if 'firstdate' in options:
-    date = firstdate
+    date = options['firstdate']
   else:
     if options['reverse']:
       date = datetime.datetime.now()
@@ -253,42 +287,114 @@ def print_user_history(userid, options = {}):
     else:
       date += datetime.timedelta(days=1)
 
-user = 'uuu'
+def get_stats(userid, options = {}):
+  if 'reverse' not in options:
+    options['reverse'] = False
+  if 'firstmap' in options:
+    mapid = options['firstmap']
+  else:
+    if options['reverse']:
+      mapid = get_todays_mapids()[3]
+    else:
+      mapid = 0
+
+  points = 0
+  mazes = 0
+  moves = 0
+  ties = 0
+  wins = 0
+
+  while mapid >= 0:
+    score = find_user_score(mapid, userid)
+    if score is not None:
+      points += find_user_points(mapid, userid)
+      mazes += 1
+      moves += score
+      maxscore = find_max_score(mapid)
+      if maxscore == score:
+        ties += 1
+        if find_max_user(mapid) == userid:
+          wins += 1
+          print ' | '.join([     x.ljust(8) for x in ['Mapid', 'Points','Moves','Mazes','Ties','Wins', 'Win%']])
+          print ' | '.join([str(x).ljust(8) for x in [mapid, points, moves,mazes,ties, wins, (wins / (mazes + 0.0))]])
+    #print ' | '.join([     x.ljust(8) for x in ['Mapid', 'Points','Moves','Mazes','Ties','Wins']])
+    #print ' | '.join([str(x).ljust(8) for x in [mapid, points, moves,mazes,ties, wins]])
+    if options['reverse']:
+      mapid -= 1
+    else:
+      mapid += 1
+
+def get_uc_history(options = {}):
+  if 'reverse' not in options:
+    options['reverse'] = False
+
+  if options['reverse']:
+    mapid = get_todays_mapids()[4]
+  else:
+    mapid = 2996
+
+  ntop = options['top'] if ('top' in options) else 1
+
+  mazes = 0
+  firstline = ' | '.join([x.ljust(8) for x in ['#', 'Mapid','Moves', '#Ties']]) + ' | ' \
+      + ' | '.join([str(x).ljust(25) for x in range(1, ntop+1)])
+  print firstline
+  print '=' * len(firstline)
+  while mapid >= 0:
+    if get_map_type(mapid) == 'Ultra Complex':
+      maxscore = find_max_score(mapid)
+      top = [find_nth_display(mapid, i) for i in range(1, ntop+1)]
+      mazes += 1
+      nties = get_num_ties(mapid)
+      print ' | '.join([str(x).ljust(8) for x in [mazes, mapid, maxscore, nties]]) + ' | ' \
+          + ' | '.join([x.ljust(25) for x in top])
+    if options['reverse']:
+      mapid -= 1
+    else:
+      mapid += 1
+
+user = 'wu'
 userid = user_id_map[user]
 
 #find_missed_maps(userid)
 #get_score_distribution()
-get_rank_distribution(userid)
+#get_rank_distribution(userid)
 #find_sweeps()
 #find_win_amounts(userid)
-#find_win_types(user)
-#find_winners_for_type(u'Ultra Complex')
-#find_winners_for_type(u'Dualing paths')
+#find_win_types(userid)
+#find_winners_for_type('Ultra Complex')
+#find_winners_for_type('Dualing paths')
 #print_user_history(userid, {'reverse': False, 'firstdate': datetime.datetime(2012, 12, 11)})
 #print_user_history(userid, {'reverse': True})
 #print_user_history(userid)
-#find_winners_for_type(u'Thirty')
-#find_winners_for_type(u'Thirty Too')
-#find_winners_for_type(u'Ultra Complex')
+
+#get_uc_history({'reverse': True, 'top': 3});
+#get_uc_history({'reverse': False, 'top': 3});
+
+get_stats(userid, {'reverse': False, 'firstmap': 2580})
+#get_stats(userid, {'reverse': True})
+#find_winners_for_type('Thirty')
+#find_winners_for_type('Thirty Too')
+#find_winners_for_type('Ultra Complex')
 
 map_types = [
-  u'Simple',
-  u'Normal',
-  u'Complex',
-  u'Reverse Order',
-  u'Dualing paths',
-  u'Side to Side',
-  u'Thirty',
-  u'Unlimited',
-  u'Centralized',
-  u'Seeing Double',
-  u'Teleport Madness',
-  u'Rocky Maze',
-  u'Ultimate Random',
-  u'Finite',
-  u'Thirty Too',
-  u"ABC's ",
-  u'Ultra Complex',
+  'Simple',
+  'Normal',
+  'Complex',
+  'Reverse Order',
+  'Dualing paths',
+  'Side to Side',
+  'Thirty',
+  'Unlimited',
+  'Centralized',
+  'Seeing Double',
+  'Teleport Madness',
+  'Rocky Maze',
+  'Ultimate Random',
+  'Finite',
+  'Thirty Too',
+  "ABC's ",
+  'Ultra Complex',
 ]
 
 
