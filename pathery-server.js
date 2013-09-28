@@ -13,23 +13,44 @@ app.configure(function() {
   app.use(app.router);
 });
 
-app.post('/place_greedy', function(req, res){
-  res.header("Access-Control-Allow-Origin", "*");
 
+var middleware = [
+  function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    next();
+  }
+];
+
+app.post('/place_greedy', middleware, function(req, res){
   var t = new Date().getTime();
-  var result = Analyst.place_greedy(JSON.parse(req.param('mapcode')), JSON.parse(req.param('solution')), JSON.parse(req.param('remaining')));
+  var result = Analyst.place_greedy(JSON.parse(req.param('board')), JSON.parse(req.param('solution')));
   console.log("\nPLACE GREEDY:")
   console.log("ms elapsed: " , new Date().getTime() - t)
 
   res.json(result);
-
 });
 
-app.post('/compute_value', function(req, res){
-  res.header("Access-Control-Allow-Origin", "*");
-
+app.post('/improve', middleware, function(req, res){
   var t = new Date().getTime();
-  var result = Analyst.compute_value(JSON.parse(req.param('mapcode')), JSON.parse(req.param('solution')));
+  var result = Analyst.improve(JSON.parse(req.param('board')), JSON.parse(req.param('solution')));
+  console.log("\nIMPROVE:")
+  console.log("ms elapsed: " , new Date().getTime() - t)
+
+  res.json(result);
+});
+
+app.post('/play_map', middleware, function(req, res){
+  var t = new Date().getTime();
+  var result = Analyst.play_map(JSON.parse(req.param('board')));
+  console.log("\nPLACE GREEDY:")
+  console.log("ms elapsed: " , new Date().getTime() - t)
+
+  res.json(result);
+});
+
+app.post('/compute_value', middleware, function(req, res){
+  var t = new Date().getTime();
+  var result = Analyst.compute_value(JSON.parse(req.param('board')), JSON.parse(req.param('solution')));
   //console.log("\nCOMPUTE VALUE:")
   //console.log("ms elapsed: " , new Date().getTime() - t)
 
@@ -37,11 +58,9 @@ app.post('/compute_value', function(req, res){
 
 });
 
-app.post('/compute_values', function(req, res){
-  res.header("Access-Control-Allow-Origin", "*");
-
+app.post('/compute_values', middleware, function(req, res){
   var t = new Date().getTime();
-  var result = Analyst.compute_values(JSON.parse(req.param('mapcode')), JSON.parse(req.param('solution')));
+  var result = Analyst.compute_values(JSON.parse(req.param('board')), JSON.parse(req.param('solution')));
   var time_elapsed = new Date().getTime() - t;
 
   console.log("\nCOMPUTE VALUES:")

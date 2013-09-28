@@ -99,15 +99,74 @@ function get_mapid() {
 exports.get_mapid = get_mapid;
 
 function get_code(mapid) {
+  if (mapid === undefined) {mapid = get_mapid();}
   return mapdata[mapid].code;
 }
 exports.get_code = get_code;
 
-function get_current_code() {
-  var mapid = get_mapid();
-  return get_code(mapid);
+function parse_board(code) {
+    var head = code.split(':')[0];
+    var body = code.split(':')[1];
+
+    var head = head.split('.');
+    var dims = head[0].split('x');
+    var width = parseInt(dims[0]);
+    var height = parseInt(dims[1]);
+
+    if (head[1][0] != 'c') {console.log('head[1][0] was ' + head[1][0] + ' expected c');}
+    var targets = parseInt(head[1].slice(1));
+
+    if (head[2][0] != 'r') {console.log('head[2][0] was ' + head[2][0] + ' expected r');}
+
+    if (head[3][0] != 'w') {console.log('head[3][0] was ' + head[3][0] + ' expected w');}
+    var walls_remaining = parseInt(head[3].slice(1));
+
+    if (head[4][0] != 't') {console.log('head[4][0] was ' + head[4][0] + ' expected t');}
+    var teleports = parseInt(head[4].slice(1))
+
+    var data = new Array();
+    for (i = 0; i < height; i++) {
+        var row = new Array();
+        for (j = 0; j < width; j++) {
+            row[j] = ' ';
+        }
+        data[i] = row;
+    }
+
+    var i = -1;
+    var j = width - 1;
+    var body_split = body.split('.').slice(0, -1);
+
+    for (var k = 0; k < body_split.length; k++) {
+        var item = body_split[k];
+        for (var l = 0; l < parseInt(item.slice(0, -1)) + 1; l++) {
+            j += 1;
+            if (j >= width) {
+                j = 0;
+                i += 1;
+            }
+        }
+        var type = item[item.length - 1];
+        data[i][j] = type;
+    }
+
+    //var board = [];
+    //for (var i in data) {
+    //  board.push(data[i].join(''));
+    //}
+    //return board
+
+    return {board: data,
+            walls_remaining: walls_remaining
+    };
 }
-exports.get_current_code = get_current_code;
+
+function get_board(mapid) {
+  if (mapid === undefined) {mapid = get_mapid();}
+  var code = get_code(mapid);
+  return parse_board(code).board;
+}
+exports.get_board = get_board;
 
 function get_solution(mapid) {
   var solution_string = solution[mapid];
@@ -227,7 +286,7 @@ function draw_values() {
       draw_values_var = setTimeout(draw_values, compute_values_interval);
     } else {
       last_compute_values_time = time;
-      solver.compute_values(get_code(mapid), get_solution(mapid), function(result) {
+      solver.compute_values(get_board(mapid), get_solution(mapid), function(result) {
          var value  = result.value;
          var values_list  = result.values_list;
          var maxValue = Math.max.apply(Math, values_list.map(function(x) { return (x.hasOwnProperty('val') && !isNaN(x.val) && !x.blocking ? x.val : -1); }));
@@ -242,7 +301,7 @@ function draw_values() {
 var showing_values = false;
 function refresh_score() {
   var mapid = get_mapid();
-  solver.compute_value(get_code(mapid), get_solution(mapid), function(values) {
+  solver.compute_value(get_board(mapid), get_solution(mapid), function(values) {
     write_score_value(values);
   })
   if (showing_values) { draw_values(); }
@@ -260,17 +319,18 @@ function draw_single_value(mapid, i, j, value, blocking, maxValue) {
       if (!isNaN(value) && value <= 0) {
         // negative worth block
   	  css.color = 'red';
-  	} else {
-        css.color = 'white';
-  	}
-    } else if (!isNaN(value) && value > 0) {
+  	  } else {
+          css.color = 'white';
+  	  }
+    } else if (!isNaN(value) && (value >= 0)) {
       //useful squares
+      if (value == 0) {value = ''};
       if (value == maxValue) {
-  	  css.color = 'green';
-  	  css['font-weight'] = 'bold';
-  	} else {
+   	    css.color = 'green';
+   	    css['font-weight'] = 'bold';
+   	  } else {
         css.color = 'black';
-  	}
+   	  }
     } else {
       //negative/invalid squares
       css.color = 'gray';
@@ -452,7 +512,7 @@ function save_current_solution() {
     // choose name based on score, and walls remaining
     var remaining = walls_remaining(mapid);
 
-    solver.compute_value(get_code(mapid), get_solution(mapid), function(values) {
+    solver.compute_value(get_board(mapid), get_solution(mapid), function(values) {
 
       raw_name = '' + get_score_total(values);
       if (remaining > 0) { raw_name += "+" + remaining + "w"; }

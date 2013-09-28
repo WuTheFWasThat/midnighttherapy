@@ -2,36 +2,39 @@
 
 // globals all mentioned here
 var Analyst  = {};
-Analyst.server = 'http://127.0.0.1:2222/',
-
-Analyst.compute_values = function(code, solution, cb) {
+Analyst.server = 'http://127.0.0.1:2222',
+Analyst.post = function(path, data, cb) {
   $.ajax({
-    url: Analyst.server + 'compute_values',
+    url: Analyst.server + '/' + path,
     type: 'POST',
-    data: {'mapcode': JSON.stringify(code), 'solution': JSON.stringify(solution)},
+    data: data,
     dataType: 'json',
     success: cb
   });
 }
 
-Analyst.compute_value = function(code, solution, cb) {
-  $.ajax({
-    url: Analyst.server + 'compute_value',
-    type: 'POST',
-    data: {'mapcode': JSON.stringify(code), 'solution': JSON.stringify(solution)},
-    dataType: 'json',
-    success: cb
-  })
+Analyst.compute_values = function(board, solution, cb) {
+  this.post('compute_values',
+    {'board': JSON.stringify(board), 'solution': JSON.stringify(solution)},
+    cb);
 }
 
-Analyst.place_greedy = function(code, solution, remaining, cb) {
-  $.ajax({
-    url: Analyst.server + 'place_greedy',
-    type: 'POST',
-    data: {'mapcode': JSON.stringify(code), 'solution': JSON.stringify(solution), 'remaining': JSON.stringify(remaining)},
-    dataType: 'json',
-    success: cb
-  })
+Analyst.compute_value = function(board, solution, cb) {
+  this.post('compute_value',
+    {'board': JSON.stringify(board), 'solution': JSON.stringify(solution)},
+    cb);
+}
+
+Analyst.place_greedy = function(board, solution, cb) {
+  this.post('place_greedy',
+    {'board': JSON.stringify(board), 'solution': JSON.stringify(solution)},
+    cb);
+}
+
+Analyst.play_map = function(board, remaining, cb) {
+  this.post('play_map',
+    {'board': JSON.stringify(board), 'solution': JSON.stringify(solution), 'remaining': JSON.stringify(remaining)},
+    cb);
 }
 
 var Therapist  = {};
@@ -52,11 +55,11 @@ if (typeof mt_local_testing === 'undefined') {
   function start_up() {
     Therapist.toggle_values();  // note: must happen before scripts load for this to update button properly
 
-    Therapist.register_hotkey('F', function(e) { // override existing GO
+    Therapist.register_hotkey('G', function(e) { // override existing GO
       var mapid = Therapist.get_mapid();
       var walls_left = Therapist.walls_remaining(mapid);
       if (walls_left) {
-        Analyst.place_greedy(Therapist.get_code(mapid), Therapist.get_solution(mapid), walls_left, function(result) {
+        Analyst.place_greedy(Therapist.get_code(mapid), Therapist.get_solution(mapid), function(result) {
           Therapist.load_solution(mapid, result);
           Therapist.send_solution(mapid);
         })
