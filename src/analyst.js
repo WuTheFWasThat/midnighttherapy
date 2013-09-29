@@ -51,58 +51,6 @@ teleports_map[TELE_IN_5] = TELE_OUT_5;
 
 PATH_BLOCKED_CONSTANT = NaN; // TODO: use this
 
-function parse_board(code) { // should client do this?
-    var head = code.split(':')[0];
-    var body = code.split(':')[1];
-
-    var head = head.split('.');
-    var dims = head[0].split('x');
-    var width = parseInt(dims[0]);
-    var height = parseInt(dims[1]);
-    if (head[1][0] != 'c') {console.log('head[1][0] was ' + head[1][0] + ' expected c');}
-    var targets = parseInt(head[1].slice(1));
-    if (head[2][0] != 'r') {console.log('head[2][0] was ' + head[2][0] + ' expected r');}
-    if (head[3][0] != 'w') {console.log('head[3][0] was ' + head[3][0] + ' expected w');}
-    if (head[4][0] != 't') {console.log('head[4][0] was ' + head[4][0] + ' expected t');}
-
-    var teleports = parseInt(head[4].slice(1))
-
-    var data = new Array();
-    for (i = 0; i < height; i++) {
-        var row = new Array();
-        for (j = 0; j < width; j++) {
-            row[j] = ' ';
-        }
-        data[i] = row;
-    }
-
-    var i = -1;
-    var j = width - 1;
-    var body_split = body.split('.').slice(0, -1);
-
-    for (var k = 0; k < body_split.length; k++) {
-        var item = body_split[k];
-        for (var l = 0; l < parseInt(item.slice(0, -1)) + 1; l++) {
-            j += 1;
-            if (j >= width) {
-                j = 0;
-                i += 1;
-            }
-        }
-        var type = item[item.length - 1];
-        data[i][j] = type;
-    }
-
-    //var board = [];
-    //for (var i in data) {
-    //  board.push(data[i].join(''));
-    //}
-    //return board
-
-    return data;
-}
-
-
 function PatheryGraph(board) {
 
   this.board = board; // i,j -> val
@@ -379,8 +327,7 @@ function find_pathery_path(graph, blocks){
 }
 
 
-function compute_value(mapcode, cur_blocks, cb) {
-    var board= parse_board(mapcode);
+function compute_value(board, cur_blocks, cb) {
     var graph = new PatheryGraph(board);
 
     var current_blocks = graph.parse_blocks(cur_blocks);
@@ -404,12 +351,9 @@ PatheryGraph.prototype.find_bridges = function(
              sources, // list of source vertices, in order of priority
              targets // set of target vertices
             ) {
-
 }
 
-
-function compute_values(mapcode, cur_blocks, cb) {
-    var board= parse_board(mapcode);
+function compute_values(board, cur_blocks, cb) {
     var graph = new PatheryGraph(board);
 
     var current_blocks = graph.parse_blocks(cur_blocks);
@@ -452,7 +396,6 @@ function compute_values(mapcode, cur_blocks, cb) {
                       delete current_blocks[block];
 
                       if (Math.abs(diff) > 2222222222) {diff = '-';} // TODO : make less hackish
-                      else if (diff == 0) {diff = '';}
                     }
                 } else {
                     diff = '';
@@ -473,13 +416,14 @@ exports.compute_values = compute_values;
 // SOLVER
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-function place_greedy(mapcode, cur_blocks, remaining, cb) {
+function place_greedy(board, remaining, cur_blocks, cb) {
   while (remaining > 0) {
     var best_val= -1;
     var best_block = null;
-    var values_list = compute_values(mapcode, cur_blocks).values_list;
+    var values_list = compute_values(board, cur_blocks).values_list;
     for (var i = 0; i < values_list.length; i++) {
       var val_dict = values_list[i];
+      console.log(val_dict.val, best_val, typeof val_dict.val, typeof best_val, val_dict)
       if ((!val_dict.blocking) && (typeof val_dict.val === 'number') && (val_dict.val > best_val)) {
         best_val = val_dict.val;
         best_block = [val_dict.i, val_dict.j]
@@ -488,8 +432,6 @@ function place_greedy(mapcode, cur_blocks, remaining, cb) {
 
     if (best_block) {
       cur_blocks.push(best_block);
-    } else {
-      break; // this should essentially never happen
     }
 
     remaining -= 1;
@@ -502,7 +444,13 @@ exports.place_greedy = place_greedy;
 // OPTIONS:
 // break_immediate:  break as soon as something better is found
 // randomize:        break ties by randomizing
+//exports.improve = function(code, solution, options) {
+//  var graph = new PatheryGraph(board);
+//  var current_blocks = graph.parse_blocks(cur_blocks);
+//}
+
 function improve_solution(graph, blocks, options) {
+
   var solution = find_pathery_path(graph, blocks);
 
   var best_val = solution.value;
@@ -544,7 +492,5 @@ function improve_solution(graph, blocks, options) {
   }
   return null;
 }
-
-
 
 })(typeof exports === "undefined" ? Analyst : module.exports)

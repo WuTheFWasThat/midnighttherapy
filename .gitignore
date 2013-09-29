@@ -1,3 +1,5 @@
 playground/out.txt
 node_modules
 .*
+playground/ignore
+playground/ignore/*
