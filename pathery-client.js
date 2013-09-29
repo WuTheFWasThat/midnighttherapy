@@ -25,15 +25,21 @@ Analyst.compute_value = function(board, solution, cb) {
     cb);
 }
 
-Analyst.place_greedy = function(board, solution, cb) {
+Analyst.place_greedy = function(board, solution, remaining, cb) {
   this.post('place_greedy',
-    {'board': JSON.stringify(board), 'solution': JSON.stringify(solution)},
+    {'board': JSON.stringify(board), 'solution': JSON.stringify(solution), 'remaining': JSON.stringify(remaining)},
     cb);
 }
 
-Analyst.play_map = function(board, remaining, cb) {
+Analyst.play_map = function(board, solution, remaining, cb) {
   this.post('play_map',
     {'board': JSON.stringify(board), 'solution': JSON.stringify(solution), 'remaining': JSON.stringify(remaining)},
+    cb);
+}
+
+Analyst.improve_solution = function(board, solution, cb) {
+  this.post('improve_solution',
+    {'board': JSON.stringify(board), 'solution': JSON.stringify(solution)}, //, 'remaining': JSON.stringify(remaining)},
     cb);
 }
 
@@ -55,18 +61,27 @@ if (typeof mt_local_testing === 'undefined') {
   function start_up() {
     Therapist.toggle_values();  // note: must happen before scripts load for this to update button properly
 
-    Therapist.register_hotkey('G', function(e) { // override existing GO
+    Therapist.register_hotkey('F', function(e) { // override existing GO
       var mapid = Therapist.get_mapid();
       var walls_left = Therapist.walls_remaining(mapid);
-      if (walls_left) {
-        Analyst.place_greedy(Therapist.get_code(mapid), Therapist.get_solution(mapid), function(result) {
-          Therapist.load_solution(mapid, result);
-          Therapist.send_solution(mapid);
-        })
-      } else {
+
+      if (!walls_left) {return Therapist.send_solution(mapid);}
+
+      Analyst.place_greedy(Therapist.get_board(mapid), Therapist.get_solution(mapid), walls_left, function(result) {
+        Therapist.load_solution(mapid, result);
         Therapist.send_solution(mapid);
-      }
+      })
     });
+
+    Therapist.register_hotkey('I', function(e) {
+      var mapid = Therapist.get_mapid();
+      var walls_left = Therapist.walls_remaining(mapid);
+      Analyst.improve_solution(Therapist.get_board(mapid), Therapist.get_solution(mapid), function(result) {
+        Therapist.load_solution(mapid, result);
+        Therapist.send_solution(mapid);
+      })
+    });
+
   }
 
   get_therapist(start_up);

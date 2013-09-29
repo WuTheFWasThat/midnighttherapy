@@ -152,12 +152,20 @@ PatheryGraph.prototype.unkeyify = function(blockkey) {
   return [Math.floor(blockkey / this.m), blockkey % this.m];
 }
 
-PatheryGraph.prototype.parse_blocks = function(blocks) {
-  var parsed_blocks = {};
-  for (var i =0; i < blocks.length; i++) {
-    parsed_blocks[this.keyify(blocks[i])] = true;
+PatheryGraph.prototype.dictify_blocks = function(blocks_list) {
+  var blocks_dict = {};
+  for (var i =0; i < blocks_list.length; i++) {
+    blocks_dict[this.keyify(blocks_list[i])] = true;
   }
-  return parsed_blocks;
+  return blocks_dict;
+}
+
+PatheryGraph.prototype.listify_blocks = function(blocks_dict) {
+  var blocks_list = [];
+  for (var block in blocks_dict) {
+    blocks_list.push(this.unkeyify(block));
+  }
+  return blocks_list;
 }
 
 PatheryGraph.prototype.teleport = function(block, used_teleports) {
@@ -330,7 +338,7 @@ function find_pathery_path(graph, blocks){
 function compute_value(board, cur_blocks, cb) {
     var graph = new PatheryGraph(board);
 
-    var current_blocks = graph.parse_blocks(cur_blocks);
+    var current_blocks = graph.dictify_blocks(cur_blocks);
     var solution = find_pathery_path(graph, current_blocks);
 
     if (cb) {cb(solution.values)}
@@ -356,7 +364,7 @@ PatheryGraph.prototype.find_bridges = function(
 function compute_values(board, cur_blocks, cb) {
     var graph = new PatheryGraph(board);
 
-    var current_blocks = graph.parse_blocks(cur_blocks);
+    var current_blocks = graph.dictify_blocks(cur_blocks);
     var solution = find_pathery_path(graph, current_blocks);
 
     var solution_path = solution.paths;
@@ -416,14 +424,13 @@ exports.compute_values = compute_values;
 // SOLVER
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-function place_greedy(board, remaining, cur_blocks, cb) {
+function place_greedy(board, cur_blocks, remaining, cb) {
   while (remaining > 0) {
     var best_val= -1;
     var best_block = null;
     var values_list = compute_values(board, cur_blocks).values_list;
     for (var i = 0; i < values_list.length; i++) {
       var val_dict = values_list[i];
-      console.log(val_dict.val, best_val, typeof val_dict.val, typeof best_val, val_dict)
       if ((!val_dict.blocking) && (typeof val_dict.val === 'number') && (val_dict.val > best_val)) {
         best_val = val_dict.val;
         best_block = [val_dict.i, val_dict.j]
@@ -442,14 +449,12 @@ function place_greedy(board, remaining, cur_blocks, cb) {
 exports.place_greedy = place_greedy;
 
 // OPTIONS:
-// break_immediate:  break as soon as something better is found
 // randomize:        break ties by randomizing
-//exports.improve = function(code, solution, options) {
-//  var graph = new PatheryGraph(board);
-//  var current_blocks = graph.parse_blocks(cur_blocks);
-//}
-
-function improve_solution(graph, blocks, options) {
+// num_failures:     number of failed improvements before stopping
+function improve_solution(board, blocks, options) {
+  //blocks = place_greedy(board, blocks, remaining, cb) {
+  var graph = new PatheryGraph(board);
+  blocks = graph.dictify_blocks(blocks);
 
   var solution = find_pathery_path(graph, blocks);
 
@@ -459,38 +464,51 @@ function improve_solution(graph, blocks, options) {
   var num_tied = 1;
   var val;
 
-  for (var remove_block in blocks) {
-    delete blocks[remove_block];
+  var fail_improve = 0;
 
-    solution = find_pathery_path(graph, blocks);
-    var relevant_blocks = solution.relevant_blocks;
+  options.num_failures = options.num_failures || 1;
+  if (options.try_shortcut === undefined) {options.try_shortcut = true;}
 
-    for (var add_block in relevant_blocks) {
-      blocks[add_block] = true;
-      solution = find_pathery_path(graph, blocks);
-      val = solution.value;
-      if (val > best_val) {
-        num_tied = 1;
-        if (options.break_immediate) {
-          return {remove_block: remove_block, add_block: add_block}
-        } else {
-          best_remove_block = remove_block; best_add_block = add_block; best_val = val;
-        }
-      } else if (val == best_val) {
-        num_tied += 1;
-        if (options.randomize) {
-          if (Math.random() * num_tied < 1) {
-            best_remove_block = remove_block; best_add_block = add_block; best_val = val;
-          }
-        }
-      }
-
-      delete blocks[add_block];
+  while (fail_improve < options.num_failures) {
+    fail_improve += 1;
+    if (options.try_shortcut) {
     }
 
-    blocks[remove_block] = true;
+    for (var remove_block in blocks) {
+      delete blocks[remove_block];
+
+      solution = find_pathery_path(graph, blocks);
+      var relevant_blocks = solution.relevant_blocks;
+
+      for (var add_block in relevant_blocks) {
+        blocks[add_block] = true;
+        solution = find_pathery_path(graph, blocks);
+        val = solution.value;
+        if (val > best_val) {
+          num_tied = 1;
+          fail_improve = 0;
+          best_remove_block = remove_block; best_add_block = add_block; best_val = val;
+        } else if (val == best_val) {
+          num_tied += 1;
+          if (options.randomize) {
+            if (Math.random() * num_tied < 1) {
+              best_remove_block = remove_block; best_add_block = add_block; best_val = val;
+            }
+          }
+        }
+        delete blocks[add_block];
+      }
+      blocks[remove_block] = true;
+    }
+
+    if (best_remove_block) {
+      delete blocks[best_remove_block]
+      blocks[best_add_block] = true;
+    }
   }
-  return null;
+  return graph.listify_blocks(blocks);
 }
+exports.improve_solution = improve_solution;
+
 
 })(typeof exports === "undefined" ? Analyst : module.exports)
