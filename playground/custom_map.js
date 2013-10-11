@@ -71,7 +71,7 @@ function randomEdgeCase() {
 
   //Tune some parameters
   map.walls = 22;
-  var numExtraRocks = getRandomInt(17, 23);
+  var numExtraRocks = getRandomInt(13, 37);
   map.placeRandomly(tiles.ROCK, numExtraRocks);
   var numCheckpoints = 2;
   var numTeleports = 3;
@@ -269,9 +269,46 @@ function randomDoubleNormal() {
   return map;
 }
 
+function randomFunlimited() {
+  var m = 17, n = 9;
+  var map = new DenseMap(m, n, 0, 'Funlimited');
+  var allJs = range(0,n);
+
+  //start and finish cols
+  map.set(tiles.GREEN_START, 0, allJs);
+  map.set(tiles.FINISH, m-1, allJs);
+  //a warp
+  map.placeRandomly(tiles.TELE_IN_1);
+  map.placeRandomly(tiles.TELE_OUT_1);
+
+  //Tune some parameters
+  map.walls = 888;
+  var numCheckpoints = getRandomInt(3,4);
+  for (var i = 0; i < numCheckpoints; i++) {
+    map.placeRandomly(tiles.CHECKPOINTS[i]);
+  }
+
+  var numExtraRocks = getRandomInt(7,11);
+  map.placeRandomly(tiles.ROCK, numExtraRocks);
+
+  var numPatches = getRandomInt(11,15);
+  map.placeRandomly(tiles.PATCH, numPatches);
+
+  return map;
+}
+
 function addMap(map_arr, map) {
   var mapStr = map.myName + ':\n';
+  //mapStr += map.forumMapCode();
   mapStr += map.toMapCode();
+  map_arr.push(mapStr);
+}
+
+function forumAddMap(map_arr, map) {
+  var mapStr = map.myName + ':\n';
+  mapStr += '[code]\n';
+  mapStr += map.forumMapCode() + '\n';
+  mapStr += '[/code]\n';
   map_arr.push(mapStr);
 }
 
@@ -279,13 +316,14 @@ var main = function() {
   var fs = require('fs');
 
   var maps = [];
-  addMap(maps, randomLayover());
-  addMap(maps, randomBombsAway());
-  addMap(maps, randomEdgeCase());
-  addMap(maps, randomTriage());
-  addMap(maps, randomYOLT());
-  addMap(maps, randomNoEnd());
-  addMap(maps, randomDoubleNormal());
+  forumAddMap(maps, randomLayover());
+  forumAddMap(maps, randomBombsAway());
+  forumAddMap(maps, randomEdgeCase());
+  forumAddMap(maps, randomTriage());
+  forumAddMap(maps, randomYOLT());
+  forumAddMap(maps, randomNoEnd());
+  forumAddMap(maps, randomDoubleNormal());
+  forumAddMap(maps, randomFunlimited());
   
   var outStr = maps.join('\n\n');
   // var code = "13x7.c1.r10.w9.t0.Simple.:0s.0r.10f.0s.5r.5f.0s.0r.6r.1r.1f.0s.11f.0s.2r.4a.3f.0s.1r.4r.4f.0s.2r.6r.1f.";

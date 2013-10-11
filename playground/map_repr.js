@@ -166,6 +166,37 @@ DenseMap.prototype.toMapCode = function() {
   return header + ':' + body;
 }
 
+//Mapcodes on the forum need to be formatted with line breaks.
+DenseMap.prototype.forumMapCode = function(linewidth) {
+  var mc = this.toMapCode();
+  if (linewidth == undefined) {
+    linewidth = 60;
+  }
+
+  var lines = [];
+  var idx = 0;
+  var lastIdx = -1;
+  var lastLineIdx = -1;
+  var line;
+  while (true) {
+    idx = mc.indexOf('.', lastIdx + 1);
+    if (idx - lastLineIdx > linewidth) {
+      //make new line
+      line = mc.substr(lastLineIdx + 1, idx - lastLineIdx);
+      lines.push(line);
+      lastLineIdx = idx;
+    }
+    lastIdx = idx;
+
+    if (idx == -1) {
+      line = mc.substr(lastLineIdx + 1);
+      lines.push(line);
+      break;
+    }
+  }
+  return lines.join('\n');
+}
+
 //blow everything up, k by k
 DenseMap.prototype.dilate = function(k) {
   //make sure k is a positive integer
