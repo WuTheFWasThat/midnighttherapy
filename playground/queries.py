@@ -7,6 +7,28 @@ domain = 'http://beta.pathery.net';
 domain = 'http://blue.pathery.net';
 domain = 'http://www.pathery.com';
 
+map_types = [
+  'Simple',
+  'Normal',
+  'Complex',
+  'Reverse Order',
+  'Dualing paths',
+  'Side to Side',
+  'Thirty',
+  'Unlimited',
+  'Centralized',
+  'Seeing Double',
+  'Teleport Madness',
+  'Rocky Maze',
+  'Ultimate Random',
+  'Finite',
+  'Thirty Too',
+  "ABC's ",
+  'Ultra Complex',
+]
+
+
+
 f = open('playground/user_id_map.json')
 user_id_map = json.loads(f.read())
 
@@ -152,8 +174,9 @@ def find_missed_maps(userid, include_unattempted = True):
   while mapid > -1:
     user_score = find_user_score(mapid, userid)
     max_score = find_max_score(mapid)
+    map_type = get_map_type(mapid)
     if (user_score != max_score) and (include_unattempted or (user_score is not None)):
-      print mapid, 'unmaxed:', user_score, max_score
+      print mapid, 'unmaxed:', map_type, user_score, max_score
     mapid -= 1
 
 # get score distribution
@@ -287,6 +310,30 @@ def print_user_history(userid, options = {}):
     else:
       date += datetime.timedelta(days=1)
 
+def print_history(options = {}):
+  if 'reverse' not in options:
+    options['reverse'] = True
+  if 'firstdate' in options:
+    date = options['firstdate']
+  else:
+    if options['reverse']:
+      date = datetime.datetime.now()
+    else:
+      date = datetime.datetime(2011, 3, 30) # 3/3 was snap's join date, 3/11 starts having regular maps, 3/16-3/29 is broken
+  while True:
+    mapids = get_mapids(date)
+    print isodate(date)
+    for i in range(0,4):
+      mapid = mapids[i]
+      winner = find_max_display(mapid)
+      maptype = get_map_type(mapid)
+      message = '    ' + ' '.join([winner, ' won ', maptype.ljust(20)])
+      print message
+    if options['reverse']:
+      date -= datetime.timedelta(days=1)
+    else:
+      date += datetime.timedelta(days=1)
+
 def get_stats(userid, options = {}):
   if 'reverse' not in options:
     options['reverse'] = False
@@ -353,7 +400,7 @@ def get_uc_history(options = {}):
     else:
       mapid += 1
 
-user = 'wu'
+user = 'george'
 userid = user_id_map[user]
 
 #find_missed_maps(userid)
@@ -361,40 +408,20 @@ userid = user_id_map[user]
 #get_rank_distribution(userid)
 #find_sweeps()
 #find_win_amounts(userid)
-#find_win_types(userid)
+find_win_types(userid)
 #find_winners_for_type('Ultra Complex')
 #find_winners_for_type('Dualing paths')
 #print_user_history(userid, {'reverse': False, 'firstdate': datetime.datetime(2012, 12, 11)})
 #print_user_history(userid, {'reverse': True})
 #print_user_history(userid)
+#print_history()
 
 #get_uc_history({'reverse': True, 'top': 3});
 #get_uc_history({'reverse': False, 'top': 3});
 
-get_stats(userid, {'reverse': False, 'firstmap': 2580})
+#get_stats(userid, {'reverse': False, 'firstmap': 2580})
 #get_stats(userid, {'reverse': True})
 #find_winners_for_type('Thirty')
 #find_winners_for_type('Thirty Too')
 #find_winners_for_type('Ultra Complex')
-
-map_types = [
-  'Simple',
-  'Normal',
-  'Complex',
-  'Reverse Order',
-  'Dualing paths',
-  'Side to Side',
-  'Thirty',
-  'Unlimited',
-  'Centralized',
-  'Seeing Double',
-  'Teleport Madness',
-  'Rocky Maze',
-  'Ultimate Random',
-  'Finite',
-  'Thirty Too',
-  "ABC's ",
-  'Ultra Complex',
-]
-
 
