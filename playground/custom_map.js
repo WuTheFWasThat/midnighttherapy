@@ -119,28 +119,30 @@ function randomTriage() {
   var I2 = range(k+2, 2*k+2);
   var I3 = range(2*k+3, 3*k+3);
 
+  //Tune some parameters
+  map.walls = 21;
+  var numExtraRocksPerArea = getRandomInt(6,16);
+
   map.set(tiles.GREEN_START, 0, n/2 >> 0);
   //map.placeRandomlyInArea(tiles.GREEN_START, I1, allJs);
   map.placeRandomlyInArea(tiles.CHECKPOINT_1, I1, allJs);
   map.placeRandomlyInArea(INS[2], I1, allJs);
   map.placeRandomlyInArea(OUTS[2], I1, allJs);
-
+  map.placeRandomlyInArea(tiles.ROCK, I1, allJs, numExtraRocksPerArea);
 
   //map.placeRandomlyInArea(OUTS[0], I2, allJs);
   map.placeRandomlyInArea(tiles.CHECKPOINT_2, I2, allJs);
   map.placeRandomlyInArea(INS[3], I2, allJs);
   map.placeRandomlyInArea(OUTS[3], I2, allJs);
+  map.placeRandomlyInArea(tiles.ROCK, I2, allJs, numExtraRocksPerArea);
 
   map.set(tiles.FINISH, m-1, n/2 >> 0);
   //map.placeRandomlyInArea(OUTS[1], I3, allJs);
   map.placeRandomlyInArea(tiles.CHECKPOINT_3, I3, allJs);
   map.placeRandomlyInArea(INS[4], I3, allJs);
   map.placeRandomlyInArea(OUTS[4], I3, allJs);
+  map.placeRandomlyInArea(tiles.ROCK, I3, allJs, numExtraRocksPerArea);
 
-  //Tune some parameters
-  map.walls = 21;
-  var numExtraRocks = getRandomInt(17,23);
-  map.placeRandomly(tiles.ROCK, numExtraRocks);
 
   return map;
 }
@@ -297,6 +299,29 @@ function randomFunlimited() {
   return map;
 }
 
+function randomBAAAAAAA() {
+  var m = 19, n = 15;
+  var map = new DenseMap(m, n, 0, 'BAAAAAAA');
+
+  var allJs = range(0,n);
+
+  //start and finish cols
+  map.set(tiles.GREEN_START, 0, allJs);
+  map.set(tiles.FINISH, m-1, allJs);
+  //7 As and a B
+  //As can't be on left column
+  var mostIs = range(1, m);
+  map.placeRandomlyInArea(tiles.CHECKPOINT_1, mostIs, allJs, 7);
+  map.placeRandomly(tiles.CHECKPOINT_2, 1);
+
+  //Tune some parameters
+  map.walls = getRandomInt(17, 23) + 15;
+  var numExtraRocks = getRandomInt(19, 38);
+  map.placeRandomly(tiles.ROCK, numExtraRocks);
+
+  return map;
+}
+
 function addMap(map_arr, map) {
   var mapStr = map.myName + ':\n';
   //mapStr += map.forumMapCode();
@@ -316,6 +341,7 @@ var main = function() {
   var fs = require('fs');
 
   var maps = [];
+  forumAddMap(maps, randomBAAAAAAA());
   forumAddMap(maps, randomLayover());
   forumAddMap(maps, randomBombsAway());
   forumAddMap(maps, randomEdgeCase());
@@ -325,7 +351,7 @@ var main = function() {
   forumAddMap(maps, randomDoubleNormal());
   forumAddMap(maps, randomFunlimited());
   
-  var outStr = maps.join('\n\n');
+  var outStr = maps.join('\n');
   // var code = "13x7.c1.r10.w9.t0.Simple.:0s.0r.10f.0s.5r.5f.0s.0r.6r.1r.1f.0s.11f.0s.2r.4a.3f.0s.1r.4r.4f.0s.2r.6r.1f.";
 
   // var map = parseMapCode(code);
