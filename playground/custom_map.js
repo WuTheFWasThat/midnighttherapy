@@ -7,6 +7,8 @@ var tiles = require('./tile_types');
 var map_repr = require('./map_repr');
 var DenseMap = map_repr.DenseMap;
 
+var fs = require('fs');
+
 function randomBombsAway() {
   var m = 19, n = 19;  
   var map = new DenseMap(m, n, 0, 'Bombs Away');
@@ -271,6 +273,44 @@ function randomDoubleNormal() {
   return map;
 }
 
+function randomRaceCondition() {
+  var k = 9;
+  var m = 15, n = 2*k+1;
+  var map = new DenseMap(m, n, 0, 'Race Condition');
+  var allIs = range(0, m);
+  var J1 = range(0,k);
+  var J2 = range(k+1, 2*k+1);
+
+  //middle row is empty
+  map.set(tiles.EMPTY, allIs, k);
+  //put top start and finish
+  map.set(tiles.GREEN_START, 0, J1);
+  map.set(tiles.FINISH, m-1, J1);
+  //put bot start and finish
+  map.set(tiles.GREEN_START, 0, J2);
+  map.set(tiles.FINISH, m-1, J2);
+
+  //Tune some parameters
+  map.walls = getRandomInt(17, 19);
+  var numCheckpoints;
+  if (Math.random() < .15) {
+    numCheckpoints = 2;
+  } else {
+    numCheckpoints = 3;
+  }
+  for (var i = 0; i < numCheckpoints; i++) {
+    map.placeRandomlyInArea(tiles.CHECKPOINTS[i], allIs, J1);
+    map.placeRandomlyInArea(tiles.CHECKPOINTS[i], allIs, J2);
+  }
+
+  var numExtraRocks = getRandomInt(11,15);
+  map.placeRandomlyInArea(tiles.ROCK, allIs, J1, numExtraRocks);
+  map.placeRandomlyInArea(tiles.ROCK, allIs, J2, numExtraRocks);
+
+  return map;
+
+}
+
 function randomFunlimited() {
   var m = 17, n = 9;
   var map = new DenseMap(m, n, 0, 'Funlimited');
@@ -310,7 +350,7 @@ function randomBAAAAAAA() {
   map.set(tiles.FINISH, m-1, allJs);
   //7 As and a B
   //As can't be on left column
-  var mostIs = range(1, m);
+  var mostIs = range(2, m);
   map.placeRandomlyInArea(tiles.CHECKPOINT_1, mostIs, allJs, 7);
   map.placeRandomly(tiles.CHECKPOINT_2, 1);
 
@@ -338,8 +378,6 @@ function forumAddMap(map_arr, map) {
 }
 
 var main = function() {
-  var fs = require('fs');
-
   var maps = [];
   forumAddMap(maps, randomBAAAAAAA());
   forumAddMap(maps, randomLayover());
@@ -349,6 +387,7 @@ var main = function() {
   forumAddMap(maps, randomYOLT());
   forumAddMap(maps, randomNoEnd());
   forumAddMap(maps, randomDoubleNormal());
+  forumAddMap(maps, randomRaceCondition());
   forumAddMap(maps, randomFunlimited());
   
   var outStr = maps.join('\n');
