@@ -92,7 +92,43 @@ DenseMap.prototype.placeRandomly = function(val, numTimes) {
   }
 }
 
-//DenseMap.prototype.placeRandomlyInArea
+//Randomly place the nonempty value given, somewhere in the region defined by IxJ.
+//Do this numTimes (default 1) 
+DenseMap.prototype.placeRandomlyInArea = function(val, I, J, numTimes) {
+  if (numTimes == undefined) {
+    numTimes = 1;
+  }
+
+  if (val == ' ') {
+    throw new Error("placeRandomly: expected nonempty tile type");
+  }
+  if (typeof I !== 'object') {
+    I = [I];
+  }
+  if (typeof J !== 'object') {
+    J = [J];
+  }
+
+  //TODO: make sure the rejection sampling terminates
+  var tries = 0;
+  while (numTimes > 0 && tries < 100) {
+    var idxI = I[getRandomInt(0, I.length-1)];
+    var idxJ = J[getRandomInt(0, J.length-1)];
+    var idx = this.sub2ind(idxI, idxJ);
+    if (this.tiles[idx] !== ' ') {
+      tries++;
+    } else {
+      this.tiles[idx] = val;
+      numTimes--;
+      tries = 0;
+    }
+  }
+
+  //rejection sampling failed
+  if (numTimes != 0) {
+    throw new Error("placeRandomlyInArea: rejection sampling failed too many times");
+  }
+}
 
 DenseMap.prototype.toMapCode = function() {
   //create header
@@ -128,6 +164,37 @@ DenseMap.prototype.toMapCode = function() {
   bodyTiles.push('');
   var body = bodyTiles.join('.');
   return header + ':' + body;
+}
+
+//Mapcodes on the forum need to be formatted with line breaks.
+DenseMap.prototype.forumMapCode = function(linewidth) {
+  var mc = this.toMapCode();
+  if (linewidth == undefined) {
+    linewidth = 60;
+  }
+
+  var lines = [];
+  var idx = 0;
+  var lastIdx = -1;
+  var lastLineIdx = -1;
+  var line;
+  while (true) {
+    idx = mc.indexOf('.', lastIdx + 1);
+    if (idx - lastLineIdx > linewidth) {
+      //make new line
+      line = mc.substr(lastLineIdx + 1, idx - lastLineIdx);
+      lines.push(line);
+      lastLineIdx = idx;
+    }
+    lastIdx = idx;
+
+    if (idx == -1) {
+      line = mc.substr(lastLineIdx + 1);
+      lines.push(line);
+      break;
+    }
+  }
+  return lines.join('\n');
 }
 
 //blow everything up, k by k
