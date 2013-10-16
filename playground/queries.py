@@ -169,7 +169,8 @@ def get_num_ties(mapid):
 ###############################
 
 # find the missed maps of a user
-def find_missed_maps(userid, include_unattempted = True):
+def find_missed_maps(user, include_unattempted = True):
+  userid = user_id_map[user]
   mapid = get_todays_mapids()[3]
   while mapid > -1:
     user_score = find_user_score(mapid, userid)
@@ -203,15 +204,17 @@ def get_score_distribution(maptype = None):
     print score_array
 
 # get the distribution of ranks for a user
-def get_rank_distribution(userid, max_care_about = 10):
-  ranks = [0] * max_care_about
-
+def get_rank_distribution(users, max_care_about = 10):
+  ranks = [[0] * max_care_about for i in range(len(users))]
   mapid = get_todays_mapids()[3]
   while mapid > -1:
-    user_rank = find_user_rank(mapid, userid)
-    if (user_rank is not None) and (user_rank <= max_care_about):
-      ranks[user_rank - 1] += 1
-    print ranks
+    for i in range(len(users)):
+      user_rank = find_user_rank(mapid, user_id_map[users[i]])
+      if (user_rank is not None) and (user_rank <= max_care_about):
+        ranks[i][user_rank - 1] += 1
+    print '---------------'
+    for i in range(len(users)):
+      print users[i].ljust(5), ranks[i]
     mapid -= 1
 
 def find_sweeps():
@@ -227,7 +230,8 @@ def find_sweeps():
       print potential_sweeper.ljust(20), 'swept on day', isodate(date)
     date -= datetime.timedelta(days=1)
 
-def find_win_amounts(userid):
+def find_win_amounts(user):
+  userid = user_id_map[user]
   date = datetime.datetime.now()
   counts = [0] * 4
 
@@ -243,7 +247,8 @@ def find_win_amounts(userid):
       print counts
     date -= datetime.timedelta(days=1)
 
-def find_win_types(userid):
+def find_win_types(user):
+  userid = user_id_map[user]
   mapid = get_todays_mapids()[3]
   type_count = {}
   while mapid > -1:
@@ -256,12 +261,12 @@ def find_win_types(userid):
       print type_count
     mapid -= 1
 
-def find_winners_for_type(maptype):
+def find_winners(maptype = 'All'):
   mapid = get_todays_mapids()[3]
   winners = {}
   while mapid > -1:
     thismaptype = get_map_type(mapid)
-    if thismaptype == maptype:
+    if (thismaptype == maptype) or (maptype == 'All'):
       winner = find_max_display(mapid)
       if winner in winners:
         winners[winner] += 1
@@ -274,8 +279,33 @@ def find_winners_for_type(maptype):
       print
     mapid -= 1
 
+# stats on a group of people winning
+def group_wins(group):
+  group = set([user_id_map[x] for x in group])
+  date = datetime.datetime.now()
+  num = 0
+  den = 0
+  while True:
+    mapids = get_mapids(date);
+    winners = []
+    count = 0
+    for i in range(4):
+      mapid = mapids[i]
+      winners.append(find_max_display(mapid))
+      userid = find_max_user(mapid)
+      if userid in group:
+        count += 1
+    num += count
+    den += 4
 
-def print_user_history(userid, options = {}):
+    date -= datetime.timedelta(days=1)
+    if count == 0:
+      print isodate(date), 'winners', winners
+      print count, str(num)+'/'+str(den), (num / (den + 0.0))
+
+
+def print_user_history(user, options = {}):
+  userid = user_id_map[user]
   if 'reverse' not in options:
     options['reverse'] = False
   if 'firstdate' in options:
@@ -400,20 +430,22 @@ def get_uc_history(options = {}):
     else:
       mapid += 1
 
-user = 'george'
-userid = user_id_map[user]
-
-#find_missed_maps(userid)
+#find_missed_maps('wu')
 #get_score_distribution()
-#get_rank_distribution(userid)
+#get_rank_distribution(['wu', 'blue', 'dewax', 'vzl', 'uuu', 'sid'], 10)
 #find_sweeps()
-#find_win_amounts(userid)
-find_win_types(userid)
-#find_winners_for_type('Ultra Complex')
-#find_winners_for_type('Dualing paths')
-#print_user_history(userid, {'reverse': False, 'firstdate': datetime.datetime(2012, 12, 11)})
-#print_user_history(userid, {'reverse': True})
-#print_user_history(userid)
+#find_win_amounts('blue')
+#find_win_types('sid')
+#find_winners('Ultra Complex')
+#find_winners('Dualing paths')
+#find_winners('Teleport Madness')
+#find_winners()
+
+group_wins(['wu', 'blue', 'dewax', 'sid', 'uuu', 'doth'])
+
+#print_user_history('wu', {'reverse': False, 'firstdate': datetime.datetime(2012, 12, 11)})
+#print_user_history('wu', {'reverse': True})
+#print_user_history('wu')
 #print_history()
 
 #get_uc_history({'reverse': True, 'top': 3});
@@ -421,7 +453,7 @@ find_win_types(userid)
 
 #get_stats(userid, {'reverse': False, 'firstmap': 2580})
 #get_stats(userid, {'reverse': True})
-#find_winners_for_type('Thirty')
-#find_winners_for_type('Thirty Too')
-#find_winners_for_type('Ultra Complex')
+#find_winners('Thirty')
+#find_winners('Thirty Too')
+#find_winners('Ultra Complex')
 

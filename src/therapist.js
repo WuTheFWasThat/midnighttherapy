@@ -12,6 +12,7 @@
 ////////////////////////////////////////////////////////////
 // CREDIT TO:  http://stackoverflow.com/questions/1866717/document-createelementscript-adding-two-scripts-with-one-callback
 
+var is_mapeditor = ($('#difficulties').length == 0);
 function loadScripts(array,callback){
   var loader = function(src,handler){
     var script = document.createElement("script");
@@ -211,7 +212,9 @@ function update_scores_page() {
   scoresShowPage(currentPage[mapid], mapid)
 }
 
-setInterval(update_scores_page, 1000);
+if (!is_mapeditor) {
+  setInterval(update_scores_page, 1000);
+}
 
 ////////////////////////////////////////////
 // OVERRIDE SNAP'S STUFF
@@ -968,8 +971,6 @@ $(document).bind('keydown', function(e){
 function initialize_toolbar() {
   $('#mt_left_bar').remove();
 
-  $('#difficulties').parent().css('margin-left', '300px');
-
   var button_toolbar = $('<div id="mt_left_bar"></div>')
   button_toolbar.css({
     'position' : 'absolute',
@@ -985,21 +986,26 @@ function initialize_toolbar() {
     'margin-top' : '21px'
   })
 
-  if ($('#difficulties').length > 0) {
-    $('#difficulties').after(button_toolbar);
-  } else {
+  if (is_mapeditor) {
     // mapeditor
-    button_toolbar.css('position', 'relative');
+    $('#playableMapDisplay').parent().css('width', '100%');
+
+    button_toolbar.css('position', 'static');
+    button_toolbar.css('margin-left', '50px');
+    button_toolbar.css('float', 'left');
     $('#playableMapDisplay').before(button_toolbar);
-    $('#playableMapDisplay').css('margin-left', '300px');
-    $('#playableMapDisplay').css('display', 'inline-block');
-    $('#playableMapDisplay').css('float', 'none');
+    $('#playableMapDisplay').css('margin-left', '50px');
+    $('#playableMapDisplay').css('margin-top', '40px');
+    $('#playableMapDisplay').css('float', 'left');
 
     $(window).click(function() {
       refresh_all();
       bind_block_events();
       setTimeout(bind_block_events, new_map_timeout); // this is apparently not enough...
     });
+  } else {
+    $('#difficulties').parent().css('margin-left', '300px');
+    $('#difficulties').after(button_toolbar);
   }
 
   var show_values_button = $('<button id="mt_show_values"></button>');
