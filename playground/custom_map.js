@@ -498,7 +498,7 @@ function randomInfinite() {
   }
 
   //randomly place OUTs
-  var mostIs = range(1, m-1);
+  var mostIs = range(1, m-3);
   for (var i = 0; i < 5; i++) {
     map.placeRandomlyInArea(tiles.TELE_OUTS[i], mostIs, allJs);
   }
