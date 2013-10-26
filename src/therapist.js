@@ -209,7 +209,7 @@ function switch_map(map_num) {
 
 function update_scores_page() {
   var mapid = get_mapid();
-  scoresShowPage(currentPage[mapid], mapid)
+  scoresShowPage(currentPage[mapid], mapid);
 }
 
 if (!is_mapeditor) {

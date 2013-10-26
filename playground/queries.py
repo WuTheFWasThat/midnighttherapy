@@ -45,17 +45,28 @@ def isodate(date):
 # see for API :
 # http://forums.pathery.com/showthread.php?tid=3
 
-request_cache = {}
+request_cache = {} # in-memory cache
 def make_request(url):
+  cache_file = 'playground/cached_queries/' + url.replace(':', '_').replace('/','_') + '.json'
   if url in request_cache:
+    # cached in memory
     return request_cache[url]
   try:
-    r = requests.get(url)
-    ans = json.loads(r.text)
+    # cached in file
+    f = open(cache_file)
+    ans = json.loads(f.read())
     request_cache[url] = ans
     return ans
   except:
-    return None
+    try:
+      r = requests.get(url)
+      ans = json.loads(r.text)
+      with open(cache_file, 'w') as outfile:
+        json.dump(ans, outfile)
+      request_cache[url] = ans
+      return ans
+    except:
+      return None
 
 scores_cache = {}
 def get_scores(mapid, page):
@@ -441,7 +452,7 @@ def get_uc_history(options = {}):
 #find_winners('Teleport Madness')
 #find_winners()
 
-group_wins(['wu', 'blue', 'dewax', 'sid', 'uuu', 'doth'])
+#group_wins(['wu', 'blue', 'dewax', 'sid', 'uuu', 'doth'])
 
 #print_user_history('wu', {'reverse': False, 'firstdate': datetime.datetime(2012, 12, 11)})
 #print_user_history('wu', {'reverse': True})
