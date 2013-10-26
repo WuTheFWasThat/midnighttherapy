@@ -1,3 +1,5 @@
+exports.DEFAULT            = ' ';
+
 exports.ROCK_1             = 'r';
 exports.ROCK               = exports.ROCK_1;
 exports.ROCK2              = 'R';

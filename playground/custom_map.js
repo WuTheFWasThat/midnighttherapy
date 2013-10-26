@@ -7,6 +7,8 @@ var tiles = require('./tile_types');
 var map_repr = require('./map_repr');
 var DenseMap = map_repr.DenseMap;
 
+var fs = require('fs');
+
 function randomBombsAway() {
   var m = 19, n = 19;  
   var map = new DenseMap(m, n, 0, 'Bombs Away');
@@ -271,6 +273,44 @@ function randomDoubleNormal() {
   return map;
 }
 
+function randomRaceCondition() {
+  var k = 9;
+  var m = 15, n = 2*k+1;
+  var map = new DenseMap(m, n, 0, 'Race Condition');
+  var allIs = range(0, m);
+  var J1 = range(0,k);
+  var J2 = range(k+1, 2*k+1);
+
+  //middle row is empty
+  map.set(tiles.EMPTY, allIs, k);
+  //put top start and finish
+  map.set(tiles.GREEN_START, 0, J1);
+  map.set(tiles.FINISH, m-1, J1);
+  //put bot start and finish
+  map.set(tiles.GREEN_START, 0, J2);
+  map.set(tiles.FINISH, m-1, J2);
+
+  //Tune some parameters
+  map.walls = getRandomInt(17, 19);
+  var numCheckpoints;
+  if (Math.random() < .15) {
+    numCheckpoints = 2;
+  } else {
+    numCheckpoints = 3;
+  }
+  for (var i = 0; i < numCheckpoints; i++) {
+    map.placeRandomlyInArea(tiles.CHECKPOINTS[i], allIs, J1);
+    map.placeRandomlyInArea(tiles.CHECKPOINTS[i], allIs, J2);
+  }
+
+  var numExtraRocks = getRandomInt(11,15);
+  map.placeRandomlyInArea(tiles.ROCK, allIs, J1, numExtraRocks);
+  map.placeRandomlyInArea(tiles.ROCK, allIs, J2, numExtraRocks);
+
+  return map;
+
+}
+
 function randomFunlimited() {
   var m = 17, n = 9;
   var map = new DenseMap(m, n, 0, 'Funlimited');
@@ -310,7 +350,7 @@ function randomBAAAAAAA() {
   map.set(tiles.FINISH, m-1, allJs);
   //7 As and a B
   //As can't be on left column
-  var mostIs = range(1, m);
+  var mostIs = range(2, m);
   map.placeRandomlyInArea(tiles.CHECKPOINT_1, mostIs, allJs, 7);
   map.placeRandomly(tiles.CHECKPOINT_2, 1);
 
@@ -322,6 +362,154 @@ function randomBAAAAAAA() {
   return map;
 }
 
+//used for the map type below
+//spotsX and spotsY should be the same length
+function isSeparated(spotsX, spotsY) {
+  for (var i = 0; i < spotsX.length; i++) {
+    for (var j = i+1; j < spotsX.length; j++) {
+      //make sure i and j are far apart enough
+      if (!(Math.abs(spotsX[i]-spotsX[j]) > 2 ||
+            Math.abs(spotsY[i]-spotsY[j]) > 2)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+function randomEntanglement() {
+  var m = 19, n = 19;
+  var map = new DenseMap(m, n, 0, 'Entanglement');
+
+  //start corners
+  map.set(tiles.GREEN_START, 0, 0);
+  map.set(tiles.RED_START, m-1, n-1);
+  //finish corners
+  map.set(tiles.FINISH, m-1, 0);
+  map.set(tiles.GREEN_THROUGH_ONLY, m-2, 0);
+  map.set(tiles.GREEN_THROUGH_ONLY, m-1, 1);
+  map.set(tiles.FINISH, 0, n-1);
+  map.set(tiles.RED_THROUGH_ONLY, 0, n-2);
+  map.set(tiles.RED_THROUGH_ONLY, 1, n-1);
+  
+  //2 As, Bs, Cs = 6 spots
+  var done = false;
+  var SPOTS = 6;
+  //make a list of separated places
+  while (!done) {
+    spotsX = []; //vertical... lol
+    spotsY = [];
+    for (var i = 0; i < SPOTS; i++) {
+      spotsX[i] = getRandomInt(2, m-3);
+      spotsY[i] = getRandomInt(2, n-3);
+    }
+    done = isSeparated(spotsX, spotsY);
+  }
+  
+  var CPS = [tiles.CHECKPOINT_1, tiles.CHECKPOINT_1,
+             tiles.CHECKPOINT_2, tiles.CHECKPOINT_2,
+             tiles.CHECKPOINT_3, tiles.CHECKPOINT_3];
+  var WALLS = [tiles.GREEN_THROUGH_ONLY, tiles.RED_THROUGH_ONLY,
+               tiles.GREEN_THROUGH_ONLY, tiles.RED_THROUGH_ONLY,
+               tiles.GREEN_THROUGH_ONLY, tiles.RED_THROUGH_ONLY];
+  var dxs = [-1, 1,  0, 0];
+  var dys = [ 0, 0, -1, 1];
+
+  for (var i = 0; i < SPOTS; i++) {
+    map.set(CPS[i], spotsX[i], spotsY[i]);
+    for (var j = 0; j < 4; j++) {
+      map.set(WALLS[i], spotsX[i] + dxs[j], spotsY[i] + dys[j]);
+    }
+  }
+
+  //Tune some parameters
+  map.walls = getRandomInt(20,20);
+  var numExtraRocks = getRandomInt(19, 38);
+  map.placeRandomly(tiles.ROCK, numExtraRocks);
+
+  return map;
+}
+
+function randomTiming() {
+  var k = 19, n = 9;
+  var m = k + 6;
+
+  var map = new DenseMap(m, n, 0, 'timINg');
+
+  var allJs = range(0, n);
+
+  //start and finish columns
+  map.set(tiles.GREEN_START, 0, allJs);
+  map.set(tiles.FINISH, k-1, allJs);
+
+  //paint the right side all black
+  var mostIs = range(0, k);
+  var restIs = range(k, m);
+  map.set(tiles.EMPTY, restIs, allJs);
+
+  //A, B, C
+  map.placeRandomlyInArea(tiles.CHECKPOINT_1, mostIs, allJs);
+  map.placeRandomlyInArea(tiles.CHECKPOINT_2, mostIs, allJs);
+  map.placeRandomlyInArea(tiles.CHECKPOINT_3, mostIs, allJs);
+
+  //In1 and Out2-5
+  map.placeRandomlyInArea(tiles.TELE_IN_1, mostIs, allJs);
+  map.placeRandomlyInArea(tiles.TELE_OUT_2, mostIs, allJs);
+  map.placeRandomlyInArea(tiles.TELE_OUT_3, mostIs, allJs);
+  map.placeRandomlyInArea(tiles.TELE_OUT_4, mostIs, allJs);
+  map.placeRandomlyInArea(tiles.TELE_OUT_5, mostIs, allJs);
+
+  //weird right side thing
+  //np is the vertical middle of the map
+  var np = n / 2 >> 0
+  var mp = k + 3;
+  map.set(tiles.TELE_OUT_1, mp, np);
+  //do each spoke
+  map.set(tiles.TELE_IN_2, mp, np-1);
+  map.set(tiles.CHECKPOINT_1, mp, np-2);
+  map.set(tiles.TELE_IN_3, mp+1, np);
+  map.set(tiles.CHECKPOINT_2, mp+2, np);
+  map.set(tiles.TELE_IN_4, mp, np+1);
+  map.set(tiles.CHECKPOINT_3, mp, np+2);
+  map.set(tiles.TELE_IN_5, mp-1, np);
+  map.set(tiles.FINISH, mp-2, np);
+
+  //Tune some parameters
+  map.walls = getRandomInt(18,18);
+  var numExtraRocks = getRandomInt(10, 20);
+  map.placeRandomlyInArea(tiles.ROCK, mostIs, allJs, numExtraRocks);
+
+  return map;
+}
+
+function randomInfinite() {
+  var m = 18, n = 9;
+  var map = new DenseMap(m, n, 0, 'INfinite');
+
+  var allJs = range(0, n);
+  //start and finish columns
+  map.set(tiles.GREEN_START, 0, allJs);
+  map.set(tiles.FINISH, m-1, allJs);
+
+  //INs
+  for (var i = 0; i < 5; i++) {
+    map.set(tiles.TELE_INS[i], m-2, 2*i);
+  }
+
+  //randomly place OUTs
+  var mostIs = range(1, m-3);
+  for (var i = 0; i < 5; i++) {
+    map.placeRandomlyInArea(tiles.TELE_OUTS[i], mostIs, allJs);
+  }
+
+  //Tune some parameters
+  map.walls = getRandomInt(15,15);
+  var numExtraRocks = getRandomInt(12, 22);
+  map.placeRandomlyInArea(tiles.ROCK, mostIs, allJs, numExtraRocks);
+
+  return map;
+}
 function addMap(map_arr, map) {
   var mapStr = map.myName + ':\n';
   //mapStr += map.forumMapCode();
@@ -338,8 +526,6 @@ function forumAddMap(map_arr, map) {
 }
 
 var main = function() {
-  var fs = require('fs');
-
   var maps = [];
   forumAddMap(maps, randomBAAAAAAA());
   forumAddMap(maps, randomLayover());
@@ -349,7 +535,11 @@ var main = function() {
   forumAddMap(maps, randomYOLT());
   forumAddMap(maps, randomNoEnd());
   forumAddMap(maps, randomDoubleNormal());
+  forumAddMap(maps, randomRaceCondition());
   forumAddMap(maps, randomFunlimited());
+  forumAddMap(maps, randomEntanglement());
+  forumAddMap(maps, randomTiming());
+  forumAddMap(maps, randomInfinite());
   
   var outStr = maps.join('\n');
   // var code = "13x7.c1.r10.w9.t0.Simple.:0s.0r.10f.0s.5r.5f.0s.0r.6r.1r.1f.0s.11f.0s.2r.4a.3f.0s.1r.4r.4f.0s.2r.6r.1f.";
