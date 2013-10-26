@@ -45,6 +45,8 @@ def isodate(date):
 # see for API :
 # http://forums.pathery.com/showthread.php?tid=3
 
+# TODO: dont cache requests that could change, i.e. are from today
+
 request_cache = {} # in-memory cache
 def make_request(url):
   cache_file = 'playground/cached_queries/' + url.replace(':', '_').replace('/','_') + '.json'
@@ -441,6 +443,39 @@ def get_uc_history(options = {}):
     else:
       mapid += 1
 
+def count_uc_ties(users = None, misses_allowed = float("Infinity"), options = {}):
+  if 'reverse' not in options:
+    options['reverse'] = False
+
+  if options['reverse']:
+    mapid = get_todays_mapids()[4]
+  else:
+    mapid = 2996
+
+  num_ties_map = {}
+  mazes = 0
+
+  while mapid >= 0:
+    if get_map_type(mapid) == 'Ultra Complex':
+      mazes += 1
+      nties = get_num_ties(mapid)
+      print "-------------------------"
+      print "UC Maze #", mazes
+      print "# ties", nties
+      print "-------------------------"
+      for i in range(nties):
+        disp = find_nth_display(mapid, i+1)
+        if disp not in num_ties_map:
+          num_ties_map[disp] = 0
+        num_ties_map[disp] += 1
+
+      for disp in num_ties_map:
+        print disp.ljust(25), num_ties_map[disp]
+    if options['reverse']:
+      mapid -= 1
+    else:
+      mapid += 1
+
 #find_missed_maps('wu')
 #get_score_distribution()
 #get_rank_distribution(['wu', 'blue', 'dewax', 'vzl', 'uuu', 'sid'], 10)
@@ -461,6 +496,7 @@ def get_uc_history(options = {}):
 
 #get_uc_history({'reverse': True, 'top': 3});
 #get_uc_history({'reverse': False, 'top': 3});
+count_uc_ties();
 
 #get_stats(userid, {'reverse': False, 'firstmap': 2580})
 #get_stats(userid, {'reverse': True})
