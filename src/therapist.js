@@ -303,12 +303,13 @@ function draw_values() {
 
 var showing_values = false;
 function refresh_score() {
-  var mapid = get_mapid();
-  if (mapid == -1) return;
-  solver.compute_value(get_board(mapid), get_solution(mapid), function(values) {
-    write_score_value(values);
-  })
-  if (showing_values) { draw_values(); }
+  try { // for mapeditor race condition
+    var mapid = get_mapid();
+    solver.compute_value(get_board(mapid), get_solution(mapid), function(values) {
+      write_score_value(values);
+    })
+    if (showing_values) { draw_values(); }
+  } catch (e) {}
 };
 
 function draw_single_value(mapid, i, j, value, blocking, maxValue) {
@@ -553,17 +554,18 @@ exports.load_solution = load_solution;
 
 function refresh_solution_store_display() {
   var mapid = get_mapid();
-  $('#mt_save_solution_list').empty();
-  if (mapid == -1) return;
 
   //var current_solution = get_current_solution();
 
+  try { // for mapeditor race condition
   var store = solution_storage.get_solutions(mapid);
+  } catch (e) {return;}
 
   var names = [];
   for (var name in store) {names.push(name)};
   names.sort();
 
+  $('#mt_save_solution_list').empty();
   for (var k in names) {
     var name = names[k];
     var solution = store[name];
@@ -988,7 +990,6 @@ function initialize_toolbar() {
     'margin-top' : '21px'
   })
 
-  console.log("is_mapeditor", is_mapeditor)
   if (is_mapeditor) {
     // mapeditor
     $('#playableMapDisplay').parent().css('width', '100%');

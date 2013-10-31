@@ -477,11 +477,12 @@ def count_uc_ties(users = None, misses_allowed = float("Infinity"), options = {}
       mapid += 1
 
 #find_missed_maps('wu')
+#get_score_distribution('Rocky Maze')
 #get_score_distribution()
 #get_rank_distribution(['wu', 'blue', 'dewax', 'vzl', 'uuu', 'sid'], 10)
 #find_sweeps()
 #find_win_amounts('blue')
-#find_win_types('sid')
+find_win_types('george')
 #find_winners('Ultra Complex')
 #find_winners('Dualing paths')
 #find_winners('Teleport Madness')
