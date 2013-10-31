@@ -208,6 +208,7 @@ function switch_map(map_num) {
 }
 
 function update_scores_page() {
+  if (is_mapeditor) {return;}
   var mapid = get_mapid();
   scoresShowPage(currentPage[mapid], mapid);
 }
@@ -267,7 +268,9 @@ function update_animate_path() {
   } else {
     animatePath = function() {
       __old_flashelement__(exports.mapid + ',dspCount', 2);
-      scoresRequestPage(exports.mapid, currentPage[exports.mapid])
+      if (!is_mapeditor) {
+        scoresRequestPage(exports.mapid, currentPage[exports.mapid])
+      }
     };
   }
 }
