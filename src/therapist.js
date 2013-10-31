@@ -304,6 +304,7 @@ function draw_values() {
 var showing_values = false;
 function refresh_score() {
   var mapid = get_mapid();
+  if (mapid == -1) return;
   solver.compute_value(get_board(mapid), get_solution(mapid), function(values) {
     write_score_value(values);
   })
