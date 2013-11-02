@@ -44,12 +44,8 @@ DenseMap.prototype.setSingle = function(v, i, j) {
   this.tiles[this.sub2ind(i,j)] = v;
 }
 DenseMap.prototype.set = function(v, I, J) {
-  if (typeof I !== 'object') {
-    I = [I];
-  }
-  if (typeof J !== 'object') {
-    J = [J];
-  }
+  if (typeof I !== 'object') { I = [I]; }
+  if (typeof J !== 'object') { J = [J]; }
   for (var a = 0; a < I.length; a++) {
     for (var b = 0; b < J.length; b++) {
       this.setSingle(v, I[a], J[b]);
@@ -66,7 +62,7 @@ DenseMap.prototype.repr = function() {
   return result;
 }
 //Randomly place the nonempty value given.
-//Do this numTimes (default 1) 
+//Do this numTimes (default 1)
 //Return array of places that we added to. (Each place is a len2 array)
 DenseMap.prototype.placeRandomly = function(val, numTimes) {
   if (numTimes == undefined) {
@@ -101,7 +97,7 @@ DenseMap.prototype.placeRandomly = function(val, numTimes) {
 }
 
 //Randomly place the nonempty value given, somewhere in the region defined by IxJ.
-//Do this numTimes (default 1) 
+//Do this numTimes (default 1)
 //Return array of places that we added to. (Each place is a len2 array)
 DenseMap.prototype.placeRandomlyInArea = function(val, I, J, numTimes) {
   if (numTimes == undefined) {
@@ -257,7 +253,7 @@ DenseMap.prototype.dilate = function(k) {
         var Is = range(k*i, k*i + k);
         var Js = range(k*j, k*j + k);
         newMap.set(val, Is, Js);
-      }      
+      }
     }
   }
 

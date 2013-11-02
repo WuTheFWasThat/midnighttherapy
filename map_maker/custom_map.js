@@ -15,8 +15,6 @@ function forumAddMap(map_arr, mapname) {
   map_arr.push(mapStr);
 }
 
-
-
 var main = function() {
   var maps = [];
 
@@ -26,21 +24,10 @@ var main = function() {
     var map_type = files[k].split('.js')[0]
     forumAddMap(maps, files[k]);
   }
-  //forumAddMap(maps, 'BAAAAAAA');
-  //forumAddMap(maps, 'orderINg');
-  //forumAddMap(maps, '15min');
-  //forumAddMap(maps, 'entanglement');
-  //forumAddMap(maps, 'race_condition');
-  //forumAddMap(maps, 'funlimited');
-  //forumAddMap(maps, 'timINg');
-  //forumAddMap(maps, 'layover');
-  //forumAddMap(maps, 'bombs_away');
-  //forumAddMap(maps, 'edge_case');
-  //forumAddMap(maps, 'triage');
 
   var outStr = maps.join('\n');
-  // var code = "13x7.c1.r10.w9.t0.Simple.:0s.0r.10f.0s.5r.5f.0s.0r.6r.1r.1f.0s.11f.0s.2r.4a.3f.0s.1r.4r.4f.0s.2r.6r.1f.";
 
+  // var code = "13x7.c1.r10.w9.t0.Simple.:0s.0r.10f.0s.5r.5f.0s.0r.6r.1r.1f.0s.11f.0s.2r.4a.3f.0s.1r.4r.4f.0s.2r.6r.1f.";
   // var map = parseMapCode(code);
   // outStr = '';
   // outStr += map.dilate(3).toMapCode();
