@@ -34,6 +34,9 @@ function DenseMap(m, n, walls, name, tiles) {
 DenseMap.prototype.sub2ind = function(i, j) {
   return j*(this.m) + i;
 }
+DenseMap.prototype.ind2sub = function(idx) {
+  return [idx%this.m, idx/this.m >> 0];
+}
 DenseMap.prototype.get = function(i, j) {
   return this.tiles[this.sub2ind(i,j)];
 }
@@ -64,10 +67,12 @@ DenseMap.prototype.repr = function() {
 }
 //Randomly place the nonempty value given.
 //Do this numTimes (default 1) 
+//Return array of places that we added to. (Each place is a len2 array)
 DenseMap.prototype.placeRandomly = function(val, numTimes) {
   if (numTimes == undefined) {
     numTimes = 1;
   }
+  var places = [];
 
   if (val == ' ') {
     throw new Error("placeRandomly: expected nonempty tile type");
@@ -83,6 +88,7 @@ DenseMap.prototype.placeRandomly = function(val, numTimes) {
       this.tiles[idx] = val;
       numTimes--;
       tries = 0;
+      places.push(this.ind2sub(idx));
     }
   }
 
@@ -90,18 +96,21 @@ DenseMap.prototype.placeRandomly = function(val, numTimes) {
   if (numTimes != 0) {
     throw new Error("placeRandomly: rejection sampling failed too many times");
   }
+
+  return places;
 }
 
 //Randomly place the nonempty value given, somewhere in the region defined by IxJ.
 //Do this numTimes (default 1) 
+//Return array of places that we added to. (Each place is a len2 array)
 DenseMap.prototype.placeRandomlyInArea = function(val, I, J, numTimes) {
   if (numTimes == undefined) {
     numTimes = 1;
   }
-
   if (val == ' ') {
     throw new Error("placeRandomly: expected nonempty tile type");
   }
+  var places = [];
   if (typeof I !== 'object') {
     I = [I];
   }
@@ -121,6 +130,7 @@ DenseMap.prototype.placeRandomlyInArea = function(val, I, J, numTimes) {
       this.tiles[idx] = val;
       numTimes--;
       tries = 0;
+      places.push(this.ind2sub(idx));
     }
   }
 
@@ -128,6 +138,37 @@ DenseMap.prototype.placeRandomlyInArea = function(val, I, J, numTimes) {
   if (numTimes != 0) {
     throw new Error("placeRandomlyInArea: rejection sampling failed too many times");
   }
+
+  return places;
+}
+
+// Randomly place the nonempty value given, the number of times requested.
+// Takes a condition function. condition takes (map, i, j)
+// and returns true if it should be added
+DenseMap.prototype.placeRandomlyCondition = function(val, condition, numTimes) {
+  if (numTimes == undefined) {
+    numTimes = 1;
+  }
+
+  if (val == ' ') {
+    throw new Error("placeRandomly: expected nonempty tile type");
+  }
+  var places = [];
+
+  var tries = 0;
+  while (numTimes > 0 && tries < 100) {
+    var idx = getRandomInt(0, this.tiles.length - 1);
+    var sub = this.ind2sub(idx);
+    if (this.tiles[idx] !== ' ' || !condition(this, sub[0], sub[1])) {
+      tries++;
+    } else {
+      this.tiles[idx] = val;
+      numTimes--;
+      tries = 0;
+      places.push(this.ind2sub(idx));
+    }
+  }
+  return places;
 }
 
 DenseMap.prototype.toMapCode = function() {

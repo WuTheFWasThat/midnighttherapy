@@ -510,6 +510,219 @@ function randomInfinite() {
 
   return map;
 }
+
+function randomMinimax() {
+  var a = 19, b = 9;
+  var m = a+3, n = 2*b+1;
+  var map = new DenseMap(m, n, 0, 'Minimax');
+  var J1 = range(0,b);
+  var J2 = range(b+1,2*b+1);
+  var mostIs = range(3,a+3-2);
+
+  // Paint things black (left 2 cols, middle row)
+  map.set(tiles.EMPTY, [0,1], range(0,n));
+  map.set(tiles.EMPTY, range(0,m), b);
+
+  // Left side gadgets
+  map.set(tiles.TELE_OUT_1, 0, 0);
+  map.set(tiles.TELE_IN_4, 1, 0);
+  map.set(tiles.TELE_OUT_2, 0, n-1);
+  map.set(tiles.TELE_IN_5, 1, n-1);
+
+  map.set(tiles.GREEN_START, 0, b-1-2);
+  map.set(tiles.TELE_IN_3, 0, b-1-1);
+  map.set(tiles.FINISH, 0, b-1);
+
+  map.set(tiles.TELE_OUT_4, 0, b+1);
+  map.set(tiles.FINISH, 0, b+2);
+  map.set(tiles.TELE_OUT_5, 0, b+3);
+
+  // Left side fake start (OUT 3)
+  map.set(tiles.TELE_OUT_3, 2, J1);
+  map.set(tiles.TELE_OUT_3, 2, J2);
+
+  // Right side fake goal (IN 2/1)
+  map.set(tiles.TELE_IN_2, m-2, J1);
+  map.set(tiles.TELE_IN_1, m-2, J2);
+
+  // Right side bait goal
+  map.set(tiles.FINISH, m-1, J1);
+  map.set(tiles.FINISH, m-1, J2);
+
+  // Tune some parameters
+    //Tune some parameters
+  map.walls = 5 + getRandomInt(26, 32);
+  var lo = 16,
+      hi = 28;
+  var numRocks1 = getRandomInt(lo, hi);
+  var numRocks2 = getRandomInt(lo, hi);
+  map.placeRandomlyInArea(tiles.ROCK, mostIs, J1, numRocks1);
+  map.placeRandomlyInArea(tiles.ROCK, mostIs, J2, numRocks2);
+
+  return map;
+}
+
+function randomInception() {
+  var outWidth = 4;
+  var midWidth = 6;
+  var m = 2*outWidth + 2 + 2*midWidth + 4;
+  var n = m;
+  var map = new DenseMap(m, n, 0, 'INception');
+
+  // Separate the rings
+  map.set(tiles.EMPTY, outWidth, range(outWidth, n-outWidth));
+  map.set(tiles.EMPTY, m-outWidth-1, range(outWidth, n-outWidth));
+  map.set(tiles.EMPTY, range(outWidth, m-outWidth), outWidth);
+  map.set(tiles.EMPTY, range(outWidth, m-outWidth), n-outWidth-1);
+
+  map.set(tiles.EMPTY, outWidth + midWidth + 1, range(outWidth+midWidth + 1, n-outWidth-midWidth-1));
+  map.set(tiles.EMPTY, m-(outWidth + midWidth + 1) - 1, range(outWidth+midWidth + 1, n-outWidth-midWidth-1));
+  map.set(tiles.EMPTY, range(outWidth+midWidth + 1, m-outWidth-midWidth-1), outWidth + midWidth + 1);
+  map.set(tiles.EMPTY, range(outWidth+midWidth + 1, m-outWidth-midWidth-1), n-(outWidth + midWidth + 1) - 1);
+
+  // Set inner ring
+  var innerM = outWidth + 1 + midWidth + 1;
+  var innerN = outWidth + 1 + midWidth + 1;
+  map.set(tiles.CHECKPOINT_3, innerM, innerN);
+  map.set(tiles.TELE_OUT_4, innerM+1, innerN);
+  map.set(tiles.TELE_OUT_5, innerM, innerN+1);
+  map.set(tiles.FINISH, innerM+1, innerN+1);
+
+
+  var inOutRing = function(MAP, i, j) {
+    if (0 <= i && i < outWidth)
+      return true;
+    if (m-outWidth <= i && i < m)
+      return true;
+    if (0 <= j && j < outWidth)
+      return true;
+    if (n-outWidth <= j && j < n)
+      return true;
+    return false;
+  }
+
+  var inMidRing = function(MAP, i, j) {
+    //somewhere not in outer ring?
+    if (inOutRing(MAP, i, j))
+      return false;
+    if (outWidth + 1 <= i && i < outWidth + midWidth + 1)
+      return true;
+    if (m-outWidth-midWidth-1 <= i && i < m-outWidth-1)
+      return true;
+    if (outWidth + 1 <= j && j < outWidth + midWidth + 1)
+      return true;
+    if (n-outWidth-midWidth-1 <= j && j < n-outWidth-1)
+      return true;
+    return false;
+  }
+
+  map.placeRandomlyCondition(tiles.GREEN_START, inOutRing);
+  map.placeRandomlyCondition(tiles.CHECKPOINT_1, inOutRing);
+  map.placeRandomlyCondition(tiles.CHECKPOINT_2, inOutRing);
+  map.placeRandomlyCondition(tiles.TELE_IN_1, inOutRing);
+  map.placeRandomlyCondition(tiles.TELE_IN_2, inOutRing);
+  map.placeRandomlyCondition(tiles.TELE_IN_3, inOutRing);
+
+  map.placeRandomlyCondition(tiles.TELE_OUT_1, inMidRing);
+  map.placeRandomlyCondition(tiles.TELE_OUT_2, inMidRing);
+  map.placeRandomlyCondition(tiles.TELE_OUT_3, inMidRing);
+  map.placeRandomlyCondition(tiles.TELE_IN_4, inMidRing);
+  map.placeRandomlyCondition(tiles.TELE_IN_5, inMidRing);
+  map.placeRandomlyCondition(tiles.CHECKPOINT_2, inMidRing);
+  map.placeRandomlyCondition(tiles.CHECKPOINT_3, inMidRing);
+
+
+  //Tune some parameters
+  map.walls = getRandomInt(22, 27);
+  var outerRocks = 40,
+      innerRocks = 20;
+
+  map.placeRandomlyCondition(tiles.ROCK, inOutRing, outerRocks);
+  map.placeRandomlyCondition(tiles.ROCK, inMidRing, innerRocks);
+  return map;
+}
+
+function randomOrdering() {
+  var k = 19;
+  var m = k + 2, n = 9;
+
+  var map = new DenseMap(m, n, 0, 'orderINg');
+
+  var allJs = range(0, n);
+
+  //start and finish columns
+  map.set(tiles.GREEN_START, 0, allJs);
+  map.set(tiles.FINISH, k-1, allJs);
+
+  //paint the right side all black
+  var mostIs = range(0, k);
+  var restIs = range(k, m);
+  map.set(tiles.EMPTY, restIs, allJs);
+
+  // Weird right col thing
+  map.set(tiles.TELE_OUT_1, m-1, 0);
+  map.set(tiles.TELE_OUT_2, m-1, 1);
+  map.set(tiles.TELE_OUT_3, m-1, 2);
+  map.set(tiles.TELE_IN_4, m-1, 3);
+  map.set(tiles.TELE_IN_5, m-1, 4);
+  map.set(tiles.CHECKPOINT_1, m-1, 5);
+  map.set(tiles.CHECKPOINT_2, m-1, 6);
+  map.set(tiles.CHECKPOINT_3, m-1, 7);
+  map.set(tiles.FINISH, m-1, 8);
+
+  // A, B, C, IN 1-3, OUT 4-5 in main area
+  map.placeRandomlyInArea(tiles.CHECKPOINT_1, mostIs, allJs);
+  map.placeRandomlyInArea(tiles.CHECKPOINT_2, mostIs, allJs);
+  map.placeRandomlyInArea(tiles.CHECKPOINT_3, mostIs, allJs);
+  map.placeRandomlyInArea(tiles.TELE_IN_1, mostIs, allJs);
+  map.placeRandomlyInArea(tiles.TELE_IN_2, mostIs, allJs);
+  map.placeRandomlyInArea(tiles.TELE_IN_3, mostIs, allJs);
+  map.placeRandomlyInArea(tiles.TELE_OUT_4, mostIs, allJs);
+  map.placeRandomlyInArea(tiles.TELE_OUT_5, mostIs, allJs);
+
+  //Tune some parameters
+  map.walls = getRandomInt(16, 22);
+  var numRocks = getRandomInt(15, 25);
+  map.placeRandomlyInArea(tiles.ROCK, mostIs, allJs, numRocks);
+  return map;
+}
+
+function random15Min() {
+  var m = 21, n = m;
+  var k = (n-1)/2 >> 0; //middle index
+  var map = new DenseMap(m, n, 0, '15 Minutes Late');
+
+  // Attempt to draw a circle
+  for (var i = 0; i < n; i++) {
+    for (var j = 0; j < n; j++) {
+      if ((i-k)*(i-k) + (j-k)*(j-k) > k*k + k) {
+        map.set(tiles.EMPTY, i, j);
+      }
+    }
+  }
+
+  map.set(tiles.EMPTY, k, k);
+
+  // hour hand
+  map.set(tiles.FINISH, k, range(k-4,k));
+  // minute hand
+  map.set(tiles.GREEN_START, range(k+1, k+8), k);
+
+  // checkpoints
+  var front = range(0,k);
+  var back = range(k+1, n);
+  map.placeRandomlyInArea(tiles.CHECKPOINT_1, back, back);
+  map.placeRandomlyInArea(tiles.CHECKPOINT_2, front, back);
+  map.placeRandomlyInArea(tiles.CHECKPOINT_3, front, front);
+
+  // Tune some parameters
+  map.walls = getRandomInt(15,19);
+  var numRocks = getRandomInt(22, 26);
+  map.placeRandomly(tiles.ROCK, numRocks);
+  return map;
+}
+
+
 function addMap(map_arr, map) {
   var mapStr = map.myName + ':\n';
   //mapStr += map.forumMapCode();
@@ -524,6 +737,8 @@ function forumAddMap(map_arr, map) {
   mapStr += '[/code]\n';
   map_arr.push(mapStr);
 }
+
+
 
 var main = function() {
   var maps = [];
@@ -540,6 +755,10 @@ var main = function() {
   forumAddMap(maps, randomEntanglement());
   forumAddMap(maps, randomTiming());
   forumAddMap(maps, randomInfinite());
+  forumAddMap(maps, randomMinimax());
+  forumAddMap(maps, randomInception());
+  forumAddMap(maps, randomOrdering());
+  forumAddMap(maps, random15Min());
   
   var outStr = maps.join('\n');
   // var code = "13x7.c1.r10.w9.t0.Simple.:0s.0r.10f.0s.5r.5f.0s.0r.6r.1r.1f.0s.11f.0s.2r.4a.3f.0s.1r.4r.4f.0s.2r.6r.1f.";
