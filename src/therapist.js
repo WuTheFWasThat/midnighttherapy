@@ -37,13 +37,16 @@ function loadScripts(array,callback){
 
 loadScripts([
    mt_url + 'lib/html2canvas.js', // "http://html2canvas.hertzen.com/build/html2canvas.js",
-   mt_url + 'lib/jquery.url.js',
    mt_url + 'lib/jquery.cookie.js' // "https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js"
-//]); // should really be asynchronous, but oh well... too much of a headache
-] , function() {
+]); // should really be asynchronous, but oh well... too much of a headache
+//] , function() {
 
 if (is_mapeditor) {
-  $('#mapCode').val($.param('code'));
+  function get_param(name) {
+    var results = new RegExp('[\\?&]' + name + '=([^&#]*)').exec(window.location.href);
+    return (results == null ? null : (results[1] || 0));
+  }
+  $('#mapCode').val(get_param('code'));
   loadMap("code");
   refresh_all();
 }
@@ -1148,8 +1151,6 @@ $(document).ready(function() {
 
   refresh_all();
 })
-
-});
 
 
 })(typeof exports === "undefined" ? Therapist : module.exports, Analyst)
