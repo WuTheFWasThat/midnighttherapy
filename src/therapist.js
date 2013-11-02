@@ -208,6 +208,7 @@ function switch_map(map_num) {
 }
 
 function update_scores_page() {
+  if (is_mapeditor) {return;}
   var mapid = get_mapid();
   scoresShowPage(currentPage[mapid], mapid);
 }
@@ -267,7 +268,9 @@ function update_animate_path() {
   } else {
     animatePath = function() {
       __old_flashelement__(exports.mapid + ',dspCount', 2);
-      scoresRequestPage(exports.mapid, currentPage[exports.mapid])
+      if (!is_mapeditor) {
+        scoresRequestPage(exports.mapid, currentPage[exports.mapid])
+      }
     };
   }
 }
@@ -303,11 +306,13 @@ function draw_values() {
 
 var showing_values = false;
 function refresh_score() {
-  var mapid = get_mapid();
-  solver.compute_value(get_board(mapid), get_solution(mapid), function(values) {
-    write_score_value(values);
-  })
-  if (showing_values) { draw_values(); }
+  try { // for mapeditor race condition
+    var mapid = get_mapid();
+    solver.compute_value(get_board(mapid), get_solution(mapid), function(values) {
+      write_score_value(values);
+    })
+    if (showing_values) { draw_values(); }
+  } catch (e) {}
 };
 
 function draw_single_value(mapid, i, j, value, blocking, maxValue) {
@@ -555,7 +560,9 @@ function refresh_solution_store_display() {
 
   //var current_solution = get_current_solution();
 
+  try { // for mapeditor race condition
   var store = solution_storage.get_solutions(mapid);
+  } catch (e) {return;}
 
   var names = [];
   for (var name in store) {names.push(name)};
