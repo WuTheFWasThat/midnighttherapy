@@ -1,6 +1,4 @@
-playground/out.txt
+map_maker/out.txt
 node_modules
 .*
-playground/ignore
-playground/ignore/*
-playground/cached_queries
+queries/cached_queries
