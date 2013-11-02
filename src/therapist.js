@@ -13,6 +13,8 @@
 // CREDIT TO:  http://stackoverflow.com/questions/1866717/document-createelementscript-adding-two-scripts-with-one-callback
 
 var is_mapeditor = ($('#difficulties').length == 0);
+
+
 function loadScripts(array,callback){
   var loader = function(src,handler){
     var script = document.createElement("script");
@@ -35,9 +37,16 @@ function loadScripts(array,callback){
 
 loadScripts([
    mt_url + 'lib/html2canvas.js', // "http://html2canvas.hertzen.com/build/html2canvas.js",
+   mt_url + 'lib/jquery.url.js',
    mt_url + 'lib/jquery.cookie.js' // "https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js"
-]); // should really be asynchronous, but oh well... too much of a headache
-//] , function() {
+//]); // should really be asynchronous, but oh well... too much of a headache
+] , function() {
+
+if (is_mapeditor) {
+  $('#mapCode').val($.param('code'));
+  loadMap("code");
+  refresh_all();
+}
 
 // get user id
 var user_id;
@@ -1139,6 +1148,9 @@ $(document).ready(function() {
 
   refresh_all();
 })
+
+});
+
 
 })(typeof exports === "undefined" ? Therapist : module.exports, Analyst)
 
