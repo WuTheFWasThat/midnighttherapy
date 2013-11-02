@@ -8,9 +8,10 @@ function addMap(map_arr, map) {
 }
 
 function forumAddMap(map_arr, mapname) {
-  var mapStr = mapname + ':\n';
+  var map = require('./map_types/' + mapname).generate();
+  var mapStr = map.myName + ':\n';
   mapStr += '[code]\n';
-  mapStr += require('./map_types/' + mapname).generate().forumMapCode() + '\n';
+  mapStr += map.forumMapCode() + '\n';
   mapStr += '[/code]\n';
   map_arr.push(mapStr);
 }
