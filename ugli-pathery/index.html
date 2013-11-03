@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+
+<html xml:lang ="en" lang ="en">
+<head>
+
+<meta http-equiv ="Content-Type " content ="text/html; charset=UTF-8"/>
+
+<title> Pathery </title>
+
+<link href ="css/page.css?v=050513.css" rel ="stylesheet" type ="text/css"/>
+<link href ='css/maps.css?v=050513.css' rel ='stylesheet' type ='text/css'/>
+ <link rel ="image_src" type =" image/png " href ="/images/linkdsp.png"/>
+<link href ="css/stats.css?v=050513.css" rel ="stylesheet" type ="text/css"/>
+
+<meta name =' Description ' content =' Path lengthening competition inspired by Tower Defense mazing concepts '>
+ <script src =' js/scores.js?v=050513.js '> </script>
+ <script src =' js/dateformat.js?v=050513.js '> </script>
+ <!--script src =" js/ajax.js " async =" async "> </script-->
+
+<script src =" js/jquery.min.js "> </script>
+<script src =" js/mapspecs.js?v=050513.js "> </script>
+<script src =" js/globe.js?v=050513.js "> </script>
+
+<script>
+var userObj = {"ID":"400","wallColor":"#ffdd88","wallEmblem":"DiamondSmall_B_I.png","wallOrientation":"1","hasInsaneSpeed":true,"accepted":"true"};
+</script>
+
+</head>
+
+<body>
+
+<script type =" text/javascript ">
+playerWallColor = '#ffdd88';
+playerWallEmblem = 'DiamondSmall_B_I.png';
+scoresShowNavSideBtns = true;
+</script>
+
+<div class =" wrapper ">
+
+<div id ="yms" class =' hidden-maps '>
+ <div class =' wrapper '>
+ <div style =' text-align: center; '>
+
+ <div style =' display:inline-block;margin: 0 auto;text-align: left; '>
+   <a href ='javascript:requestSol("3858");'> Load your best solution </a>
+   <div id ='innerMapDsp_3858'> </div>
+
+ </div>
+ </div>
+<div class ='scoreContainer2' style ='position:relative; padding-top: 20px' id ='3858,dspScore'> </div>
+
+</div>
+
+</div>
+</div>
+</div>
+
+<script>
+  $(document).ready(function() {
+    scoresShowPage(1, 3858);
+    displayMap(3858, 'innerMapDsp_3858', false, '.3,11.4,10.5,3.5,8.6,2.6,7.7,1.', '37');
+  })
+</script>
+
+<script>
+
+
+var jmid=new Array();
+jmid[0] = '1';
+jmid[1] = '3858';
+jmid[2] = '3859';
+jmid[3] = '3860';
+jmid[4] = '3861';
+jmid[5] = '3837';
+
+function showStats(type) {
+  var elem = document.getElementById("yms");
+  console.log($('#yms').length)
+  console.log(elem)
+  elem.className = elem.className.replace('hidden-maps', 'shown-maps');
+  //elem = document.getElementById("dl");
+  //if (elem.className.indexOf('selected') < 0)
+  //elem.className += 'selected';
+  scoresRequestPage(jmid[type], currentPage[jmid[type]]);
+}
+$(document).ready(function() {
+  showStats(1);
+})
+</script>
+
+<!--
+<div id ="copy">
+Copyright &copy; 2011-2013 pathery.com
+</div>
+-->
+
+<br />
+
+<div style =' visibility:hidden;display:none '>
+
+<img src =' images/MedalGoldCAR.png ' alt =''>
+<img src =' images/MedalSilverCAR.png ' alt =''>
+<img src =' images/paths/Path1-1.png ' alt =''>
+<img src =' images/paths/Path1-2.png ' alt =''>
+<img src =' images/paths/Path1-3.png ' alt =''>
+<img src =' images/paths/Path1-4.png ' alt =''>
+<img src =' images/paths/Path2-1.png ' alt =''>
+<img src =' images/paths/Path2-2.png ' alt =''>
+<img src =' images/paths/Path2-3.png ' alt =''>
+<img src =' images/paths/Path2-4.png ' alt =''>
+<img src =' images/OverlayTileFaceted50.png ' alt =''>
+<img src =' images/OverlayTileFaceted30.png ' alt =''>
+<img src =' images/OverlayTileFaceted10.png ' alt =''>
+<img src =' images/OverlayTileFaceted20.png ' alt =''>
+<img src =' images/OverlayStart2.png ' alt =''>
+<img src =' images/OverlayA50.png ' alt =''>
+<img src =' images/OverlayB50.png ' alt =''>
+<img src =' images/OverlayC50.png ' alt =''>
+<img src =' images/TeleportOutW.png ' alt =''>
+<img src =' images/TeleportInW.png ' alt =''>
+</div>
+
+</body>
+
+</html>
+
+
