@@ -179,7 +179,6 @@ PatheryGraph.prototype.teleport = function(block, used_teleports) {
   return null;
 }
 
-
 // var BFS_queue = new Int32Array(graph.m * graph.n); // new Array(...)
 var BFS_queue = new Int32Array(1000); // new Array(...)
 
