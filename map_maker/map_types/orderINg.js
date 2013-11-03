@@ -9,7 +9,7 @@ var DenseMap = map_repr.DenseMap;
 
 exports.generate = function() {
   var k = 19;
-  var m = k + 2, n = 9;
+  var m = k + 2, n = 11;
 
   var map = new DenseMap(m, n, 0, 'orderINg');
 
@@ -33,12 +33,16 @@ exports.generate = function() {
   map.set(tiles.CHECKPOINT_1, m-1, 5);
   map.set(tiles.CHECKPOINT_2, m-1, 6);
   map.set(tiles.CHECKPOINT_3, m-1, 7);
-  map.set(tiles.FINISH, m-1, 8);
+  map.set(tiles.CHECKPOINT_4, m-1, 8);
+  map.set(tiles.CHECKPOINT_5, m-1, 9);
+  map.set(tiles.FINISH, m-1, 10);
 
   // A, B, C, IN 1-3, OUT 4-5 in main area
   map.placeRandomlyInArea(tiles.CHECKPOINT_1, mostIs, allJs);
   map.placeRandomlyInArea(tiles.CHECKPOINT_2, mostIs, allJs);
   map.placeRandomlyInArea(tiles.CHECKPOINT_3, mostIs, allJs);
+  map.placeRandomlyInArea(tiles.CHECKPOINT_4, mostIs, allJs);
+  map.placeRandomlyInArea(tiles.CHECKPOINT_5, mostIs, allJs);
   map.placeRandomlyInArea(tiles.TELE_IN_1, mostIs, allJs);
   map.placeRandomlyInArea(tiles.TELE_IN_2, mostIs, allJs);
   map.placeRandomlyInArea(tiles.TELE_IN_3, mostIs, allJs);
