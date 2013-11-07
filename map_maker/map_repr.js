@@ -203,6 +203,19 @@ DenseMap.prototype.toMapCode = function() {
   return header + ':' + body;
 }
 
+
+DenseMap.prototype.toBoard = function() {
+  var board = [];
+  for (var i = 0; i < this.n; i++)  {
+    var row = [];
+    for (var j = 0; j < this.m; j++)  {
+      row.push(this.tiles[this.sub2ind(j,i)]);
+    }
+    board.push(row);
+  }
+  return board;
+}
+
 //Mapcodes on the forum need to be formatted with line breaks.
 DenseMap.prototype.forumMapCode = function(linewidth) {
   var mc = this.toMapCode();

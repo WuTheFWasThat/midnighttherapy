@@ -173,6 +173,7 @@ function parse_board(code) {
             walls_remaining: walls_remaining
     };
 }
+exports.parse_board = parse_board;
 
 function get_board(mapid) {
   if (mapid === undefined) {mapid = get_mapid();}

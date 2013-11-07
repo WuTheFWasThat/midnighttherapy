@@ -7,8 +7,8 @@ exports.ROCK3              = 'q';
 exports.EMPTY              = exports.ROCK3  // used in seeing double, same as rock?
 exports.PATCH              = 'p';  // can't place blocks, but path can pass
 
-exports.GREEN_THROUGH_ONLY = 'x';  // colored green, blocks red
-exports.RED_THROUGH_ONLY   = 'X';  // colored red, blocks green
+exports.GREEN_THROUGH_ONLY = 'X';  // colored green, blocks red
+exports.RED_THROUGH_ONLY   = 'x';  // colored red, blocks green
 
 exports.GREEN_START        = 's';
 exports.RED_START          = 'S';

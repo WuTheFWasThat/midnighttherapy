@@ -335,6 +335,7 @@ function find_pathery_path(graph, blocks){
 
 
 function compute_value(board, cur_blocks, cb) {
+    if (cur_blocks === undefined) {cur_blocks = []}
     var graph = new PatheryGraph(board);
 
     var current_blocks = graph.dictify_blocks(cur_blocks);
@@ -361,6 +362,7 @@ PatheryGraph.prototype.find_bridges = function(
 }
 
 function compute_values(board, cur_blocks, cb) {
+    if (cur_blocks === undefined) {cur_blocks = []}
     var graph = new PatheryGraph(board);
 
     var current_blocks = graph.dictify_blocks(cur_blocks);
@@ -510,4 +512,4 @@ function improve_solution(board, blocks, options) {
 exports.improve_solution = improve_solution;
 
 
-})(typeof exports === "undefined" ? Analyst : module.exports)
+})(typeof module.exports === "undefined" ? Analyst : module.exports)
