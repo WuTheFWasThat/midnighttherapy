@@ -148,6 +148,8 @@ None, at the moment.  Let me know if you find any!
 
 - Make painting/erasing atomic for undo?
 
+- Improve (I) seems messed up, caused decreased score on a seeing double
+
 ## CONTACT: ##
 
 Suggestions and feedback are welcome.  If you can't catch me in the Pathery chat, there's a mailing list for updates and discussions:

@@ -29,7 +29,7 @@ map_types = [
 
 
 
-f = open('playground/user_id_map.json')
+f = open('queries/user_id_map.json')
 user_id_map = json.loads(f.read())
 
 ###########################
@@ -49,7 +49,7 @@ def isodate(date):
 
 request_cache = {} # in-memory cache
 def make_request(url):
-  cache_file = 'playground/cached_queries/' + url.replace(':', '_').replace('/','_') + '.json'
+  cache_file = 'queries/cached_queries/' + url.replace(':', '_').replace('/','_') + '.json'
   if url in request_cache:
     # cached in memory
     return request_cache[url]
@@ -482,7 +482,7 @@ def count_uc_ties(users = None, misses_allowed = float("Infinity"), options = {}
 #get_rank_distribution(['wu', 'blue', 'dewax', 'vzl', 'uuu', 'sid'], 10)
 #find_sweeps()
 #find_win_amounts('blue')
-find_win_types('george')
+#find_win_types('george')
 #find_winners('Ultra Complex')
 #find_winners('Dualing paths')
 #find_winners('Teleport Madness')
@@ -491,7 +491,7 @@ find_win_types('george')
 #group_wins(['wu', 'blue', 'dewax', 'sid', 'uuu', 'doth'])
 
 #print_user_history('wu', {'reverse': False, 'firstdate': datetime.datetime(2012, 12, 11)})
-#print_user_history('wu', {'reverse': True})
+print_user_history('wu', {'reverse': True})
 #print_user_history('wu')
 #print_history()
 
