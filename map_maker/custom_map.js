@@ -52,7 +52,8 @@ var main = function() {
     map_types.push(map_type);
   }
 
-  var map_types = ['in_finite', 'rooms', 'no_end', 'INception']
+  // var map_types = ['in_finite', 'rooms', 'no_end', 'INception'];
+  var map_types = ['in_finite'];
 
   var async_list = []
   for (var k =0; k < map_types.length; k++) {

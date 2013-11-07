@@ -512,4 +512,4 @@ function improve_solution(board, blocks, options) {
 exports.improve_solution = improve_solution;
 
 
-})(typeof module.exports === "undefined" ? Analyst : module.exports)
+})(typeof exports === "undefined" ? Analyst : module.exports)
