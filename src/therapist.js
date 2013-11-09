@@ -35,9 +35,9 @@ function loadScripts(array,callback){
   })();
 }
 
-loadScripts([
-   //mt_url + 'lib/html2canvas.js', // "http://html2canvas.hertzen.com/build/html2canvas.js",
-]); // should really be asynchronous, but oh well... too much of a headache
+//loadScripts([
+//   mt_url + 'lib/html2canvas.js', // "http://html2canvas.hertzen.com/build/html2canvas.js",
+//]); // should really be asynchronous, but oh well... too much of a headache
 //] , function() {
 
 if (is_mapeditor) {
@@ -220,7 +220,7 @@ function switch_map(map_num) {
 }
 
 function update_scores_page() {
-  if (is_mapeditor) {return;}
+  if (is_mapeditor || is_ugli) {return;}
   var mapid = get_mapid();
   scoresShowPage(currentPage[mapid], mapid);
 }
@@ -932,7 +932,9 @@ register_hotkey(LOAD_KEY, function(e) {
     setTimeout(refresh_score, load_best_timeout);
 });
 
+if (!is_ugli) {
 register_hotkey(TOGGLE_MUTE_KEY, setMute);
+}
 register_hotkey(TOGGLE_VALUES_KEY, toggle_values);
 
 register_hotkey(PAINT_BLOCK_KEY, function(e) {
@@ -1106,6 +1108,7 @@ function initialize_toolbar() {
 }
 
 function update_rock_images() {
+  if (is_ugli) {return;}
   var rock_image = get_custom('rock_image');
   if (!rock_image) {
     rock_image = 'http://www.pathery.com/images/OverlayTileFaceted50b.png';
@@ -1114,6 +1117,7 @@ function update_rock_images() {
 }
 
 function update_wall_images() {
+  if (is_ugli) {return;}
   var wall_image = get_custom('wall_image');
   if (!wall_image) {
     setWallStyle(userObj);

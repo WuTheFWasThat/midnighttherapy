@@ -1,47 +1,18 @@
-var ready_done = false,
-ready = function() {
-	if (ready_done)
-		return;
-	ready_done = true;
-	loadSol();
-	if (isChallenge)
-		challengeLoad();
-}
-
-if (document.readyState === 'complete')
-	ready();
-else if (document.addEventListener) { // gecko, webkit, opera, IE 9
-	document.addEventListener("DOMContentLoaded", ready, false);
-	window.addEventListener("load", ready, false);
-}
-else if (document.attachEvent) { // IE 8-
-	document.attachEvent("onreadystatechange", ready);
-	window.attachEvent("onload", ready);
-}
-
-var wallColor = false;
-var wallEmblem = false;
-var wallOrientation = 0;
-
-var isChallenge = false;
-var isTutorial = false;
+var wallColor = "#ffdd88";
 
 var solution = new Array();
 var count = new Array();
 var mapdata = new Array();
 var mapjson = new Array();
-var htmlnotification = '';
-var jsonmapdata = new Object;
-//var jsonmapdata.solutions = new Array();
-var mapType; // 1 = simple, 2 = normal, ...; used for mixpanel tracking
 
 function loadSol(sol, moves) {
-	if (sol == null)
-		if (document.getElementById('mapsol') != undefined)
+	if (sol == null) {
+		if (document.getElementById('mapsol') != undefined) {
 			sol = document.getElementById('mapsol').innerHTML;
+        }
+    }
 
 	if (sol) {
-
 		tmp = sol.split(':');
 		position = tmp[1].split('.');
 		mapid = tmp[0];
@@ -52,7 +23,6 @@ function loadSol(sol, moves) {
 			if (document.getElementById(mapid+','+position[i]) != undefined) {
 				object = document.getElementById(mapid+','+position[i]);
 				grid_click(object);
-
 			}
 		}
 	}
@@ -61,39 +31,7 @@ function loadSol(sol, moves) {
 	}
 }
 
-function showNotification(html) {
-	var div = document.createElement('div');
-	var pref = '<div class="notification" align="center">';
-	pref += '<div class="notification_close"><a href="javascript:" onclick="this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode);">[Close]</a> </div> ';
-	pref += '<div style="overflow:auto;height:295px;">';
-	var suff = '</div></div>';
-	//var suff = '<button onclick="">'
-	//suff += 'Close</button></div>';
-	div.innerHTML = pref+html+suff;
-	document.body.appendChild(div.firstChild);
-}
-
-function changeWallColor(newColor) {
-	playerWallColor = newColor;
-	loadSol(null);
-}
-function changeWallEmblem(newEmblem) {
-	playerWallEmblem = newEmblem;
-	loadSol(null);
-}
-
-function linkEmblem(emblem, orientation) {
-	return '';
-}
-function setWallStyle(playerObject) {
-
-	if (typeof playerObject !== 'object') return;
-
-	wallColor = playerObject.wallColor;
-	wallEmblem = playerObject.wallEmblem;
-	wallOrientation = playerObject.wallOrientation;
-}
-
+function linkEmblem(emblem, orientation) { return ''; }
 
 
 function grid_click(obj) {
@@ -140,20 +78,11 @@ function grid_click(obj) {
 		//childdiv.removeAttribute("class");
 		childdiv.setAttribute("class", "child w");
 
-		if (wallColor == false) setWallStyle(userObj);
-		if (wallColor == false) wallColor = '#666';
-
 		obj.style.backgroundColor = wallColor;
-		if (wallEmblem) {
-			obj.style.backgroundImage="url("+linkEmblem(wallEmblem, wallOrientation)+")";
-		}
 
 		//Add Wall
 		solution[mapid] += y+','+x+'.';
 		mapdata[mapid].usedWallCount--;
-	}
-	if (isChallenge == true) {
-		challengeWall(mapid);
 	}
 	updateDsp(mapid, 'dspWalls', mapdata[mapid].usedWallCount+" walls");
 }
@@ -170,10 +99,6 @@ function updateDsp(mapid, element, data) {
 }
 
 function getmapdata(mapid) {
-
-	if (typeof(mapdata[mapid]) != 'object')
-		mapdata[mapid] = decryptJSON(jsonmapdata[mapid]);
-
 	mapdata[mapid].usedWallCount = mapdata[mapid].walls;
 	solution[mapid] = '.';
 	updateDsp(mapid, 'dspWalls', mapdata[mapid].usedWallCount+" walls");
@@ -201,9 +126,8 @@ function request_path_done(JO) {
 	var mapid = JO.mapid;
 	mapjson[mapid] = JO;
 
-	var speedbox = document.getElementById(mapid+',speed'),
+	var speedbox = document.getElementById('speed'),
 	speed = speedbox.options[speedbox.selectedIndex].text,
-	mute = !checkSound(mapid);
 
 	nowTime = new Date().getTime();
 
@@ -221,8 +145,6 @@ function request_path_done(JO) {
 
 
 	var disptext = "Record: "+JO.best+" by "+JO.bestby;
-	if (isChallenge)
-		disptext = '';
 	updateDsp(JO.mapid, 'dspID', disptext);
 
 	mapdata[mapid].moveCount = new Object;
@@ -238,28 +160,6 @@ function request_path_done(JO) {
 		mapdata[mapid].pathColor[i] = '#ffffff';
 		animatePath(JO.path[i].path, mapid, JO.path[i].start, i);
 	}
-}
-
-
-function requestSol(mapID) {
-	ajax.requestFile = "do.php?r=getsol&mapID="+mapID; //prepare strdata
-	ajax.onCompletion = requestSolDone; // specify function to be executed on response
-	ajax.runAJAX();
-}
-
-function requestChallengeSolution(mapID, challengeID) {
-	ajax.requestFile = "do.php?r=getChallengeSolution&mapID="+mapID+'&challengeID='+challengeID; //prepare strdata
-	ajax.onCompletion = requestSolDone; // specify function to be executed on response
-	ajax.runAJAX();
-}
-
-function requestSolDone() {
-	var JO;
-	JO = decryptJSON(ajax.response);
-	if (JO.solution == 'undefined')
-		return;
-	//clearwalls(JO.mapid);
-	loadSol(JO.mapid + ":" + JO.solution, JO.moves);
 }
 
 function clearwalls(mapid) {
@@ -288,25 +188,10 @@ function clearwalls(mapid) {
 	getmapdata(mapid);
 }
 
-//TODO:An undo button rather than confirm..
-function resetwalls(mapid) {
-	answer = confirm("Remove walls and start fresh?");
-	if (answer) {
-		clearwalls(mapid);
-	}
-}
-
 function decryptJSON(text) {
 	if (typeof(text) == 'undefined') return false;
-	var JO;
-	if (typeof(JSON) == 'undefined') {
-		JO = !(/[^,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t]/.test(text.replace(/"(\\.|[^"\\])*"/g, ''))) && eval('(' + text + ')');
-	} else {
-		JO = JSON.parse(text);
-	}
-	return JO;
+    return JSON.parse(text);
 }
-
 
 function animatePath(path, mapid, start, pathNumber) {
 	var tmp = start.split(',');
@@ -324,39 +209,6 @@ function animatePath(path, mapid, start, pathNumber) {
 
 function animatePathDone(mapid) {
 	document.getElementById(mapid+',btn').disabled = false;
-	if (isChallenge == true) {
-		challengeGo(mapid);
-	}
-	if (typeof(currentPage) == "object") {
-		scoresRequestPage(mapid, currentPage[mapid]);
-	}
-
-	//Mark off challenges
-	//TODO: This hack is stupidd :(
-	if(isChallenge && isTutorial == false)
-	{
-		for(var i = 0; i < mapjson[mapid].completedChallenges.length; i++)
-		{
-			var challengeId = mapjson[mapid].completedChallenges[i];
-			var handle = document.getElementById("challenge_id_" + challengeId);
-
-			if (handle.className.indexOf('challenge_complete') < 0) {
-
-				handle.className = "challenge_complete";
-				flashelement("challenge_id_" + challengeId, 4);
-			}
-		}
-	}
-}
-
-function checkSound(mapid) {
-	if (getCookie('pref_mute') == 'true') {
-		return false;
-	}
-	if (typeof(soundManager) != 'object') {
-		return false;
-	}
-	return true;
 }
 
 function doanimate(x, y, p, c, mapid, pathNumber) {
@@ -421,11 +273,6 @@ function doanimate(x, y, p, c, mapid, pathNumber) {
 				case 100: case 200: case 300: case 400:
 				case 500: case 600: case 700: case 800:
 				case 900: case 1000:
-					if (checkSound(mapid)) {
-						soundManager.setVolume('charm', 40);
-						soundManager.setPan('charm', 75)
-						soundManager.play('charm');
-					}
 					//Flash
 					flashelement(mapid+',dspCount', 4);
 					break;
@@ -485,20 +332,6 @@ function doanimate(x, y, p, c, mapid, pathNumber) {
 	//break;
 	}
 
-	//Sound effects
-	if (t == 'r') {
-		if (checkSound(mapid)) {
-			soundManager.setVolume('bling', 40);
-			soundManager.setPan('bling', -75)
-			soundManager.setVolume('blingb', 40);
-			soundManager.setPan('blingb', 75)
-			if (pathNumber == 0)
-				soundManager.play('bling');
-			if (pathNumber == 1)
-				soundManager.play('blingb');
-		}
-	}
-
 	//Done messing with current target
 	//Now take pre-action regarding the next tile.
 
@@ -544,12 +377,6 @@ function doanimate(x, y, p, c, mapid, pathNumber) {
 		}
 		//if anything worth mentioning happend let them know.
 		if (disptext != "") {
-			if (checkSound(mapid) && improvedScore) {
-				soundManager.setVolume('charm', 50);
-				soundManager.setVolume('sc', 50);
-				soundManager.play('charm');
-				soundManager.play('sc');
-			}
 			updateDsp(mapid, 'dspID', disptext);
 			flashelement(mapid+',dspID', 8, "#FF3377");
 		}
@@ -579,29 +406,24 @@ function doanimate(x, y, p, c, mapid, pathNumber) {
 	//The next tile exists, how fast should we get there?
 	rs = 84;
 	//How fast should we be going?
-	selectbox = document.getElementById(mapid+',speed');
+	selectbox = document.getElementById('speed');
 	var selectedSpeed = selectbox.options[selectbox.selectedIndex].value;
 	switch (selectedSpeed) {
 		case '1':
 			rs =180;
 			break;
-
 		case '2':
 			rs =94;
 			break;
-
 		case '3':
 			rs =44;
 			break;
-
 		case '4':
 			rs =22;
 			break;
-
 		case '5':
 			rs =0;
 			break;
-
 	}
 
 
@@ -646,14 +468,6 @@ function doanimate(x, y, p, c, mapid, pathNumber) {
 			//Flash teleport-out
 			//Teleport Element ID
 			tpEid = mapid+','+x+','+y;
-			if (checkSound(mapid)) {
-				soundManager.setVolume('ufoblip', 30);
-				if (pathNumber == 0)
-					soundManager.setPan('ufoblip', 70);
-				else
-					soundManager.setPan('ufoblip', -70);
-				soundManager.play('ufoblip');
-			}
 			document.getElementById(tpEid).style.backgroundColor='';
 
 			flashelement(tpEid, 8, mapdata[mapid].pathColor[pathNumber]);
@@ -705,7 +519,6 @@ function targetColor(target) {
 
 
 function flashelement(eid, times, color, speed) {
-
 	if (typeof(document.getElementById(eid)) == 'undefined') return;
 	var elementToFlash = document.getElementById(eid);
 	if (elementToFlash.isBeingFlashed == true) return;
@@ -749,67 +562,12 @@ function contains(a, obj) {
 }
 
 
-//Shows a solution temporarly
-function useSolution(mapid, inputSolution, moves, tempWallColor, tempWallEmblem, tempWallOrientation, solutionID) {
 
-	$('.solutionSelected').removeClass('solutionSelected');
-	$('#solution_'+solutionID).addClass('solutionSelected');
-
-	solution[mapid] = inputSolution;
-	var animateA = "showTempSolution(\""+mapid+"\", \""+inputSolution+"\", \""+moves+"\", \""+tempWallColor+"\", \""+tempWallEmblem+"\", \""+tempWallOrientation+"\");";
-	var animateB = "showTempSolution(\""+mapid+"\", \""+inputSolution+"\", \""+moves+"\", false, false, false);";
-	//TODO: Sticky colors for the placed walls by the user would be cool.
-	//var animateC = "wallColor = false; wallEmblem = false;";
-	setTimeout(animateA, 50);
-	setTimeout(animateB, 150);
-	setTimeout(animateA, 250);
-	setTimeout(animateB, 350);
-	setTimeout(animateA, 450);
-	setTimeout(animateB, 550);
-}
-//Shows a solution for temporary use, see 'RestoreSolution'
-function showTempSolution(mapid, tempSolution, moves, tempWallColor, tempWallEmblem, tempWallOrientation) {
-
-	//console.log('showTempSolution', mapid, solution, moves, tempWallColor, tempWallEmblem);
-	var savedSolution = '';
-	if (typeof tempSolution == 'undefined') tempSolution = '';
-
-	if (typeof solution[mapid] !== 'undefined') {
-		savedSolution = solution[mapid];
-	}
-
-	wallColor = tempWallColor;
-	wallEmblem = tempWallEmblem;
-	wallOrientation = tempWallOrientation;
-
-	position = tempSolution.split('.');
-
-	clearwalls(mapid);
-	for(var i in position) {
-		if (document.getElementById(mapid+','+position[i]) != undefined) {
-			object = document.getElementById(mapid+','+position[i]);
-			grid_click(object);
-
-		}
-	}
-	if (moves && mapid) {
-		updateDsp(mapid, 'dspCount', moves+ " moves");
-	}
-
-	mapdata[mapid].savedSolution = savedSolution;
-}
-//Restores a solution after a showTempSolution
-function restoreSolution(mapid) {
-	showTempSolution(mapid, mapdata[mapid].savedSolution, 0, false, false);
-}
-
-function displayMap(data, mapid, divID, goalSize, solution, moves, challengeMap) {
+function displayMap(data, mapid, divID, goalSize, solution) {
 	clearwalls(mapid);
     $("#"+divID).html(mapAsHTML(data, goalSize)).fadeIn('fast');
-    console.dir("MAPDATA", mapdata)
     //$("#"+divID).html(mapAsHTML(data, goalSize)).show();
     mapdata[mapid].savedSolution = solution;
-    restoreSolution(mapid);
 }
 
 var Tile = {
@@ -827,23 +585,16 @@ var Tile = {
 function mapAsHTML(map, targetWidth, mapEditor) {
 
 	map.mapid = map.ID;
-	//console.log("MapID:", map.mapid);
-	//console.log("MapObj", map);
 	mapdata[map.ID] = map;
 	getmapdata(map.ID);
 
 	//Map bigger than target width?
-	if (!targetWidth || (map.width * 35) <= targetWidth)
-	{
+	if (!targetWidth || (map.width * 35) <= targetWidth) {
 		//Use standard size.
 		targetWidth = (map.width * 35);
 	}
 
 	var scale = map.width / targetWidth;
-	//alert(scale);
-
-	//var width = parseInt(map.width / scale);
-	//var height = parseInt(map.height / scale);
 
 	var tileWidth = parseInt((map.width / scale) / map.width);
 	var tileHeight = tileWidth;
@@ -861,8 +612,6 @@ function mapAsHTML(map, targetWidth, mapEditor) {
 			var value = map.tiles[y][x][1];
 			if (!value) value = '';
 
-			//TODO: If we want to change this line to something that's not retarded _
-				// we'll need to do a TON of other work... See Blossom "Implement mapclass"
 			var oldy = (y*1)+1;
 			var idHandle = map.ID+','+oldy+','+x;
 
@@ -882,9 +631,14 @@ function mapAsHTML(map, targetWidth, mapEditor) {
 
 	r += "<div id='"+map.ID+",outer' class='grid_outer' style='width:"+(width)+"px;height:"+(height+45)+"px;'>";
 
-	r += "	<div class='grid_dsp_left' style='width:60%;'>";
-	r += "		<div id='"+map.ID+",dspID' title='MapID: "+map.ID+"'>";
-	r += "		MapID: "+map.ID;
+	r += "	<div class='grid_dsp_left' style='width:30%;'>";
+	r += "	Speed:";
+	r += getSpeedOptions();
+	r += "	</div>";
+
+	r += "	<div class='grid_dsp_left' style='width:30%; text-align:center'>";
+	r += "		<div id='"+map.ID+",dspCount' class='grid_dsp_data'> ";
+	r += "		0 moves";
 	r += "		</div>";
 	r += "	</div>";
 
@@ -893,66 +647,22 @@ function mapAsHTML(map, targetWidth, mapEditor) {
 	r += "		"+map.walls+" walls";
 	r += "		</span>";
 	r += "		<span>";
-	r += "		( <a href='javascript:resetwalls("+map.ID+")'>Reset</a> )";
+	r += "		( <a href='javascript:clearwalls("+map.ID+")'>Reset</a> )";
 	r += "		</span>";
 	r += "	</div>";
 
 	r += mapgrid;
 
-
-	r += "	<div id='"+map.ID+",dspbl' class='grid_dsp_left' style='width:60%;'> ";
-	r += "	<input id='"+map.ID+",btn' type='button' onclick='doSend("+map.ID+")' value='Go!' />";
-	r += "	Speed:";
-	r += getSpeedOptions(map.ID);
-	r += "	</div>";
-
-	r += "	<div class='grid_dsp_mid' style='width:5%;'>";
-	r += getMuteOption(map.ID);
-	r += "	</div>";
-
-	r += "	<div id='"+map.ID+",dspbr' class='grid_dsp_right' style='width:34%;'> ";
-	r += "		<div id='"+map.ID+",dspCount' class='grid_dsp_data'> ";
-	r += "		0 moves";
-	r += "		</div>";
-	r += "	</div>";
-	r += "</div>";
-
 	return r;
 }
 
-
-function setMute(value)
-{
-	var value = getCookie('pref_mute');
-	$('.mapMute').removeClass("mapMute_"+value);
-	if (value == 'true')	{
-		value = 'false';
-		soundManager.setVolume('pit', 20);
-		soundManager.setPan('pit', -60)
-		soundManager.play('pit');
-	} else {
-		value = 'true';
-	}
-	savePref('mute', value);
-	$('.mapMute').addClass("mapMute_"+value);
-}
 
 function setSpeed(value) {
 	$(".selectSpeed").val(value);
 	savePref('speed', value);
 }
 
-function getMuteOption(mapID) {
-	var r = '';
-	var muted = 'false';
-	if (getCookie('pref_mute') == 'true') {
-		muted = "true";
-	}
-	r += "<a title='Mute sound?' class='mapMute mapMute_"+muted+" unselectable' href='javascript:setMute()' id='mapMute'/></a>";
-	return r;
-}
-
-function getSpeedOptions(mapID) {
+function getSpeedOptions() {
 	var listObj = new Object;
 	var selectedSpeed = 2;
 	if (getCookie('pref_speed')) {
@@ -962,9 +672,9 @@ function getSpeedOptions(mapID) {
 	listObj[2] = 'Med';
 	listObj[3] = 'Fast';
 	listObj[4] = 'Ultra';
-	if (userObj.hasInsaneSpeed) listObj[5] = 'Insane';
+    listObj[5] = 'Insane';
 	var r = '';
-	r += "	<select class='selectSpeed' onChange='setSpeed(this.value)' id='"+mapID+",speed'>";
+	r += "	<select class='selectSpeed' onChange='setSpeed(this.value)' id='speed'>";
 	for (var i in listObj) {
 		r += "<option value='"+i+"'";
 		if (i == selectedSpeed) r += "selected='selected'";
@@ -987,6 +697,7 @@ function setCookie(c_name,value,exdays)
 	var c_value=escape(value) + ((exdays==null) ? "" : "; expires="+exdate.toUTCString());
 	document.cookie=c_name + "=" + c_value;
 }
+
 function getCookie(c_name)
 {
 	var i,x,y,ARRcookies=document.cookie.split(";");
