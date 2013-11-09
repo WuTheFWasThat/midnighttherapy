@@ -920,44 +920,6 @@ function mapAsHTML(map, targetWidth, mapEditor) {
 	return r;
 }
 
-function mapThumbnailHTML(map, targetWidth, targetHeight) {
-	if (!targetWidth) targetWidth = 120;
-	if (!targetHeight) targetHeight = 320;
-
-	var heightScale = map.height / targetHeight;
-	var widthScale = map.width / targetWidth;
-
-	//Size based on target width
-	var tileSize = Math.floor(map.width / widthScale / map.width);
-	//Too tall using width?
-	if (tileSize * map.height > targetHeight) {
-		//Use target height
-		tileSize = Math.floor(map.height / heightScale / map.height);
-	}
-	//console.log('tw', tileSize * map.height, targetHeight);
-
-	var width = tileSize * map.width;
-	var height = tileSize * map.height;
-
-	var mapgrid = '';
-	var r = '';
-	r += map.name;
-
-	mapgrid += '<div class="map" style="width:'+width+'px; height:'+height+'px">';
-	for (var y in map.tiles) {
-		for (var x in map.tiles[y]) {
-			var type = map.tiles[y][x][0];
-			var value = map.tiles[y][x][1];
-			if (!value) value = '';
-
-			mapgrid += "<div style='float:left; width:"+tileSize+"px; height:"+tileSize+"px; ' class='mapcell "+type+value+"'>";
-			mapgrid += "</div>";
-		}
-	}
-	mapgrid += '</div>';
-	r += mapgrid;
-	return r;
-}
 
 function setMute(value)
 {

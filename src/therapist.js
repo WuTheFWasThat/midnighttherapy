@@ -37,7 +37,6 @@ function loadScripts(array,callback){
 
 loadScripts([
    //mt_url + 'lib/html2canvas.js', // "http://html2canvas.hertzen.com/build/html2canvas.js",
-   mt_url + 'lib/jquery.cookie.js' // "https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js"
 ]); // should really be asynchronous, but oh well... too much of a headache
 //] , function() {
 
@@ -402,7 +401,7 @@ function get_custom(item_name) {
   if (supports_HTML5_Storage()) {
     return localStorage['custom' + '.' + item_name];
   } else {
-    return $.cookie('mt_' + item_name);
+    return getCookie('mt_' + item_name);
   }
 }
 
@@ -410,7 +409,7 @@ function set_custom(item_name, val) {
   if (supports_HTML5_Storage()) {
     localStorage['custom' + '.' + item_name] = val;
   } else {
-    $.cookie('mt_' + item_name, val);
+    setCookie('mt_' + item_name, val);
   }
 }
 
