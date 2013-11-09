@@ -35,8 +35,6 @@ var jsonmapdata = new Object;
 //var jsonmapdata.solutions = new Array();
 var mapType; // 1 = simple, 2 = normal, ...; used for mixpanel tracking
 
-var pressedGoTime = 0;
-
 function loadSol(sol, moves) {
 	if (sol == null)
 		if (document.getElementById('mapsol') != undefined)
@@ -85,10 +83,7 @@ function changeWallEmblem(newEmblem) {
 }
 
 function linkEmblem(emblem, orientation) {
-	orientation = orientation - 0;
-	var url = 'images/marks/';
-	if (orientation == 0) return url+emblem;
-	return url+'rotate.php?r='+orientation+'&emblem='+emblem;
+	return '';
 }
 function setWallStyle(playerObject) {
 
@@ -185,22 +180,66 @@ function getmapdata(mapid) {
 }
 
 function doSend(mapid) {
-	if (solution[mapid] == undefined) {
-		getmapdata(mapid);
+  if (solution[mapid] == undefined) { getmapdata(mapid); }
+
+  var mapcode = mapdata[mapid].code;
+  var sol = solution[mapid];
+
+   console.log(mapcode)
+   console.log(sol)
+
+  $.ajax({
+    type: 'POST',
+    mapcode: mapcode,
+    solution: sol,
+    success: request_path_done
+  });
+
+}
+
+function request_path_done(JO) {
+	var mapid = JO.mapid;
+	mapjson[mapid] = JO;
+
+	var speedbox = document.getElementById(mapid+',speed'),
+	speed = speedbox.options[speedbox.selectedIndex].text,
+	mute = !checkSound(mapid);
+
+	nowTime = new Date().getTime();
+
+	if (JO.blocked) {
+		var lastTarget;
+		for(i in JO.path) {
+			if (JO.path[i].blocked != true) continue;
+			lastTarget = JO.path[i].lastTarget;
+		}
+		if (lastTarget == 'f') lastTarget = 'finish';
+		alert("The path is blocked, can't reach "+lastTarget);
+
+		//return;
 	}
 
-	pressedGoTime = new Date().getTime();
 
-	reqstr = "isChallenge="+isChallenge
-	reqstr += "&r=getpath"
-	reqstr += "&mapcode="+mapdata[mapid].code;
-	reqstr += "&mapid="+mapid;
-	reqstr += "&solution="+solution[mapid];
+	var disptext = "Record: "+JO.best+" by "+JO.bestby;
+	if (isChallenge)
+		disptext = '';
+	updateDsp(JO.mapid, 'dspID', disptext);
 
-	ajax.requestFile = "do.php?"+reqstr; //prepare strdata
-	ajax.onCompletion = request_path_done; // specify function to be executed on response
-	ajax.runAJAX();
+	mapdata[mapid].moveCount = new Object;
+	mapdata[mapid].usedTiles = new Array();
+	mapdata[mapid].restoreTiles = new Array();
+	mapdata[mapid].pathColor = new Object;
+
+	mapdata[mapid].pathsPending = JO.path.length;
+	mapdata[mapid].isMultiPath = (JO.path.length > 1);
+
+	for(i in JO.path) {
+		mapdata[mapid].moveCount[i] = 0;
+		mapdata[mapid].pathColor[i] = '#ffffff';
+		animatePath(JO.path[i].path, mapid, JO.path[i].start, i);
+	}
 }
+
 
 function requestSol(mapID) {
 	ajax.requestFile = "do.php?r=getsol&mapID="+mapID; //prepare strdata
@@ -254,62 +293,6 @@ function resetwalls(mapid) {
 	answer = confirm("Remove walls and start fresh?");
 	if (answer) {
 		clearwalls(mapid);
-	}
-}
-
-function request_path_done() {
-	var JO = decryptJSON(ajax.response);
-	var mapid = JO.mapid;
-	mapjson[mapid] = JO;
-
-	var speedbox = document.getElementById(mapid+',speed'),
-	speed = speedbox.options[speedbox.selectedIndex].text,
-	mute = !checkSound(mapid);
-
-	nowTime = new Date().getTime();
-	var responseTime = nowTime - pressedGoTime;
-
-	mixpanel.track('click go', {
-		'speed': speed,
-		'mute': mute,
-		'mapid': mapid,
-		'type': mapType,
-		'response time': responseTime
-	});
-
-	for(var i in JO.error)
-		console.error('\n JO error ' + JO.error[i]);
-
-	if (JO.blocked) {
-		var lastTarget;
-		for(i in JO.path) {
-			if (JO.path[i].blocked != true) continue;
-			lastTarget = JO.path[i].lastTarget;
-		}
-		if (lastTarget == 'f') lastTarget = 'finish';
-		alert("The path is blocked, can't reach "+lastTarget);
-
-		//return;
-	}
-
-
-	var disptext = "Record: "+JO.best+" by "+JO.bestby;
-	if (isChallenge)
-		disptext = '';
-	updateDsp(JO.mapid, 'dspID', disptext);
-
-	mapdata[mapid].moveCount = new Object;
-	mapdata[mapid].usedTiles = new Array();
-	mapdata[mapid].restoreTiles = new Array();
-	mapdata[mapid].pathColor = new Object;
-
-	mapdata[mapid].pathsPending = JO.path.length;
-	mapdata[mapid].isMultiPath = (JO.path.length > 1);
-
-	for(i in JO.path) {
-		mapdata[mapid].moveCount[i] = 0;
-		mapdata[mapid].pathColor[i] = '#ffffff';
-		animatePath(JO.path[i].path, mapid, JO.path[i].start, i);
 	}
 }
 
@@ -820,20 +803,13 @@ function restoreSolution(mapid) {
 	showTempSolution(mapid, mapdata[mapid].savedSolution, 0, false, false);
 }
 
-function displayMap(mapid, divID, goalSize, solution, moves, challengeMap, isThumb) {
-
+function displayMap(data, mapid, divID, goalSize, solution, moves, challengeMap) {
 	clearwalls(mapid);
-    var data = {"ID":mapid,"tiles":[[["s",""],["o"],["o"],["o"],["o"],["r",""],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["r",""],["o"],["o"],["o"],["o"],["f",""]],[["s",""],["o"],["o"],["o"],["o"],["r",""],["o"],["r",""],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["r",""],["o"],["f",""]],[["s",""],["o"],["o"],["o"],["o"],["o"],["r",""],["r",""],["r",""],["o"],["o"],["c",2],["o"],["o"],["r",""],["t",""],["o"],["o"],["f",""]],[["s",""],["r",""],["o"],["o"],["o"],["o"],["r",""],["c",""],["o"],["o"],["o"],["o"],["o"],["r",""],["r",""],["o"],["c",3],["o"],["f",""]],[["s",""],["r",""],["o"],["r",""],["o"],["o"],["r",""],["u",""],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["r",""],["o"],["o"],["f",""]],[["s",""],["o"],["r",""],["r",""],["o"],["r",""],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["f",""]],[["s",""],["o"],["r",""],["o"],["r",""],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["r",""],["f",""]],[["s",""],["r",""],["o"],["o"],["o"],["o"],["r",""],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["r",""],["r",""],["f",""]],[["s",""],["o"],["o"],["o"],["o"],["r",""],["o"],["o"],["r",""],["o"],["o"],["o"],["o"],["o"],["r",""],["o"],["o"],["o"],["f",""]]],"teleports":1,"checkpoints":3,"width":"19","height":"9","walls":"15","name":"Complex","flags":null,"dateCreated":null,"dateExpires":1372651200,"isBlind":false,"isMultiPath":false,"code":"19x9.c3.r30.w15.t2.Complex.:0s.4r.7r.4f.0s.4r.1r.8r.1f.0s.5r.0r.0r.2b.2r.0t.2f.0s.0r.4r.0a.5r.0r.1c.1f.0s.0r.1r.2r.0u.7r.2f.0s.1r.0r.1r.12f.0s.1r.1r.12r.0f.0s.0r.4r.9r.0r.0f.0s.4r.2r.5r.3f."}
-     var data = {"ID":mapid,"tiles":[[["s",""],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["r",""]],[["r",""],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["r",""],["o"],["o"],["u",2],["o"],["o"],["c",2],["r",""],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["f",""]],[["s",""],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["r",""]],[["r",""],["o"],["o"],["o"],["o"],["r",""],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["f",""]],[["s",""],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["u",3],["o"],["r",""],["o"],["o"],["o"],["o"],["o"],["r",""],["o"],["o"],["r",""]],[["r",""],["o"],["o"],["o"],["o"],["o"],["o"],["r",""],["o"],["o"],["o"],["o"],["c",3],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["f",""]],[["s",""],["o"],["o"],["o"],["r",""],["o"],["r",""],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["r",""],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["r",""]],[["r",""],["o"],["r",""],["o"],["o"],["t",3],["o"],["o"],["c",""],["o"],["o"],["o"],["o"],["o"],["r",""],["c",4],["t",""],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["f",""]],[["s",""],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["r",""],["o"],["o"],["r",""],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["r",""]],[["r",""],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["t",2],["u",3],["o"],["o"],["o"],["o"],["o"],["o"],["c",2],["r",""],["o"],["o"],["o"],["o"],["o"],["f",""]],[["s",""],["o"],["o"],["o"],["o"],["o"],["r",""],["o"],["o"],["o"],["r",""],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["r",""],["o"],["o"],["o"],["o"],["o"],["r",""]],[["r",""],["o"],["o"],["o"],["o"],["o"],["o"],["r",""],["o"],["o"],["o"],["o"],["o"],["o"],["t",4],["o"],["o"],["c",5],["o"],["o"],["o"],["o"],["o"],["o"],["f",""]],[["s",""],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["r",""],["u",""],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["r",""]],[["r",""],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["u",4],["o"],["o"],["o"],["o"],["o"],["c",5],["o"],["o"],["o"],["o"],["o"],["o"],["f",""]],[["s",""],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["o"],["r",""]]],"teleports":4,"checkpoints":5,"width":"25","height":"15","walls":"50","name":"Ultra Complex","flags":null,"dateCreated":null,"dateExpires":1382889600,"isBlind":false,"isMultiPath":false,"code":"25x15.c5.r19.w50.t3.Ultra Complex.:0s.23r.0r.7r.2n.2b.0r.8f.0s.23r.0r.4r.18f.0s.12h.1r.5r.2r.0r.6r.4c.11f.0s.3r.1r.7r.9r.0r.1r.2g.2a.5r.0d.0t.7f.0s.12r.2r.7r.0r.8m.0h.6b.0r.5f.0s.5r.3r.7r.5r.0r.6r.6i.2e.6f.0s.9r.0u.12r.0r.10j.5e.6f.0s.23r."}
-    if (isThumb) {
-      $("#"+divID).html(mapThumbnailHTML(data, goalSize)).fadeIn('fast');
-    } else {
-      $("#"+divID).html(mapAsHTML(data, goalSize)).fadeIn('fast');
-      console.dir("MAPDATA", mapdata)
-      //$("#"+divID).html(mapAsHTML(data, goalSize)).show();
-      mapdata[mapid].savedSolution = solution;
-      restoreSolution(mapid);
-    }
+    $("#"+divID).html(mapAsHTML(data, goalSize)).fadeIn('fast');
+    console.dir("MAPDATA", mapdata)
+    //$("#"+divID).html(mapAsHTML(data, goalSize)).show();
+    mapdata[mapid].savedSolution = solution;
+    restoreSolution(mapid);
 }
 
 var Tile = {
@@ -890,14 +866,8 @@ function mapAsHTML(map, targetWidth, mapEditor) {
 			var oldy = (y*1)+1;
 			var idHandle = map.ID+','+oldy+','+x;
 
-			// GOAL WOULD BE THIS LINE INSTEAD.. As it's not retarded.
-			//var idHandle = map.ID+','+x+','+y;
-
 			//oldy is used for Position too... for now
-			if (mapEditor == true) {
-				mapgrid += "<div style='float:left; width:"+tileWidth+"px; height:"+tileHeight+"px; ' class='mapcell "+type+value+"' title='Position: "+x+","+oldy+"' id='"+idHandle+"' onMouseOver='mapEditOver(this)' onMouseDown='mapEditClick(this)' >";
-				mapgrid += "<div id='child_"+idHandle+"' class='child'></div></div>";
-			} else if (type == 'o') {
+			if (type == 'o') {
 				mapgrid += "<div style='float:left; width:"+tileWidth+"px; height:"+tileHeight+"px; ' class='mapcell "+type+value+"' title='Position: "+x+","+oldy+"' id='"+idHandle+"' onClick='grid_click(this)' >";
 				mapgrid += "<div id='child_"+idHandle+"' class='child'></div></div>";
 			} else {
@@ -908,11 +878,8 @@ function mapAsHTML(map, targetWidth, mapEditor) {
 	}
 	mapgrid += '</div><div style="clear:both"></div>';
 
-	if (mapEditor == true) return mapgrid;
-
 	var r = '';
 
-	//TODO: Track down where that 1 pixel is comingfrom, width-1 is a hack.
 	r += "<div id='"+map.ID+",outer' class='grid_outer' style='width:"+(width)+"px;height:"+(height+45)+"px;'>";
 
 	r += "	<div class='grid_dsp_left' style='width:60%;'>";

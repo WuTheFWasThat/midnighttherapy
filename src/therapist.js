@@ -12,8 +12,8 @@
 ////////////////////////////////////////////////////////////
 // CREDIT TO:  http://stackoverflow.com/questions/1866717/document-createelementscript-adding-two-scripts-with-one-callback
 
-var is_mapeditor = ($('#difficulties').length == 0);
-
+var is_mapeditor = ($('#playableMapDisplay').length > 0)
+var is_ugli = (typeof pathery_ugli != 'undefined');
 
 function loadScripts(array,callback){
   var loader = function(src,handler){
@@ -36,7 +36,7 @@ function loadScripts(array,callback){
 }
 
 loadScripts([
-   mt_url + 'lib/html2canvas.js', // "http://html2canvas.hertzen.com/build/html2canvas.js",
+   //mt_url + 'lib/html2canvas.js', // "http://html2canvas.hertzen.com/build/html2canvas.js",
    mt_url + 'lib/jquery.cookie.js' // "https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js"
 ]); // should really be asynchronous, but oh well... too much of a headache
 //] , function() {
@@ -1006,7 +1006,10 @@ function initialize_toolbar() {
     'margin-top' : '21px'
   })
 
-  if (is_mapeditor) {
+  if (is_ugli) {
+    $('#yms').before(button_toolbar)
+    setTimeout(bind_block_events, 1000);
+  } else if (is_mapeditor) {
     // mapeditor
     $('#playableMapDisplay').parent().css('width', '100%');
 
@@ -1054,29 +1057,31 @@ function initialize_toolbar() {
   })
   button_toolbar.append(solutions_list);
 
-  function change_wall_image() {
-    var url = $('#mt_change_wall_input').val();
-    set_custom('wall_image', url);
-    update_wall_images();
+  if (!is_ugli) {
+    function change_wall_image() {
+      var url = $('#mt_change_wall_input').val();
+      set_custom('wall_image', url);
+      update_wall_images();
+    }
+
+    var change_wall_input = $('<input id="mt_change_wall_input" placeholder="Image url (blank to use default)">');
+    button_toolbar.append(change_wall_input);
+    var change_wall_button = $('<button id="mt_change_wall">Set wall image</button>');
+    button_toolbar.append(change_wall_button);
+    change_wall_button.click(change_wall_image);
+
+    function change_rock_image() {
+      var url = $('#mt_change_rock_input').val();
+      set_custom('rock_image', url);
+      update_rock_images();
+    }
+
+    var change_rock_input = $('<input id="mt_change_rock_input" placeholder="Image url (blank to use default)">');
+    button_toolbar.append(change_rock_input);
+    var change_rock_button = $('<button id="mt_change_rock">Set rock image</button>');
+    button_toolbar.append(change_rock_button);
+    change_rock_button.click(change_rock_image);
   }
-
-  var change_wall_input = $('<input id="mt_change_wall_input" placeholder="Image url (blank to use default)">');
-  button_toolbar.append(change_wall_input);
-  var change_wall_button = $('<button id="mt_change_wall">Set wall image</button>');
-  button_toolbar.append(change_wall_button);
-  change_wall_button.click(change_wall_image);
-
-  function change_rock_image() {
-    var url = $('#mt_change_rock_input').val();
-    set_custom('rock_image', url);
-    update_rock_images();
-  }
-
-  var change_rock_input = $('<input id="mt_change_rock_input" placeholder="Image url (blank to use default)">');
-  button_toolbar.append(change_rock_input);
-  var change_rock_button = $('<button id="mt_change_rock">Set rock image</button>');
-  button_toolbar.append(change_rock_button);
-  change_rock_button.click(change_rock_image);
 
   var hotkeys_button = $('<button id="mt_show_hotkeys">Hotkeys</button>');
   hotkeys_button.css({
