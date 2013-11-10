@@ -320,11 +320,14 @@ var showing_values = false;
 function refresh_score() {
   try { // for mapeditor race condition
     var mapid = get_mapid();
-    solver.compute_value(get_board(mapid), get_solution(mapid), function(values) {
+    var sol = get_solution(mapid);
+    solver.compute_value(get_board(mapid), sol, function(values) {
+      var sum = get_score_total(values);
+      solution_storage.update_best(mapid, sol, sum);
       write_score_value(values);
     })
     if (showing_values) { draw_values(); }
-  } catch (e) {}
+  } catch (e) {return console.log('In mapeditor?  failed to refresh score', e);}
 };
 
 function draw_single_value(mapid, i, j, value, blocking, maxValue) {
@@ -424,12 +427,21 @@ function set_custom(item_name, val) {
 function HTML5_SolutionStorage() {
 }
 
+HTML5_SolutionStorage.prototype.update_best = function(mapid, sol, score) {
+  if (isNaN(score)) {return;}
+  var cur_best = localStorage['best:' + mapdata[mapid].code]
+  if ((!cur_best) || (score > cur_best)) {
+    localStorage['best:' + mapdata[mapid].code] = score;
+    this.add_solution(mapid, sol, 'best')
+  }
+}
+
 HTML5_SolutionStorage.prototype.get_hash = function(mapid) {
   return 'solutions:' + mapdata[mapid].code;
 }
 
 // TODO:  no need to preface everything with pathery... (make the change after there's a new UC)
-HTML5_SolutionStorage.prototype.add_solution = function(mapid, solution, name) {
+HTML5_SolutionStorage.prototype.add_solution = function(mapid, sol, name) {
   var hash = this.get_hash(mapid);
   var map_storage;
   if (localStorage[hash] === undefined) {
@@ -439,7 +451,8 @@ HTML5_SolutionStorage.prototype.add_solution = function(mapid, solution, name) {
   }
   map_storage[name] = true;
   localStorage[hash] = JSON.stringify(map_storage);
-  localStorage[hash + ':' + name] = JSON.stringify(solution);
+  localStorage[hash + ':' + name] = JSON.stringify(sol);
+  refresh_solution_store_display();
 }
 
 HTML5_SolutionStorage.prototype.get_solution = function(mapid, name) {
@@ -461,20 +474,22 @@ HTML5_SolutionStorage.prototype.get_solutions = function(mapid) {
 }
 
 HTML5_SolutionStorage.prototype.delete_solution = function(mapid, name) {
+  if (name == 'best') {delete localStorage['best:' + mapdata[mapid].code]}
+
   var hash = this.get_hash(mapid);
   var map_storage = JSON.parse(localStorage[hash]);
   delete map_storage[name];
   localStorage[hash] = JSON.stringify(map_storage);
 
   delete localStorage[hash + ':' + name]
+  refresh_solution_store_display();
 }
 
 HTML5_SolutionStorage.prototype.clear_all = function(mapid, name) {
   for (var k in localStorage) {
-    if (k.slice(0, 7) == 'pathery') {
-      delete localStorage[k];
-    }
+    delete localStorage[k];
   }
+  refresh_solution_store_display();
 }
 
 //////////////////
@@ -483,11 +498,23 @@ HTML5_SolutionStorage.prototype.clear_all = function(mapid, name) {
 
 function JS_SolutionStorage() {
   this.storage =  {};
+  this.best = {}
+  this.best = -Infinity;
+}
+
+JS_SolutionStorage.prototype.update_best = function(mapid, sol, score) {
+  if (isNaN(score)) {return;}
+  var cur_best = this.best[mapid]
+  if ((!cur_best) || (score > cur_best)) {
+    this.best[mapid] = score;
+    this.add_solution(mapid, sol, 'best')
+  }
 }
 
 JS_SolutionStorage.prototype.add_solution = function(mapid, solution, name) {
   if (this.storage[mapid] === undefined) { this.storage[mapid] = {}; }
   this.storage[mapid][name] = solution;
+  refresh_solution_store_display();
 }
 
 JS_SolutionStorage.prototype.get_solution = function(mapid, name) {
@@ -500,6 +527,7 @@ JS_SolutionStorage.prototype.get_solutions = function(mapid) {
 
 JS_SolutionStorage.prototype.delete_solution = function(mapid, name) {
   delete this.storage[mapid][name];
+  refresh_solution_store_display();
 }
 
 function supports_HTML5_Storage() {
@@ -525,7 +553,6 @@ function save_current_solution() {
 
   function add_solution() {
     solution_storage.add_solution(mapid, solution, name);
-    refresh_solution_store_display();
   }
 
   if (!name) {
@@ -574,20 +601,23 @@ function refresh_solution_store_display() {
 
   try { // for mapeditor race condition
   var store = solution_storage.get_solutions(mapid);
-  } catch (e) {return;}
+  } catch (e) {return console.log('In mapeditor?  failed to get solutions', e);}
 
-  var names = [];
-  for (var name in store) {names.push(name)};
-  names.sort();
+  if (!store['best']) {store['best'] = []};
+  var names = []
+  for (var name in store) {
+    if (name !== 'best') {names.push(name)};
+  }
+  var names = ['best'].concat(names.sort());
 
   $('#mt_save_solution_list').empty();
   for (var k in names) {
     var name = names[k];
     var solution = store[name];
     //load_solution(mapid, solution);
-    var solution_el = $('<div>' + name + '</div>')
+    var solution_el = $('<div>').text(name)
 
-    var load_button = $('<button> Load </button>')
+    var load_button = $('<button>').text('Load').css('margin-left','5px')
     load_button.data('solution', solution)
     load_button.click(function() {
       var solution = $(this).data('solution');
@@ -595,18 +625,19 @@ function refresh_solution_store_display() {
     })
     solution_el.append(load_button);
 
-    var delete_button = $('<button> Delete </button>')
-    delete_button.data('name', name)
-    delete_button.data('mapid', mapid)
-    delete_button.click(function() {
-      var name = $(this).data('name');
-      var mapid = $(this).data('mapid');
-      if (window.confirm("Are you sure?")) {
-        solution_storage.delete_solution(mapid, name);
-        refresh_solution_store_display();
-      }
-    })
-    solution_el.append(delete_button);
+    if (name !== 'best') {
+      var delete_button = $('<button> Delete </button>')
+      delete_button.data('name', name)
+      delete_button.data('mapid', mapid)
+      delete_button.click(function() {
+        var name = $(this).data('name');
+        var mapid = $(this).data('mapid');
+        if (window.confirm("Are you sure?")) {
+          solution_storage.delete_solution(mapid, name);
+        }
+      })
+      solution_el.append(delete_button);
+    }
 
     $('#mt_save_solution_list').append(solution_el);
 

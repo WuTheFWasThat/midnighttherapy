@@ -334,14 +334,22 @@ function find_pathery_path(graph, blocks){
 }
 
 
-function compute_value(board, cur_blocks, cb) {
+function compute_solution(board, cur_blocks, cb) {
     if (cur_blocks === undefined) {cur_blocks = []}
     var graph = new PatheryGraph(board);
 
     var current_blocks = graph.dictify_blocks(cur_blocks);
     var solution = find_pathery_path(graph, current_blocks);
 
-    if (cb) {cb(solution.values)}
+    if (cb) {cb(solution)}
+    return solution;
+}
+exports.compute_solution= compute_solution;
+
+function compute_value(board, cur_blocks, cb) {
+    var solution = compute_solution(board, cur_blocks, function(solution) {
+      if (cb) {cb(solution.values);}
+    });
     return solution.values;
 }
 exports.compute_value = compute_value;
