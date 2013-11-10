@@ -623,18 +623,18 @@ function refresh_solution_store_display() {
   $('#mt_save_solution_list').empty();
   for (var k in names) {
     var name = names[k];
-    var solution = store[name];
-    //load_solution(mapid, solution);
+    var sol = store[name];
+    //load_solution(mapid, sol);
     var solution_el = $('<div>').text(name)
     if (name == 'best') {
       solution_el.text(name + ': ' + solution_storage.get_best(mapid));
     }
 
     var load_button = $('<button>').text('Load').css('margin-left','5px')
-    load_button.data('solution', solution)
+    load_button.data('solution', sol)
     load_button.click(function() {
-      var solution = $(this).data('solution');
-      load_solution(mapid, solution);
+      var sol = $(this).data('solution');
+      load_solution(mapid, sol);
     })
     solution_el.append(load_button);
 
@@ -651,6 +651,15 @@ function refresh_solution_store_display() {
       })
       solution_el.append(delete_button);
     }
+
+    var code_button = $('<button>').text('Code')
+    console.log(sol)
+    code_button.data('solution', JSON.stringify(sol))
+    code_button.click(function() {
+      var sol = $(this).data('solution');
+      alert(sol);
+    })
+    solution_el.append(code_button);
 
     $('#mt_save_solution_list').append(solution_el);
 
@@ -1085,6 +1094,15 @@ function initialize_toolbar() {
   show_values_button.click(toggle_values);
   button_toolbar.append('<br/>');
   update_show_values();
+
+  var load_solution_input = $('<input placeholder="solution code">');
+  button_toolbar.append(load_solution_input);
+  var load_solution_button = $('<button>Load solution</button>');
+  button_toolbar.append(load_solution_button);
+  load_solution_button.click(function() {
+    var sol = JSON.parse(load_solution_input.val());
+    place_solution(exports.get_mapid(), sol);
+  });
 
   var save_solution_input = $('<input id="mt_save_solution_name" placeholder="solution label/name (optional)">');
   button_toolbar.append(save_solution_input);
