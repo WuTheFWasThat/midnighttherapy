@@ -429,11 +429,16 @@ function HTML5_SolutionStorage() {
 
 HTML5_SolutionStorage.prototype.update_best = function(mapid, sol, score) {
   if (isNaN(score)) {return;}
-  var cur_best = localStorage['best:' + mapdata[mapid].code]
+  var cur_best = this.get_best(mapid);
   if ((!cur_best) || (score > cur_best)) {
     localStorage['best:' + mapdata[mapid].code] = score;
     this.add_solution(mapid, sol, 'best')
+    send_solution(mapid);
   }
+}
+
+HTML5_SolutionStorage.prototype.get_best = function(mapid) {
+  return localStorage['best:' + mapdata[mapid].code]
 }
 
 HTML5_SolutionStorage.prototype.get_hash = function(mapid) {
@@ -502,12 +507,17 @@ function JS_SolutionStorage() {
   this.best = -Infinity;
 }
 
+JS_SolutionStorage.prototype.get_best = function(mapid) {
+  return this.best[mapid];
+}
+
 JS_SolutionStorage.prototype.update_best = function(mapid, sol, score) {
   if (isNaN(score)) {return;}
-  var cur_best = this.best[mapid]
+  var cur_best = this.get_best(mapid)
   if ((!cur_best) || (score > cur_best)) {
     this.best[mapid] = score;
     this.add_solution(mapid, sol, 'best')
+    send_solution(mapid);
   }
 }
 
@@ -616,6 +626,9 @@ function refresh_solution_store_display() {
     var solution = store[name];
     //load_solution(mapid, solution);
     var solution_el = $('<div>').text(name)
+    if (name == 'best') {
+      solution_el.text(name + ': ' + solution_storage.get_best(mapid));
+    }
 
     var load_button = $('<button>').text('Load').css('margin-left','5px')
     load_button.data('solution', solution)
