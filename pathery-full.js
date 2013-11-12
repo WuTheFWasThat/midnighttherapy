@@ -9,32 +9,43 @@ if (typeof mt_local_testing === 'undefined') {
   var mt_url = 'http://127.0.0.1:2222/';
 }
 
-(function() {
+var start_assist = function() {
 
-  ///////////////////////////////////////
-  // SERVER
-  ///////////////////////////////////////
-
-  function get_analyst(cb) {
-    $.getScript(mt_url + '/src/analyst.js', cb)
+  // wait until 5 minutes before, to start
+  if (tomorrow.getTime() - new Date().getTime() > (24 * 60 - 5) * 60 * 1000) {
+    return setTimeout(start_assist, 1000);
   }
 
-  ///////////////////////////////////////
-  // CLIENT
-  ///////////////////////////////////////
 
-  // SHARED WITH PATHERY-CLIENT
-  function get_therapist(cb) {
-    $.getScript(mt_url + '/src/therapist.js', cb)
-  }
+  (function() {
 
-  function start_up() {
-  }
+    ///////////////////////////////////////
+    // SERVER
+    ///////////////////////////////////////
 
-  get_analyst(function() {
-    get_therapist(
-      start_up
-    )
-  });
+    function get_analyst(cb) {
+      $.getScript(mt_url + '/src/analyst.js', cb)
+    }
 
-})()
+    ///////////////////////////////////////
+    // CLIENT
+    ///////////////////////////////////////
+
+    // SHARED WITH PATHERY-CLIENT
+    function get_therapist(cb) {
+      $.getScript(mt_url + '/src/therapist.js', cb)
+    }
+
+    function start_up() {
+    }
+
+    get_analyst(function() {
+      get_therapist(
+        start_up
+      )
+    });
+
+  })()
+}
+
+start_assist()
