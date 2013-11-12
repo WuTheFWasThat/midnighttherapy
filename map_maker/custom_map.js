@@ -35,7 +35,9 @@ var main = function() {
         success: function(response) {
           mapStr += response.id;
           console.log(mapStr);
-          cb(null, mapStr)
+          // cb(null, mapStr)
+          map.url = response.id;
+          cb(null, map);
         },
         error: function(err) {
           cb(err, null)
@@ -53,7 +55,7 @@ var main = function() {
   }
 
   // var map_types = ['in_finite', 'rooms', 'no_end', 'INception'];
-  var map_types = ['in_finite'];
+  var map_types = ['edge_case', 'in_finite', 'rooms', 'INception'];
 
   var async_list = []
   for (var k =0; k < map_types.length; k++) {
@@ -62,16 +64,47 @@ var main = function() {
   }
 
   async.series(async_list, function(err, results) {
-    var outStr = results.join('\n');
+    var nl = "\r\n";
+    var headerStr = "Map types for the day: " + nl;
+    var codesStr = '[spoiler=Maps for (DATE)]' + nl;
+    var linksStr = '[spoiler=Clickable links]' + nl;
+
+    for (var k = 0; k < results.length; k++) {
+      var mapk = results[k];
+
+      if (k != 0) {
+        headerStr += ', ';
+      }
+      headerStr += mapk.myName;
+
+      codesStr += mapk.myName + ":" + nl;
+      codesStr += '[code]' + nl;
+      codesStr += mapk.forumMapCode() + nl;
+      codesStr += '[/code]' + nl;
+      codesStr += nl;
+
+      linksStr += mapk.myName + ": ";
+      linksStr += mapk.url + nl;
+    }
+    headerStr += nl;
+    codesStr += '[/spoiler]' + nl;
+    linksStr += '[/spoiler]' + nl;
+
+    var trailerStr = '[spoiler=Unofficial Current Max Scores]' + nl;
+    trailerStr += '? ? ? ?' + nl;
+    trailerStr += '[/spoiler]' + nl;
+
+    // var outStr = results.join('\n');
+    var outStr = headerStr + codesStr + linksStr + trailerStr;
     fs.writeFileSync('out.txt', outStr);
-    // var code = "13x7.c1.r10.w9.t0.Simple.:0s.0r.10f.0s.5r.5f.0s.0r.6r.1r.1f.0s.11f.0s.2r.4a.3f.0s.1r.4r.4f.0s.2r.6r.1f.";
-    // var map = parseMapCode(code);
-    // outStr = '';
-    // outStr += map.dilate(3).toMapCode();
   });
 }
 
 if (require.main === module) {
   main();
+  // var code = "13x7.c1.r10.w9.t0.Simple.:0s.0r.10f.0s.5r.5f.0s.0r.6r.1r.1f.0s.11f.0s.2r.4a.3f.0s.1r.4r.4f.0s.2r.6r.1f.";
+  // var map = parseMapCode(code);
+  // outStr = '';
+  // outStr += map.dilate(3).toMapCode();
 }
 
