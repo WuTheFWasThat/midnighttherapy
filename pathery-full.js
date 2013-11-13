@@ -11,8 +11,9 @@ if (typeof mt_local_testing === 'undefined') {
 
 var start_assist = function() {
 
+  var is_mapeditor = ($('#playableMapDisplay').length > 0)
   // wait until 5 minutes before, to start
-  if (tomorrow.getTime() - new Date().getTime() > (24 * 60 - 5) * 60 * 1000) {
+  if ((!is_mapeditor) && (tomorrow.getTime() - new Date().getTime() > (24 * 60 - 5) * 60 * 1000)) {
     return setTimeout(start_assist, 1000);
   }
 

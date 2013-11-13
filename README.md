@@ -89,6 +89,8 @@ I provide a number of hotkeys to make playing easier and faster:
 ### OTHER ###
 
 - As you might have noticed, you can customize your block and wall images.
+- Score auto-submit
+- Automatic tracking of best score
 
 ## SERVERSIDE PATHING ##
 
@@ -137,6 +139,8 @@ None, at the moment.  Let me know if you find any!
 - Cleanup of old saved solutions
 
 - Notifications when scores are beat?
+
+- Ability to view person's times/scores
 
 - More customization? e.g. shown values colors, etc.
 
