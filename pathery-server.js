@@ -96,16 +96,17 @@ app.post('/generate_map', middleware, function(req, res){
   }
   console.log('value', value, 'tries', tries)
 
-  var code = map.toMapCode()
-  var tiles = map.toDumbTiles()
+  var code = map.toMapCode();
+  var tiles = map.toDumbTiles();
+
+  var header_stuff = map.calcHeaderContents();
 
   var result = {
     "ID":0,
     "tiles": tiles,
 
-    // TODO
-    "teleports":2,
-    "checkpoints":3,
+    "teleports":header_stuff.t,
+    "checkpoints":header_stuff.c,
 
     "width": map.m,
     "height": map.n,

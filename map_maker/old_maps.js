@@ -1,2 +1,6 @@
+var fs = require('fs');
+
 var map = require('./old_maps/' + 'Simple').generate();
-console.log(map.toMapCode());
+var mc = map.toMapCode();
+console.log(mc);
+fs.writeFileSync('simple.txt', mc);
