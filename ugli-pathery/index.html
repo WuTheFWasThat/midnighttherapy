@@ -48,7 +48,9 @@ var Analyst = {}
 
 <script>
   $(document).ready(function() {
-    $.post('/generate_map', {type: 'rooms'}, function(result) {
+    var maptype = 'in_finite'
+    var maptype = 'rooms'
+    $.post('/generate_map', {type: maptype}, function(result) {
       console.log(result)
       displayMap(result, 0, 'innerMapDsp_0', false, '.');
     });

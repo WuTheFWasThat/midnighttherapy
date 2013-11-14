@@ -177,6 +177,8 @@ exports.parse_board = parse_board;
 function get_board(mapid) {
   if (mapid === undefined) {mapid = get_mapid();}
   var code = get_code(mapid);
+  console.log('code', code)
+  console.log('board', parse_board(code).board);
   return parse_board(code).board;
 }
 exports.get_board = get_board;
@@ -428,12 +430,10 @@ function HTML5_SolutionStorage() {
 }
 
 HTML5_SolutionStorage.prototype.update_best = function(mapid, sol, score) {
-console.log('score', score)
   if (isNaN(score)) {return;}
   var cur_best = this.get_best(mapid);
   var totalWalls = +(mapdata[mapid].walls);
   var usedWalls = sol.length;
-  console.log('cur best', cur_best, typeof cur_best)
   if ((!cur_best) || (score > cur_best)) {
     localStorage['best:' + mapdata[mapid].code] = score;
     this.add_solution(mapid, sol, 'best');
@@ -667,7 +667,6 @@ function refresh_solution_store_display() {
     }
 
     var code_button = $('<button>').text('Code')
-    console.log(sol)
     code_button.data('solution', JSON.stringify(sol))
     code_button.click(function() {
       var sol = $(this).data('solution');

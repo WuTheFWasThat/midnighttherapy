@@ -312,10 +312,10 @@ exports.parseMapCode = parseMapCode;
 
 DenseMap.prototype.toDumbTiles = function() {
   var dumb_tiles = []
-  for (var i = 0; i < this.m; i++) {
+  for (var i = 0; i < this.n; i++) {
     var dumb_row = []
-    for (var j = 0; j < this.n; j++) {
-      dumb_row.push(dumb_tile_map[this.tiles[this.sub2ind(i,j)]])
+    for (var j = 0; j < this.m; j++) {
+      dumb_row.push(dumb_tile_map[this.tiles[this.sub2ind(j,i)]])
     }
     dumb_tiles.push(dumb_row);
   }
