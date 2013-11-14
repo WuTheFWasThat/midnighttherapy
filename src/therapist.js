@@ -322,10 +322,8 @@ function refresh_score() {
     var mapid = get_mapid();
     var sol = get_solution(mapid);
     solver.compute_value(get_board(mapid), sol, function(values) {
-      if (sol.length == parseInt(mapdata[mapid].walls)) {
-        var sum = get_score_total(values);
-        solution_storage.update_best(mapid, sol, sum);
-      }
+      var sum = get_score_total(values);
+      solution_storage.update_best(mapid, sol, sum);
       write_score_value(values);
     })
     if (showing_values) { draw_values(); }
@@ -430,10 +428,12 @@ function HTML5_SolutionStorage() {
 }
 
 HTML5_SolutionStorage.prototype.update_best = function(mapid, sol, score) {
+console.log('score', score)
   if (isNaN(score)) {return;}
   var cur_best = this.get_best(mapid);
   var totalWalls = +(mapdata[mapid].walls);
   var usedWalls = sol.length;
+  console.log('cur best', cur_best, typeof cur_best)
   if ((!cur_best) || (score > cur_best)) {
     localStorage['best:' + mapdata[mapid].code] = score;
     this.add_solution(mapid, sol, 'best');
