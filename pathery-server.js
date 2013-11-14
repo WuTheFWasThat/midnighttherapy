@@ -75,6 +75,49 @@ app.post('/compute_values', middleware, function(req, res){
   res.json(result);
 });
 
+/////////////////////
+// FOR UGLI
+///////////////////
+
+app.post('/generate_map', middleware, function(req, res){
+  var maptype = req.param('type')
+
+  var Analyst = require('./src/analyst')
+  var util = require('./map_maker/map_util');
+
+  var map = require('./map_maker/map_types/' + maptype).generate();
+
+  var value = Analyst.compute_value(map.toBoard())
+  var tries = 1;
+  while (isNaN(value)) {
+    var map = require('./map_maker/map_types/' + maptype).generate();
+    var value = Analyst.compute_value(map.toBoard())
+    tries += 1;
+  }
+  console.log('value', value, 'tries', tries)
+
+  var code = map.toMapCode()
+  var tiles = map.toDumbTiles()
+
+  var result = {
+    "ID":0,
+    "tiles": tiles,
+    "teleports":2,
+    "checkpoints":3,
+    "width":"19",
+    "height":"9",
+    "walls":"16",
+    "name": maptype,
+    "flags":null,
+    "dateCreated":null,
+    "dateExpires":1374724800,
+    "isBlind":false,
+    "isMultiPath":false,
+    "code":code
+  }
+  res.json(result);
+});
+
 app.use(express.static(__dirname));
 
 app.listen(2222);

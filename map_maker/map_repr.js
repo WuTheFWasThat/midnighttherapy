@@ -309,3 +309,57 @@ function parseMapCode(mapcode) {
 
 exports.DenseMap = DenseMap;
 exports.parseMapCode = parseMapCode;
+
+DenseMap.prototype.toDumbTiles = function() {
+  return this.tiles.map(function(x) {
+    var ans = [];
+    for (var i = 0; i < x.length; i++) {
+      ans.push(dumb_tile_map[x[i]]);
+    }
+    return ans;
+  })
+}
+
+var dumb_tile_map = {
+    ' ': 'o '
+  , 'r': 'r '
+
+// TODO: is this right?
+  , 'R': 'r '
+// TODO: is this right?
+  , 'q': 'r '
+
+  , 'p': 'p '
+
+// TODO: is this right?
+  , 'X': 'x1'
+  , 'x': 'x2'
+
+  , 's': 's '
+// TODO: is this right?
+  , 'S': 's '
+
+  , 'f': 'f '
+
+  , 'a': 'c1'
+  , 'b': 'c2'
+  , 'c': 'c3'
+  , 'd': 'c4'
+  , 'e': 'c5'
+
+  , 't': 't1'
+  , 'u': 'u1'
+
+  , 'm': 't2'
+  , 'n': 'u2'
+
+  , 'g': 't3'
+  , 'h': 'u3'
+
+  , 'i': 't4'
+  , 'j': 'u4'
+
+  , 'k': 't5'
+  , 'l': 'u5'
+}
+

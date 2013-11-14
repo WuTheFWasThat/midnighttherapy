@@ -629,7 +629,8 @@ function mapAsHTML(map, targetWidth, mapEditor) {
 
 	var r = '';
 
-	r += "<div id='"+map.ID+",outer' class='grid_outer' style='width:"+(width)+"px;height:"+(height+45)+"px;'>";
+	//r += "<div id='"+map.ID+",outer' class='grid_outer' style='width:"+(width)+"px;height:"+(height+45)+"px;'>";
+	r += "<div id='"+map.ID+",outer' class='grid_outer' style='width:"+(width)+"px;height:"+(height+20)+"px;'>";
 
 	r += "	<div class='grid_dsp_left' style='width:30%;'>";
 	r += "	Speed:";
