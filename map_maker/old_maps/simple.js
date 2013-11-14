@@ -18,13 +18,13 @@ exports.generate = function() {
 
   // A with probability 0.5
   var numCps = getRandomInt(0,1);
-  map.placeCheckpoints(numCps);
+  map.placeCheckpoints(numCps, {no_left_right: 1});
 
   // Rock probability 1/12?
   map.placeRocks(1/12);
 
   // Walls uniform from 7-10?
   map.walls = getRandomInt(7,10);
-  
+
   return map;
 }
