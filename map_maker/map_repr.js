@@ -68,7 +68,7 @@ DenseMap.prototype.placeCheckpoints = function(numCps, options) {
 
   var Is = range(0, this.m);
   if (options.no_left_right) {
-    Is = range(1, this.m-1);
+    Is = range(2, this.m-2);
   }
   var Js = range(0, this.n);
 
@@ -86,7 +86,7 @@ DenseMap.prototype.placeTps = function(numCps, options) {
 
   var Is = range(0, this.m);
   if (options.no_left_right) {
-    Is = range(1, this.m-1);
+    Is = range(2, this.m-2);
   }
   var Js = range(0, this.n);
 
