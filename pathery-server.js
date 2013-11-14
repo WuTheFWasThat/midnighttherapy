@@ -102,11 +102,14 @@ app.post('/generate_map', middleware, function(req, res){
   var result = {
     "ID":0,
     "tiles": tiles,
+
+    // TODO
     "teleports":2,
     "checkpoints":3,
-    "width":"19",
-    "height":"9",
-    "walls":"16",
+
+    "width": map.m,
+    "height": map.n,
+    "walls": map.walls,
     "name": maptype,
     "flags":null,
     "dateCreated":null,

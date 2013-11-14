@@ -311,13 +311,15 @@ exports.DenseMap = DenseMap;
 exports.parseMapCode = parseMapCode;
 
 DenseMap.prototype.toDumbTiles = function() {
-  return this.tiles.map(function(x) {
-    var ans = [];
-    for (var i = 0; i < x.length; i++) {
-      ans.push(dumb_tile_map[x[i]]);
+  var dumb_tiles = []
+  for (var i = 0; i < this.m; i++) {
+    var dumb_row = []
+    for (var j = 0; j < this.n; j++) {
+      dumb_row.push(dumb_tile_map[this.tiles[this.sub2ind(i,j)]])
     }
-    return ans;
-  })
+    dumb_tiles.push(dumb_row);
+  }
+  return dumb_tiles;
 }
 
 var dumb_tile_map = {
@@ -325,14 +327,14 @@ var dumb_tile_map = {
   , 'r': 'r '
 
 // TODO: is this right?
-  , 'R': 'r '
+  , 'R': 'r2'
 // TODO: is this right?
-  , 'q': 'r '
+  , 'q': 'r3'
 
   , 'p': 'p '
 
 // TODO: is this right?
-  , 'X': 'x1'
+  , 'X': 'x '
   , 'x': 'x2'
 
   , 's': 's '
@@ -341,14 +343,14 @@ var dumb_tile_map = {
 
   , 'f': 'f '
 
-  , 'a': 'c1'
+  , 'a': 'c '
   , 'b': 'c2'
   , 'c': 'c3'
   , 'd': 'c4'
   , 'e': 'c5'
 
-  , 't': 't1'
-  , 'u': 'u1'
+  , 't': 't '
+  , 'u': 'u '
 
   , 'm': 't2'
   , 'n': 'u2'
