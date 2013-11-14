@@ -89,6 +89,15 @@ def get_map_type(mapid):
 # various helper functions
 ###############################
 
+def get_mapcodes_of_type(maptype = None):
+  mapid = get_todays_mapids()[3]
+  while mapid > 0:
+    info = get_map_info(mapid)
+    if info:
+      if (maptype == None) or (str(info[u'name']) == maptype):
+        print info[u'code']
+    mapid -= 1
+
 # get mapids for a day
 def get_mapids(date):
   r = requests.get(domain + '/a/mapsbydate/' + isodate(date) + '.js')
@@ -486,7 +495,7 @@ def count_uc_ties(users = None, misses_allowed = float("Infinity"), options = {}
 #find_winners('Ultra Complex')
 #find_winners('Dualing paths')
 #find_winners('Teleport Madness')
-find_winners()
+#find_winners()
 
 #group_wins(['wu', 'blue', 'dewax', 'sid', 'uuu', 'doth'])
 #group_wins(['wu', 'blue', 'dewax', 'sid', 'uuu', 'doth'])
@@ -498,7 +507,7 @@ find_winners()
 
 #get_uc_history({'reverse': True, 'top': 3});
 #get_uc_history({'reverse': False, 'top': 3});
-count_uc_ties();
+#count_uc_ties();
 
 #get_stats(userid, {'reverse': False, 'firstmap': 2580})
 #get_stats(userid, {'reverse': True})
@@ -506,3 +515,4 @@ count_uc_ties();
 #find_winners('Thirty Too')
 #find_winners('Ultra Complex')
 
+get_mapcodes_of_type('Simple')
