@@ -167,18 +167,51 @@ DenseMap.prototype.placeRandomlyCondition = function(val, condition, numTimes) {
   return places;
 }
 
+DenseMap.prototype.calcHeaderContents = function() {
+  // c is number of checkpoints
+  var cps = 0;
+  // r is number of rocks
+  var rocks = 0;
+  // t is number of TPs
+  var tps = 0;
+
+  var used_cps = [0,0,0,0,0];
+  var used_tps = [0,0,0,0,0];
+
+  for (var i = 0; i < this.m * this.n; i++) {
+    var tile = this.tiles[i];
+    for (var j = 0; j < 5; j++) {
+      if (tile == tiles.CHECKPOINTS[j]) {
+        used_cps[j] = 1;
+      } else if (tile == tiles.TELE_INS[j]) {
+        used_tps[j] = 1;
+      }
+    }
+    if (tile == tiles.ROCK || tile == tiles.ROCK2) {
+      rocks++;
+    }
+  }
+
+  cps = used_cps[0] + used_cps[1] + used_cps[2] + used_cps[3] + used_cps[4];
+  tps = used_tps[0] + used_tps[1] + used_tps[2] + used_tps[3] + used_tps[4];
+  console.log(cps);
+  console.log(tps);
+  return { c: cps, r: rocks, t: tps };
+}
+
 DenseMap.prototype.toMapCode = function() {
   //create header
+  var headerCalc = this.calcHeaderContents();
   var headerContents = [];
   headerContents[0] = this.m + 'x' + this.n;
-  //not sure what this one does
-  headerContents[1] = 'c0';
+  //count of checkpoints
+  headerContents[1] = 'c' + headerCalc.c;
   //count number of rocks
-  headerContents[2] = 'r0';
+  headerContents[2] = 'r' + headerCalc.r;
   //number of walls given
   headerContents[3] = 'w' + this.walls;
   //count number of teleporters?
-  headerContents[4] = 't0';
+  headerContents[4] = 't' + headerCalc.t;
   //title
   headerContents[5] = this.myName;
   //nothing AFAIK

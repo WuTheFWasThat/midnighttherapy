@@ -72,6 +72,8 @@ var main = function() {
   // var map_types = ['edge_case', 'in_finite', 'rooms', 'INception'];
   var map_types = [map1, map2, map3, map4];
 
+  var map_types = ['triage'];
+
   var async_list = []
   for (var k =0; k < map_types.length; k++) {
     var map_type = map_types[k];
@@ -121,6 +123,8 @@ var main = function() {
 }
 
 if (require.main === module) {
+  // var map = require('./map_types/' + 'triage').generate();
+  // console.log(map.toMapCode());
   main();
   // var code = "13x7.c1.r10.w9.t0.Simple.:0s.0r.10f.0s.5r.5f.0s.0r.6r.1r.1f.0s.11f.0s.2r.4a.3f.0s.1r.4r.4f.0s.2r.6r.1f.";
   // var map = parseMapCode(code);
