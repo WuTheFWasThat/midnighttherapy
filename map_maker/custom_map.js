@@ -5,6 +5,8 @@ var async = require('async');
 
 var Analyst = require('../src/analyst')
 
+var util = require('./map_util');
+
 var main = function() {
   function forumAddMapMaker(mapname) {
     return function(cb) {
@@ -46,16 +48,29 @@ var main = function() {
     }
   }
 
-  var map_types = []
-  var files = fs.readdirSync('./map_types');
-  for (var k in files) {
-    if (files[k][0] == '.') {continue;}
-    var map_type = files[k].split('.js')[0]
-    map_types.push(map_type);
-  }
+  // var map_types = []
+  // var files = fs.readdirSync('./map_types');
+  // for (var k in files) {
+  //   if (files[k][0] == '.') {continue;}
+  //   var map_type = files[k].split('.js')[0]
+  //   map_types.push(map_type);
+  // }
+
+  // Determine map types.
+  var maps1 = ['minimax', 'BAAAAAAA', 'triage'];
+  var maps2 = ['edge_case', 'bombs_away'];
+  var maps3 = ['INception', 'orderINg', 'timINg', 'yolt', 'no_end'];
+  var maps4 = ['rooms', 'in_finite'];
+
+  var map1 = util.getRandomElt(maps1);
+  var map2 = util.getRandomElt(maps2);
+  var map3 = util.getRandomElt(maps3);
+  var map4 = util.getRandomElt(maps4);
+
 
   // var map_types = ['in_finite', 'rooms', 'no_end', 'INception'];
-  var map_types = ['edge_case', 'in_finite', 'rooms', 'INception'];
+  // var map_types = ['edge_case', 'in_finite', 'rooms', 'INception'];
+  var map_types = [map1, map2, map3, map4];
 
   var async_list = []
   for (var k =0; k < map_types.length; k++) {
@@ -66,7 +81,12 @@ var main = function() {
   async.series(async_list, function(err, results) {
     var nl = "\r\n";
     var headerStr = "Map types for the day: " + nl;
-    var codesStr = '[spoiler=Maps for (DATE)]' + nl;
+    var months = ['January', 'February', 'March', 'April',
+                  'May', 'June', 'July',  'August',
+                  'September', 'October', 'November', 'December',];
+    var date = new Date();
+    var dateStr = months[date.getMonth()] + ' ' + date.getDate();
+    var codesStr = '[spoiler=Maps for ' + dateStr + ']' + nl;
     var linksStr = '[spoiler=Clickable links]' + nl;
 
     for (var k = 0; k < results.length; k++) {

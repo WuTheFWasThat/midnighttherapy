@@ -5,6 +5,12 @@ exports.getRandomInt = function(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
+// Return a random element of the array
+exports.getRandomElt = function(arr) {
+  var n = arr.length;
+  return arr[exports.getRandomInt(0,n-1)];
+}
+
 //integer range, exclusive
 exports.range = function(a, b, step) {
   if (step <= 0) {
