@@ -61,6 +61,38 @@ DenseMap.prototype.repr = function() {
   }
   return result;
 }
+
+// Place the number of checkpoints requested. (0 = none, 1 = A, 2 = AB, etc)
+DenseMap.prototype.placeCheckpoints = function(numCps) {
+  for (var i = 0; i < numCps; i++) {
+    var tile = tiles.CHECKPOINTS[i];
+    if (tile) {
+      this.placeRandomly(tile);
+    }
+  }
+}
+
+// Place the number of teleport pairs requested. 
+DenseMap.prototype.placeTps = function(numCps) {
+  for (var i = 0; i < numCps; i++) {
+    var tile1 = tiles.TELE_INS[i];
+    var tile2 = tiles.TELE_OUTS[i];
+    if (tile1) {
+      this.placeRandomly(tile1);
+      this.placeRandomly(tile2);
+    }
+  }
+}
+
+// Place a rock in each empty square with the probability given.
+DenseMap.prototype.placeRocks = function(p) {
+  for (var i = 0; i < this.m * this.n; i++) {
+    if (this.tiles[i] == ' ' && Math.random() < p) {
+      this.tiles[i] = tiles.ROCK;
+    }
+  }
+}
+
 //Randomly place the nonempty value given.
 //Do this numTimes (default 1)
 //Return array of places that we added to. (Each place is a len2 array)
@@ -194,8 +226,6 @@ DenseMap.prototype.calcHeaderContents = function() {
 
   cps = used_cps[0] + used_cps[1] + used_cps[2] + used_cps[3] + used_cps[4];
   tps = used_tps[0] + used_tps[1] + used_tps[2] + used_tps[3] + used_tps[4];
-  console.log(cps);
-  console.log(tps);
   return { c: cps, r: rocks, t: tps };
 }
 
