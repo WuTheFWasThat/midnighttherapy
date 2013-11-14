@@ -177,8 +177,8 @@ exports.parse_board = parse_board;
 function get_board(mapid) {
   if (mapid === undefined) {mapid = get_mapid();}
   var code = get_code(mapid);
-  console.log('code', code)
-  console.log('board', parse_board(code).board);
+  // console.log('code', code)
+  // console.log('board', parse_board(code).board);
   return parse_board(code).board;
 }
 exports.get_board = get_board;

@@ -48,8 +48,16 @@ var Analyst = {}
 
 <script>
   $(document).ready(function() {
-    // var maptype = 'rooms';
-    var maptype = 'in_finite';
+    function get_param(name) {
+      var results = new RegExp('[\\?&]' + name + '=([^&#]*)').exec(window.location.href);
+      return (results == null ? null : (results[1] || 0));
+    }
+    var maptype = get_param('maptype');
+    if (maptype == null) {
+      maptype = 'rooms';
+    }
+
+    console.log(maptype);
     $.post('/generate_map', {type: maptype}, function(result) {
       console.log(result)
       displayMap(result, 0, 'innerMapDsp_0', false, '.');
