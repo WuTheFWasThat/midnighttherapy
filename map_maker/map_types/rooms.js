@@ -37,8 +37,28 @@ exports.generate = function() {
   //Tune some parameters
   map.walls = 20;
 
-  var numExtraRocks = getRandomInt(13, 37);
-  map.placeRandomly(tiles.ROCK, numExtraRocks);
+  // Don't place rocks where they can block walls.
+  // Assumes room_w = room_h = 5
+  var eq = function(a, b) {
+    return (a[0] == b[0]) && (a[1] == b[1]);
+  }
+  var notOK = [[2,4],[2,5],[2,0],[4,2],[5,2],[0,2]];
+
+  var condition = function(map, i, j) {
+    i = i % 6;
+    j = j % 6;
+    var check = [i,j];
+    for (var k = 0; k < notOK.length; k++) {
+      if (eq(check, notOK[k])) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  var numExtraRocks = getRandomInt(13, 20);
+  map.placeRandomly(tiles.ROCK, numExtraRocks, {condition: condition});
 
   var numCheckpoints = 2;
   var numTeleports = 3;
