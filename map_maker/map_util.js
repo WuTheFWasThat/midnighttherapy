@@ -50,3 +50,37 @@ exports.rangeInclusive = function(a, b, step) {
   }
   return result;
 }
+
+// Discrete distribution
+var Distribution = function() {
+  this.total = 0;
+  this.keys = {};
+};
+Distribution.prototype.add = function(key, weight) {
+  if (weight <= 0) {
+    throw new Error("Distribution add: weight must be positive");
+  }
+  if (this.keys[key]) {
+    this.keys[key] += weight;
+  } else {
+    this.keys[key] = weight;
+  }
+  this.total += weight;
+};
+Distribution.prototype.sample = function() {
+  var val = Math.random() * this.total;
+  var current = 0;
+  for (var key in this.keys) {
+    if (this.keys.hasOwnProperty(key)) {
+      current += this.keys[key];
+      if (current >= val) {
+        return key;
+      }
+    }
+  }
+
+  throw new Error("Distribution sample: unexpectedly failed to sample");
+};
+
+
+exports.Distribution = Distribution;
