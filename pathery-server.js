@@ -86,17 +86,18 @@ app.post('/generate_map', middleware, function(req, res){
   var util = require('./map_maker/map_util');
 
   // TODO: what to do about different map type folders?
-  var map_location = './map_maker/map_types/';
-  if (maptype == 'simple') {
-    map_location = './map_maker/old_maps/';
+
+  try {
+    var map_gen = require('./map_maker/map_types/' + maptype)
+  } catch (e) {
+    var map_gen = require('./map_maker/old_maps/' + maptype)
   }
 
-  var map = require(map_location + maptype).generate();
-
+  var map = map_gen.generate();
   var value = Analyst.compute_value(map.toBoard())
   var tries = 1;
   while (isNaN(value)) {
-    var map = require('./map_maker/map_types/' + maptype).generate();
+    var map = map_gen.generate();
     var value = Analyst.compute_value(map.toBoard())
     tries += 1;
   }
