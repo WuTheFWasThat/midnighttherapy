@@ -72,8 +72,6 @@ var main = function() {
   // var map_types = ['edge_case', 'in_finite', 'rooms', 'INception'];
   var map_types = [map1, map2, map3, map4];
 
-  var map_types = ['triage'];
-
   var async_list = []
   for (var k =0; k < map_types.length; k++) {
     var map_type = map_types[k];
@@ -112,19 +110,19 @@ var main = function() {
     codesStr += '[/spoiler]' + nl;
     linksStr += '[/spoiler]' + nl;
 
-    var trailerStr = '[spoiler=Unofficial Current Max Scores]' + nl;
-    trailerStr += '? ? ? ?' + nl;
-    trailerStr += '[/spoiler]' + nl;
+    // var trailerStr = '[spoiler=Unofficial Current Max Scores]' + nl;
+    // trailerStr += '? ? ? ?' + nl;
+    // trailerStr += '[/spoiler]' + nl;
 
     // var outStr = results.join('\n');
-    var outStr = headerStr + codesStr + linksStr + trailerStr;
+    // var outStr = headerStr + codesStr + linksStr + trailerStr;
+    var outStr = headerStr + codesStr + linksStr;
     fs.writeFileSync('out.txt', outStr);
   });
 }
 
 if (require.main === module) {
-  // var map = require('./map_types/' + 'triage').generate();
-  // console.log(map.toMapCode());
+  // testMain();
   main();
   // var code = "13x7.c1.r10.w9.t0.Simple.:0s.0r.10f.0s.5r.5f.0s.0r.6r.1r.1f.0s.11f.0s.2r.4a.3f.0s.1r.4r.4f.0s.2r.6r.1f.";
   // var map = parseMapCode(code);
@@ -132,3 +130,22 @@ if (require.main === module) {
   // outStr += map.dilate(3).toMapCode();
 }
 
+
+function testMain() {
+  var map_types = []
+  var files = fs.readdirSync('./map_types');
+  for (var k in files) {
+    if (files[k][0] == '.') {continue;}
+    var map_type = files[k].split('.js')[0]
+    map_types.push(map_type);
+  }
+  map_types = ['rooms'];
+  var outStr = '';
+  for (var i = 0; i < map_types.length; i++) {
+    var map = require('./map_types/' + map_types[i]).generate();
+    console.log(map.toMapCode());
+    outStr += map.toMapCode() + '\n';
+  }
+  fs.writeFileSync('test_out.txt', outStr);
+
+}

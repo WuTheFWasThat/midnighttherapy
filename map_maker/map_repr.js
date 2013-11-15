@@ -112,21 +112,41 @@ DenseMap.prototype.placeRocks = function(p) {
 //Randomly place the nonempty value given.
 //Do this numTimes (default 1)
 //Return array of places that we added to. (Each place is a len2 array)
-DenseMap.prototype.placeRandomly = function(val, numTimes) {
-  if (numTimes == undefined) {
-    numTimes = 1;
-  }
-  var places = [];
 
+// options is an object that takes I, J, and condition fields
+DenseMap.prototype.placeRandomly = function(val, numTimes, options) {
   if (val == ' ') {
     throw new Error("placeRandomly: expected nonempty tile type");
   }
 
+  if (numTimes == undefined) {
+    numTimes = 1;
+  }
+  if (!options) {
+    options = {};
+  }
+  var I = options.I;
+  var J = options.J;
+  if (!I) I = range(0, this.m);
+  if (!J) J = range(0, this.n);
+  if (typeof I !== 'object') {
+    I = [I];
+  }
+  if (typeof J !== 'object') {
+    J = [J];
+  }
+
+  var condition = options.condition;
+
+  var places = [];
+
   //TODO: make sure the rejection sampling terminates
   var tries = 0;
   while (numTimes > 0 && tries < 100) {
-    var idx = getRandomInt(0, this.tiles.length - 1);
-    if (this.tiles[idx] !== ' ') {
+    var idxI = I[getRandomInt(0, I.length-1)];
+    var idxJ = J[getRandomInt(0, J.length-1)];
+    var idx = this.sub2ind(idxI, idxJ);
+    if (this.tiles[idx] !== ' ' || (condition && !condition(this, idxI, idxJ))) {
       tries++;
     } else {
       this.tiles[idx] = val;
@@ -148,71 +168,14 @@ DenseMap.prototype.placeRandomly = function(val, numTimes) {
 //Do this numTimes (default 1)
 //Return array of places that we added to. (Each place is a len2 array)
 DenseMap.prototype.placeRandomlyInArea = function(val, I, J, numTimes) {
-  if (numTimes == undefined) {
-    numTimes = 1;
-  }
-  if (val == ' ') {
-    throw new Error("placeRandomly: expected nonempty tile type");
-  }
-  var places = [];
-  if (typeof I !== 'object') {
-    I = [I];
-  }
-  if (typeof J !== 'object') {
-    J = [J];
-  }
-
-  //TODO: make sure the rejection sampling terminates
-  var tries = 0;
-  while (numTimes > 0 && tries < 100) {
-    var idxI = I[getRandomInt(0, I.length-1)];
-    var idxJ = J[getRandomInt(0, J.length-1)];
-    var idx = this.sub2ind(idxI, idxJ);
-    if (this.tiles[idx] !== ' ') {
-      tries++;
-    } else {
-      this.tiles[idx] = val;
-      numTimes--;
-      tries = 0;
-      places.push(this.ind2sub(idx));
-    }
-  }
-
-  //rejection sampling failed
-  if (numTimes != 0) {
-    throw new Error("placeRandomlyInArea: rejection sampling failed too many times");
-  }
-
-  return places;
+  return this.placeRandomly(val, numTimes, {'I':I, 'J':J});
 }
 
 // Randomly place the nonempty value given, the number of times requested.
 // Takes a condition function. condition takes (map, i, j)
 // and returns true if it should be added
 DenseMap.prototype.placeRandomlyCondition = function(val, condition, numTimes) {
-  if (numTimes == undefined) {
-    numTimes = 1;
-  }
-
-  if (val == ' ') {
-    throw new Error("placeRandomly: expected nonempty tile type");
-  }
-  var places = [];
-
-  var tries = 0;
-  while (numTimes > 0 && tries < 100) {
-    var idx = getRandomInt(0, this.tiles.length - 1);
-    var sub = this.ind2sub(idx);
-    if (this.tiles[idx] !== ' ' || !condition(this, sub[0], sub[1])) {
-      tries++;
-    } else {
-      this.tiles[idx] = val;
-      numTimes--;
-      tries = 0;
-      places.push(this.ind2sub(idx));
-    }
-  }
-  return places;
+  return this.placeRandomly(val, numTimes, {'condition':condition});
 }
 
 DenseMap.prototype.calcHeaderContents = function() {
