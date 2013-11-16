@@ -12,6 +12,16 @@
  <link rel ="image_src" type =" image/png " href ="/images/linkdsp.png"/>
 <link href ="css/stats.css" rel ="stylesheet" type ="text/css"/>
 
+<style>
+*.unselectable {
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+</style>
+
 <meta name =' Description ' content =' Path lengthening competition inspired by Tower Defense mazing concepts '>
 
 <script src =" js/jquery.min.js"> </script>
@@ -31,7 +41,7 @@ var Analyst = {}
 
 <body>
 
-<div class =" wrapper ">
+<div class =" wrapper unselectable">
 
 <div id ="yms" class =' shown-maps '>
  <div class =' wrapper '>

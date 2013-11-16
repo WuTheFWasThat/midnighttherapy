@@ -497,7 +497,7 @@ def count_uc_ties(users = None, misses_allowed = float("Infinity"), options = {}
 
 #find_missed_maps('wu')
 #get_score_distribution('Rocky Maze')
-get_score_distribution('Complex')
+#get_score_distribution('Complex')
 #get_rank_distribution(['wu', 'blue', 'dewax', 'vzl', 'uuu', 'sid'], 10)
 #find_sweeps()
 #find_win_amounts('blue')
@@ -505,7 +505,7 @@ get_score_distribution('Complex')
 #find_winners('Ultra Complex')
 #find_winners('Dualing paths')
 #find_winners('Teleport Madness')
-#find_winners()
+find_winners()
 
 #group_wins(['wu', 'blue', 'dewax', 'sid', 'uuu', 'doth'])
 #group_wins(['wu', 'george', 'joy', 'alex', 'hamrick'])

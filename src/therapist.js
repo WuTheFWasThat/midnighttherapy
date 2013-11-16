@@ -856,7 +856,7 @@ function bind_block_events() {
     var first_comma_index = id.indexOf(',');
 
     var mapid = parseInt(id.slice(0, first_comma_index));
-    if (mapid == 0) {return;} // mapeditor's uneditable map
+    if (is_mapeditor && (mapid == 0)) {return;} // mapeditor's uneditable map
     if (mapid !== exports.mapid ) {console.log('BUG FOUND!! NONMATCHING IDS: ' + mapid + ', ' + exports.mapid); return;}
 
     var block = block_from_block_string(id.slice(first_comma_index+1));
