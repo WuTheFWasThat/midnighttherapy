@@ -1207,6 +1207,7 @@ function initialize_toolbar() {
 
     $.getScript(mt_url + '/src/chat.js');
 
+       console.log( mt_url + '/src/chat.css')
     $("<link/>", { rel: "stylesheet", type: "text/css",
        href: mt_url + '/src/chat.css'
     }).appendTo("head");

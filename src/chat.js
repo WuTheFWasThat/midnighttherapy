@@ -1,5 +1,4 @@
 (function() {
-console.log("HERE CHAT STUFF")
   var lastID = 1;
   var chatTimerDelayUpper = 9000;
   var chatTimerDelayLower = 2000;
