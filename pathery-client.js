@@ -46,7 +46,8 @@ Analyst.improve_solution = function(board, solution, cb) {
 var Therapist  = {};
 
 if (typeof mt_local_testing === 'undefined') {
-  var mt_url = 'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/'
+  var mt_url = 'https://rawgithub.com/WuTheFWasThat/midnighttherapy/master/'
+  //var mt_url = 'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/'
 } else {
   var mt_url = 'http://127.0.0.1:2222/';
 }
