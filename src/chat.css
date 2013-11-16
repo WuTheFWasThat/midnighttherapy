@@ -35,7 +35,7 @@
 }
 .chatUsername {
   font-family: 'Trebuchet MS1', 'Trebuchet MS', sans-serif;
-  font-size: 17px;
+  font-size: 16px;
   text-overflow: clip;
   overflow:hidden;
   float: left;

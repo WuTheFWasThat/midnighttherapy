@@ -11,7 +11,7 @@ console.log("HERE CHAT STUFF")
 
   getChatTimer();
   function getChatTimer() {
-    setTimeout("getChatTimer()", chatTimerDelay);
+    setTimeout(getChatTimer, chatTimerDelay);
     if (chatTimerDelay < chatTimerDelayUpper) {chatTimerDelay += 150;}
     if (skipNextGetChat) {
       skipNextGetChat = false;
