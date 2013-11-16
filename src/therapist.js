@@ -1052,7 +1052,7 @@ $(document).bind('keydown', function(e){
 
 function initialize_toolbar() {
   $('#mt_left_bar').remove();
-  var toolbar_width = 300;
+  var toolbar_width = 400;
 
   var button_toolbar = $('<div>').attr('id',"mt_left_bar").css({
     'position' : 'absolute',
@@ -1118,6 +1118,7 @@ function initialize_toolbar() {
     'background-color': '#000',
     'border': '1px solid white',
     'text-align': 'left',
+    'z-index': '444',
   });
   hotkeys_button.hover(
     function(e) {
@@ -1186,6 +1187,8 @@ function initialize_toolbar() {
   //button_toolbar.append(chat_iframe);
 
   if (!is_ugli) {
+    //button_toolbar.append($('<div>').text('Chat').css({'text-align':'center', 'background-color':'black', 'width':'100%', 'margin-top':'20px'}))
+
     var chat_frame =
       $('<div>').addClass('chatContainer2')
         .append($('<div>').attr('id','chatContainer'))
@@ -1195,28 +1198,12 @@ function initialize_toolbar() {
           .append($('<input>').addClass('chatInputMessage').prop('type', 'text').attr({'id':'message', 'name':'message','maxlength':'255','autocomplete':'off'}))
         )
      .css({
-        //'width':'100%',
-        //'width' : toolbar_width,
-        //'height':'400px',
-
-        'margin-left':'-300px',
-        'position' : 'absolute',
-        'left' : '100%',
-        'z-index' : '41',
-        'text-align' : 'center',
-        'border-radius' : '15px',
-        'box-shadow' : 'inset 0 0 0 1px #fff',
-        'padding' : '8px 0px',
-        'margin-top' : '21px'
+        'width' : toolbar_width,
+        'margin-top':'20px'
      });
 
 
-    if (is_mapeditor) {
-      //$('#playableMapDisplay').parent().css('width', '100%');
-    } else {
-      //$('#difficulties').parent().prepend(chat_frame);
-      $('#difficulties').after(chat_frame);
-    }
+    button_toolbar.append(chat_frame);
 
     $.getScript(mt_url + '/src/chat.js');
 

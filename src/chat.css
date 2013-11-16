@@ -2,7 +2,7 @@
   font-family: 'Trebuchet MS1', 'Trebuchet MS', sans-serif;
   border: 1px solid gray;
   background-color:#999;
-  width: 680px;
+  width: 300px;
   margin: 7px 3px;
   padding: 2px;
   border-radius: 10px;
@@ -16,9 +16,9 @@
 
 
 #chatContainer {
-  width:800px;
+  height:200px;
+  width:400px;
   margin:0 auto;
-  height:400px;
   overflow:auto;
 }
 #sendChat {
@@ -40,7 +40,7 @@
   overflow:hidden;
   float: left;
   padding-top: 5px;
-  width: 115px;
+  width: 55px;
   white-space:nowrap;
 }
 .chatUsername:after {
@@ -56,11 +56,11 @@
   content:"*";
 }
 .chatText {
+  width: 270px;
   font-family: 'Trebuchet MS1', 'Trebuchet MS', sans-serif;
   font-size: 16px;
   display: inline-block;
-  width: 525px;
-  padding: 5px 5px 5px 5px;
+  padding:  5px;
   white-space: pre-wrap;      /* CSS3 */
    white-space: -moz-pre-wrap; /* Firefox */
    white-space: -pre-wrap;     /* Opera <7 */
@@ -71,38 +71,37 @@
   font-family: Trebuchet MS1, Trebuchet MS, sans-serif;
   font-size: 1em;
   float:left;
-  padding: 5px 0px 3px 0px;
-  width:83px;
+  width:0px;
   overflow:hidden;
   text-overflow: clip;
   white-space:nowrap;
 }
 .chatColumn1 {
 
-  width:120px;
+  width:0px;
   min-height: 35px;
-  padding-left: 7px;
   position:absolute;
   left:0;top:0;bottom:0;
 }
 .chatColumn2 {
   text-align:left;
-  margin-left:130px;
+  margin-left:40px;
   min-height: 35px;
 }
 
 .chatMessage {
-  width:780px;
+  width:400px;
   min-height:35px;
-  margin:1px;
+  margin:0px;
   display:block;
   clear:both;
-  margin-bottom:3px;
+  margin-bottom:1px;
   position:relative;
-  background-color:#333;
   border-radius:20px;
   border-bottom-left-radius: 10px;
   border-top-left-radius: 10px;
+
+  background-color:#333;
 }
 .chatMessage.self {
   background-color: #444;
@@ -122,13 +121,13 @@
 
 
 .chatContainer2 {
+  width:400px;
+  height:250px;
+
   background-color: #222;
-  padding:10px;
   padding-bottom:0px;
   border-radius: 12px;
-  width:810px;
   margin:0 auto 5px;
-  height:450px;
   overflow:auto;
 
   background: rgb(54,54,54); /* Old browsers */
