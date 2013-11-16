@@ -207,23 +207,33 @@ def get_score_distribution(maptype = None):
   mapid = get_todays_mapids()[3] + 1
   score_dist = {}
   score_array = [0] * 1000
+
+  max_ever = None
+  min_ever = None
   while mapid > -1:
     mapid -= 1
     if (maptype is not None) and (maptype != get_map_type(mapid)):
       continue
-    max_score = find_max_score(mapid)
+    score = find_max_score(mapid)
 
-    if max_score is None:
+    if max_ever is None or score > max_ever:
+      print 'max ever', mapid, score
+      max_ever = score
+    if min_ever is None or score < min_ever:
+      print 'min ever', mapid, score
+      min_ever = score
+
+    if score is None:
       continue
-    max_score = int(max_score)
+    score = int(score)
 
-    score_array[max_score] += 1
-    if max_score in score_dist:
-      score_dist[max_score] += 1
+    score_array[score] += 1
+    if score in score_dist:
+      score_dist[score] += 1
     else:
-      score_dist[max_score] = 1
+      score_dist[score] = 1
     #print score_dist
-    print score_array
+    #print score_array
 
 # get the distribution of ranks for a user
 def get_rank_distribution(users, max_care_about = 10):
@@ -487,7 +497,7 @@ def count_uc_ties(users = None, misses_allowed = float("Infinity"), options = {}
 
 #find_missed_maps('wu')
 #get_score_distribution('Rocky Maze')
-#get_score_distribution()
+get_score_distribution('Complex')
 #get_rank_distribution(['wu', 'blue', 'dewax', 'vzl', 'uuu', 'sid'], 10)
 #find_sweeps()
 #find_win_amounts('blue')
@@ -498,11 +508,10 @@ def count_uc_ties(users = None, misses_allowed = float("Infinity"), options = {}
 #find_winners()
 
 #group_wins(['wu', 'blue', 'dewax', 'sid', 'uuu', 'doth'])
-#group_wins(['wu', 'blue', 'dewax', 'sid', 'uuu', 'doth'])
+#group_wins(['wu', 'george', 'joy', 'alex', 'hamrick'])
 
 #print_user_history('wu', {'reverse': False, 'firstdate': datetime.datetime(2012, 12, 11)})
-#print_user_history('dewax', {'reverse': True})
-#print_user_history('wu')
+#print_user_history('wu', {'reverse': True})
 #print_history()
 
 #get_uc_history({'reverse': True, 'top': 3});
@@ -515,4 +524,4 @@ def count_uc_ties(users = None, misses_allowed = float("Infinity"), options = {}
 #find_winners('Thirty Too')
 #find_winners('Ultra Complex')
 
-get_mapcodes_of_type('Simple')
+#get_mapcodes_of_type('Simple')
