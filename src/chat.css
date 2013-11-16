@@ -1,0 +1,144 @@
+.chatInputMessage {
+  font-family: 'Trebuchet MS1', 'Trebuchet MS', sans-serif;
+  border: 1px solid gray;
+  background-color:#999;
+  width: 680px;
+  margin: 7px 3px;
+  padding: 2px;
+  border-radius: 10px;
+  border-bottom-right-radius: 20px;
+  border-top-right-radius: 20px;
+}
+.chatButton {
+  margin: 0px;
+  width: 50px;
+}
+
+
+#chatContainer {
+  width:800px;
+  margin:0 auto;
+  height:400px;
+  overflow:auto;
+}
+#sendChat {
+  margin-left: 10px;
+}
+
+
+
+
+.chatBadge {
+  height:100%;
+  z-index:2;
+  float:left;
+}
+.chatUsername {
+  font-family: 'Trebuchet MS1', 'Trebuchet MS', sans-serif;
+  font-size: 17px;
+  text-overflow: clip;
+  overflow:hidden;
+  float: left;
+  padding-top: 5px;
+  width: 115px;
+  white-space:nowrap;
+}
+.chatUsername:after {
+  content:":";
+}
+.chatUsername.me {
+  text-align:right;
+}
+.chatUsername.me:after {
+  content:"";
+}
+.chatUsername.me:before {
+  content:"*";
+}
+.chatText {
+  font-family: 'Trebuchet MS1', 'Trebuchet MS', sans-serif;
+  font-size: 16px;
+  display: inline-block;
+  width: 525px;
+  padding: 5px 5px 5px 5px;
+  white-space: pre-wrap;      /* CSS3 */
+   white-space: -moz-pre-wrap; /* Firefox */
+   white-space: -pre-wrap;     /* Opera <7 */
+   white-space: -o-pre-wrap;   /* Opera 7 */
+   word-wrap: break-word;      /* IE */
+}
+.chatTimestamp {
+  font-family: Trebuchet MS1, Trebuchet MS, sans-serif;
+  font-size: 1em;
+  float:left;
+  padding: 5px 0px 3px 0px;
+  width:83px;
+  overflow:hidden;
+  text-overflow: clip;
+  white-space:nowrap;
+}
+.chatColumn1 {
+
+  width:120px;
+  min-height: 35px;
+  padding-left: 7px;
+  position:absolute;
+  left:0;top:0;bottom:0;
+}
+.chatColumn2 {
+  text-align:left;
+  margin-left:130px;
+  min-height: 35px;
+}
+
+.chatMessage {
+  width:780px;
+  min-height:35px;
+  margin:1px;
+  display:block;
+  clear:both;
+  margin-bottom:3px;
+  position:relative;
+  background-color:#333;
+  border-radius:20px;
+  border-bottom-left-radius: 10px;
+  border-top-left-radius: 10px;
+}
+.chatMessage.self {
+  background-color: #444;
+}
+.chatMessage.server {
+  background-color: #844;
+}
+
+.chatText.spoiler {
+  color:transparent;
+}
+.chatText.spoiler:before {
+  content: " Click to reveal Spoiler ";
+  color:#7AF;
+  font-style: italic;
+}
+
+
+.chatContainer2 {
+  background-color: #222;
+  padding:10px;
+  padding-bottom:0px;
+  border-radius: 12px;
+  width:810px;
+  margin:0 auto 5px;
+  height:450px;
+  overflow:auto;
+
+  background: rgb(54,54,54); /* Old browsers */
+  background: -moz-radial-gradient(center, ellipse cover,  rgba(34,34,34,1) 0%, rgba(119,119,119,1) 100%); /* FF3.6+ */
+  background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(34,34,34,1)), color-stop(100%,rgba(119,119,119,1))); /* Chrome,Safari4+ */
+  background: -webkit-radial-gradient(center, ellipse cover,  rgba(34,34,34,1) 0%,rgba(119,119,119,1) 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-radial-gradient(center, ellipse cover,  rgba(34,34,34,1) 0%,rgba(119,119,119,1) 100%); /* Opera 12+ */
+  background: -ms-radial-gradient(center, ellipse cover,  rgba(34,34,34,1) 0%,rgba(119,119,119,1) 100%); /* IE10+ */
+  background: radial-gradient(ellipse at center,  rgba(34,34,34,1) 0%,rgba(119,119,119,1) 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#222222', endColorstr='#777777',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+}
+
+

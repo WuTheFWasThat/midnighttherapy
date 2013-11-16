@@ -126,6 +126,8 @@ I'll get to this sometime...
 
 - Sometimes you can get into a state where clicking a block puts it somewhere else... (unclear how to reproduce)
 
+- Improve (I) seems messed up, caused decreased score on a seeing double
+
 <!--
 None, at the moment.  Let me know if you find any!
 -->
@@ -149,8 +151,6 @@ None, at the moment.  Let me know if you find any!
 - Make the it faster! (currently does ~1000 full UC calculations per second on my Macbook Air, in Node.js (which is single threaded))
 
 - Make painting/erasing atomic for undo?
-
-- Improve (I) seems messed up, caused decreased score on a seeing double
 
 ## CONTACT: ##
 

@@ -944,22 +944,22 @@ var MAP_SWITCH_KEY_1      = '1'
   , ERASE_KEY             = 'E'
 ;
 
-var hotkeys_text =
-  '<table style="border:1px solid black; text-align: left;">' +
-  '<tr><td>' + MAP_SWITCH_KEY_1 + '-' + MAP_SWITCH_KEY_5 + '</td><td>' + 'Switch maps'                               + '</td></tr>' +
-  '<tr><td>' + SAVE_KEY                                  + '</td><td>' + 'Save'                                      + '</td></tr>' +
-  '<tr><td>' + LOAD_KEY                                  + '</td><td>' + 'Load best'                                 + '</td></tr>' +
-  '<tr><td>' + GO_KEY                                    + '</td><td>' + 'Go! (Hold shift to animate)'                + '</td></tr>' +
-  '<tr><td>' + RESET_KEY                                 + '</td><td>' + 'Reset'                                      + '</td></tr>' +
-  '<tr><td>' + TOGGLE_MUTE_KEY                           + '</td><td>' + 'Toggle mute'                                + '</td></tr>' +
-  '<tr><td>' + TOGGLE_VALUES_KEY                         + '</td><td>' + 'Toggle values'                              + '</td></tr>' +
-  '<tr><td>' + REDO_KEY                                  + '</td><td>' + 'Redo'                                       + '</td></tr>' +
-  '<tr><td>' + UNDO_KEY                                  + '</td><td>' + 'Undo'                                       + '</td></tr>' +
-  '<tr><td>' + TOGGLE_BLOCK_KEY                          + '</td><td>' + 'Toggle block'                               + '</td></tr>' +
-  '<tr><td>' + PAINT_BLOCK_KEY                           + '</td><td>' + 'Wall (paint)'                               + '</td></tr>' +
-  '<tr><td>' + ERASE_KEY                                 + '</td><td>' + 'Erase (paint)'                              + '</td></tr>' +
-  '<tr><td>' + 'Shift+Click'                             + '</td><td>' + 'Draw line to'                               + '</td></tr>' +
-  '</table>';
+var hotkeys_list = [
+    {key: MAP_SWITCH_KEY_1 + '-' + MAP_SWITCH_KEY_5, action: 'Switch maps'                },
+    {key: SAVE_KEY                                 , action: 'Save'                       },
+    {key: LOAD_KEY                                 , action: 'Load best'                  },
+    {key: GO_KEY                                   , action: 'Go! (Hold shift to animate)'},
+    {key: RESET_KEY                                , action: 'Reset'                      },
+    {key: TOGGLE_MUTE_KEY                          , action: 'Toggle mute'                },
+    {key: TOGGLE_VALUES_KEY                        , action: 'Toggle values'              },
+    {key: REDO_KEY                                 , action: 'Redo'                       },
+    {key: UNDO_KEY                                 , action: 'Undo'                       },
+    {key: TOGGLE_BLOCK_KEY                         , action: 'Toggle block'               },
+    {key: PAINT_BLOCK_KEY                          , action: 'Wall (paint)'               },
+    {key: ERASE_KEY                                , action: 'Erase (paint)'              },
+    {key: 'Shift+Click'                            , action: 'Draw line to'               },
+]
+
 
 var hotkey_handler = {};
 function register_hotkey(key, handler) {hotkey_handler[key] = handler;}
@@ -1052,12 +1052,12 @@ $(document).bind('keydown', function(e){
 
 function initialize_toolbar() {
   $('#mt_left_bar').remove();
+  var toolbar_width = 300;
 
-  var button_toolbar = $('<div id="mt_left_bar"></div>')
-  button_toolbar.css({
+  var button_toolbar = $('<div>').attr('id',"mt_left_bar").css({
     'position' : 'absolute',
-    'left' : '50px',
-    'width' : '275px',
+    'left' : '20px',
+    'width' : toolbar_width,
     'z-index' : '41',
     'text-align' : 'center',
     'background' : '-ms-linear-gradient(top, #555555 0%,#222222 100%)',
@@ -1089,42 +1089,69 @@ function initialize_toolbar() {
       setTimeout(bind_block_events, new_map_timeout); // this is apparently not enough...
     });
   } else {
-    $('#difficulties').parent().css('margin-left', '300px');
-    $('#difficulties').after(button_toolbar);
+    $('#difficulties').parent().css('margin-left', toolbar_width + 'px');
+    $('#difficulties').parent().prepend(button_toolbar);
   }
 
-  var show_values_button = $('<button id="mt_show_values"></button>');
-  show_values_button.css({
+  var show_values_button = $('<button>').attr('id',"mt_show_values").css({
     'margin': '10px 0px 20px 0px'
   })
 
   button_toolbar.append(show_values_button);
   show_values_button.click(toggle_values);
-  button_toolbar.append('<br/>');
   update_show_values();
 
-  var load_solution_input = $('<input placeholder="solution code">');
-  button_toolbar.append(load_solution_input);
-  var load_solution_button = $('<button>Load solution</button>');
-  button_toolbar.append(load_solution_button);
+  /* hotkeys */
+
+  var hotkeys_button = $('<button>').text('Hotkeys').css({ 'margin': '20px', });
+  var hotkeys_dropdown = $('<table>')
+  hotkeys_list.forEach(function(x) {
+    hotkeys_dropdown.append($('<tr>')
+      .append( $('<td>').text(x.key).css('border','1px solid white'))
+      .append( $('<td>').text(x.action).css('border','1px solid white'))
+    )
+  })
+
+  hotkeys_dropdown.css({
+    'position': 'absolute',
+    'background-color': '#000',
+    'border': '1px solid white',
+    'text-align': 'left',
+  });
+  hotkeys_button.hover(
+    function(e) {
+      hotkeys_dropdown.show();
+    },
+    function(e) {
+      hotkeys_dropdown.hide();
+    }
+  );
+  button_toolbar.append(hotkeys_button);
+  button_toolbar.append(hotkeys_dropdown);
+  hotkeys_dropdown.hide();
+
+  button_toolbar.append('<br/>');
+  /* solutions */
+
+  var load_solution_input = $('<input>').attr('placeholder',"solution code");
+  var load_solution_button = $('<button>').text('Load solution');
   load_solution_button.click(function() {
     var sol = JSON.parse(load_solution_input.val());
     place_solution(exports.get_mapid(), sol);
   });
+  button_toolbar.append(load_solution_input).append(load_solution_button).append($('<br/>'));
 
-  var save_solution_input = $('<input id="mt_save_solution_name" placeholder="solution label/name (optional)">');
-  button_toolbar.append(save_solution_input);
-  var save_solution_button = $('<button id="mt_save_solution">Save solution</button>');
-  button_toolbar.append(save_solution_button);
+  var save_solution_input = $('<input>').attr({'id':"mt_save_solution_name",'placeholder':"solution label/name (optional)"});
+  var save_solution_button = $('<button>').attr('id',"mt_save_solution").text('Save solution');
   save_solution_button.click(save_current_solution);
+  button_toolbar.append(save_solution_input).append(save_solution_button).append($('<br/>'));
 
-  var solutions_list = $('<div id="mt_save_solution_list"></div>')
-  solutions_list.css({
+  var solutions_list = $('<div>').attr('id',"mt_save_solution_list").css({
     'text-align': 'center',
     'border':'1px solid white',
     'margin': '5px 30px 20px 30px',
     'padding': '3px 0px',
-    'width': '200px'
+    'width': (toolbar_width - 60) + 'px'
   })
   button_toolbar.append(solutions_list);
 
@@ -1135,11 +1162,10 @@ function initialize_toolbar() {
       update_wall_images();
     }
 
-    var change_wall_input = $('<input id="mt_change_wall_input" placeholder="Image url (blank to use default)">');
-    button_toolbar.append(change_wall_input);
-    var change_wall_button = $('<button id="mt_change_wall">Set wall image</button>');
-    button_toolbar.append(change_wall_button);
+    var change_wall_input = $('<input>').attr({'id':"mt_change_wall_input",'placeholder':"Image url (blank to use default)"});
+    var change_wall_button = $('<button>').attr('id',"mt_change_wall").text('Set wall image');
     change_wall_button.click(change_wall_image);
+    button_toolbar.append(change_wall_input).append(change_wall_button).append($('<br/>'));
 
     function change_rock_image() {
       var url = $('#mt_change_rock_input').val();
@@ -1147,35 +1173,37 @@ function initialize_toolbar() {
       update_rock_images();
     }
 
-    var change_rock_input = $('<input id="mt_change_rock_input" placeholder="Image url (blank to use default)">');
-    button_toolbar.append(change_rock_input);
-    var change_rock_button = $('<button id="mt_change_rock">Set rock image</button>');
-    button_toolbar.append(change_rock_button);
+    var change_rock_input = $('<input>').attr({'id':"mt_change_rock_input" ,'placeholder':"Image url (blank to use default)"});
+    var change_rock_button = $('<button>').attr('id',"mt_change_rock").text('Set rock image');
     change_rock_button.click(change_rock_image);
+    button_toolbar.append(change_rock_input).append(change_rock_button).append($('<br/>'));
   }
 
-  var hotkeys_button = $('<button id="mt_show_hotkeys">Hotkeys</button>');
-  hotkeys_button.css({
-    'margin': '20px',
-  });
-  var hotkeys_dropdown = $('<p>'+ hotkeys_text + '</p>')
-  hotkeys_dropdown.css({
-    'position': 'relative',
-    'text-align': 'left',
-    'font-family': 'Courier'
-  });
-  //hotkeys_button.hover(
-  //  function(e) {
-  //    hotkeys_dropdown.show();
-  //  },
-  //  function(e) {
-  //    hotkeys_dropdown.hide();
-  //  }
-  //);
-  button_toolbar.append(hotkeys_button);
-  hotkeys_button.append(hotkeys_dropdown);
-  //hotkeys_dropdown.hide();
+  //var chat_iframe = $('<iframe>').attr('src', 'http://www.pathery.com/chat').css({
+  //  'width':'100%','height':'400px', 'margin-top':'20px'
+  //})
+  //button_toolbar.append(chat_iframe);
+
+  if (!is_ugli) {
+    var chat_frame = $('<div>').addClass('chatContainer2')
+                    .append($('<div>').attr('id','chatContainer').css({'height':'350px', 'overflow':'scroll'}))
+                    .append(
+                       $('<form>').attr({'id':'sendChat', 'onsubmit':'return false', 'height':'50px'})
+                       .append($('<input>').prop('type', 'hidden').attr({ 'name':'stuff','value':'0'}))
+                       .append($('<input>').addClass('chatButton').prop('type','button').attr({'id':'chatSendBtn', 'value':'Send','onclick':'sendChat()'}))
+                       .append($('<input>').addClass('chatInputMessage').prop('type', 'text').attr({'id':'message', 'name':'message','maxlength':'255','autocomplete':'off'}))
+                     )
+                    .css({ 'width':'100%','margin-top':'20px', 'height':'400px'});
+    button_toolbar.append(chat_frame);
+
+   $.getScript(mt_url + '/src/chat.js');
+
+    $("<link/>", { rel: "stylesheet", type: "text/css",
+       href: mt_url + '/src/chat.css'
+    }).appendTo("head");
+  }
 }
+
 
 function update_rock_images() {
   if (is_ugli) {return;}
