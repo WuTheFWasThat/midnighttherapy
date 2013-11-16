@@ -180,5 +180,134 @@
       $('#sendChat').live("submit", function() { sendChat() });
   });
 
+  /** CSS **/
+  $('.chatInputMessage').css({
+    'font-family': 'Trebuchet MS1, Trebuchet MS, sans-serif',
+    'border': '1px solid gray',
+    'background-color':'#999',
+    'width': '300px',
+    'margin': '7px 3px',
+    'padding': '2px',
+    'border-radius': '10px',
+    'border-bottom-right-radius': '20px',
+    'border-top-right-radius': '20px',
+  });
+  $('.chatButton').css( {
+    margin: '0px',
+    width: '50px',
+  });
+
+
+  $('#chatContainer').css( {
+    height:'200px',
+    width:'400px',
+    margin:'0 auto',
+    overflow:'auto',
+  });
+  $('#sendChat').css( {
+    'margin-left': '10px',
+  });
+
+  $('.chatBadge').css( {
+    height:'100%',
+    'z-index':'2',
+    float:'left',
+  });
+  $('.chatUsername').css( {
+    'font-family': 'Trebuchet MS1, Trebuchet MS, sans-serif',
+    'font-size': '16px',
+    'text-overflow': 'clip',
+    overflow:'hidden',
+    float: 'left',
+    'padding-top': '5px',
+    width: '55px',
+    'white-space':'nowrap',
+  });
+  $('.chatUsername.me').css( {
+    'text-align':'right',
+  });
+  $('.chatText').css( {
+    width: '270px',
+    'font-family': 'Trebuchet MS1, Trebuchet MS, sans-serif',
+    'font-size' : '16px',
+    display: 'inline-block',
+    padding:  '5px',
+    'white-space': 'pre-wrap;',      // CSS3
+    'white-space': '-moz-pre-wrap',// Firefox
+    'white-space': '-pre-wrap',     /* Opera <7 */
+    'white-space': '-o-pre-wrap',   /* Opera 7 */
+    'word-wrap': 'break-word',      /* IE */
+  });
+  $('.chatTimestamp').css( {
+    'font-family': 'Trebuchet MS1, Trebuchet MS, sans-serif',
+    'font-size': '1em',
+    float:'left',
+    width:'0px',
+    overflow:'hidden',
+    'text-overflow': 'clip',
+    'white-space':'nowrap',
+  });
+  $('.chatColumn1').css( {
+    width:'0px',
+    'min-height': '35px',
+    position:'absolute',
+    left:0,
+    top:0,
+    bottom:0,
+  });
+  $('.chatColumn2').css( {
+    'text-align':'left',
+    'margin-left':'40px',
+    'min-height': '35px',
+  });
+
+  $('.chatMessage').css( {
+    width:'400px',
+    'min-height':'35px',
+    margin:'0px',
+    display:'block',
+    clear:'both',
+    'margin-bottom':'1px',
+    position:'relative',
+    'border-radius':'20px',
+    'border-bottom-left-radius': '10px',
+    'border-top-left-radius': '10px',
+
+    'background-color':'#333',
+  });
+  $('.chatMessage.self').css( {
+    'background-color': '#444',
+  });
+  $('.chatMessage.server').css( {
+    'background-color': '#844',
+  });
+
+  $('.chatText.spoiler').css( {
+    color:'transparent',
+  });
+
+
+  $('.chatContainer2').css( {
+    width:'400px',
+    height:'250px',
+
+    'background-color': '#222',
+    'padding-bottom':'0px',
+    'border-radius': '12px',
+    margin: '0 auto 5px',
+    overflow:'auto',
+
+    background: 'rgb(54,54,54)', // Old browsers
+    background: '-moz-radial-gradient(center, ellipse cover,  rgba(34,34,34,1) 0%, rgba(119,119,119,1) 100%)', /* FF3.6+ */
+    background: '-webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(34,34,34,1)), color-stop(100%,rgba(119,119,119,1)))', /* Chrome,Safari4+ */
+    background: '-webkit-radial-gradient(center, ellipse cover,  rgba(34,34,34,1) 0%,rgba(119,119,119,1) 100%)', /* Chrome10+,Safari5.1+ */
+    background: '-o-radial-gradient(center, ellipse cover,  rgba(34,34,34,1) 0%,rgba(119,119,119,1) 100%)', /* Opera 12+ */
+    background: '-ms-radial-gradient(center, ellipse cover,  rgba(34,34,34,1) 0%,rgba(119,119,119,1) 100%)', /* IE10+ */
+    background: 'radial-gradient(ellipse at center,  rgba(34,34,34,1) 0%,rgba(119,119,119,1) 100%)', /* W3C */
+    filter: 'progid:DXImageTransform.Microsoft.gradient( startColorstr="#222222", endColorstr="#777777",GradientType=1)', // IE6-9 fallback on horizontal gradient
+  });
+
+
+
 })()
 
