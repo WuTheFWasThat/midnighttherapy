@@ -65,7 +65,6 @@ exports.mapid = null;
 
 var last_compute_values_time = Date.now();
 var compute_values_interval = 500;
-var load_best_timeout = 500;
 var new_map_timeout = 100;
 var draw_values_var = null;
 
@@ -989,13 +988,9 @@ register_hotkey(SAVE_KEY, function(e) {
 });
 
 register_hotkey(LOAD_KEY, function(e) {
-    var old_solution = get_current_solution();
     var mapid = get_mapid();
-    requestSol(exports.mapid);
-    // TODO: this doesn't work
-    var new_solution = get_current_solution();
-    add_move_to_history(mapid, new ChangeBoardMove(mapid, old_solution, new_solution))
-    setTimeout(refresh_score, load_best_timeout);
+    var new_solution = solution_storage.get_solution(mapid, 'best');
+    load_solution(mapid, new_solution);
 });
 
 if (!is_ugli) {
