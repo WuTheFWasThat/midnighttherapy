@@ -86,7 +86,7 @@
       }
       p = p+ chat.displayName+"</a></span>";
 
-      if (isSpoiler == true) p = p+ " <span class='chatText spoiler' onclick='spoil(this);'>";
+      if (isSpoiler == true) p = p+ " <span class='chatText spoiler'>";
       else p = p+ "   <span class='chatText'>";
       p = p+ chatReplaceAndEncode(chat.message);
       p = p+ "    </span>";
@@ -117,6 +117,12 @@
         firstGetChat = false;
       }
     }
+
+    $('.spoiler').unbind();
+    $('.spoiler').click(function() {
+      $(this).removeClass("spoiler");
+    });
+
   }
 
   function chatReplaceAndEncode(chat) {
@@ -139,7 +145,6 @@
   }
 
   function prepChat(chat) { return chat.join('|:|').replace(/\&/g,'%26').replace(/\+/g,'%2B') }
-  function spoil(obj) { $(obj).removeClass("spoiler"); }
 
   var chatIsBusy = false;
   function getChat(message) {

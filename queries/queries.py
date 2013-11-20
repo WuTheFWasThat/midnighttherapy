@@ -502,10 +502,11 @@ def count_uc_ties(users = None, misses_allowed = float("Infinity"), options = {}
 #find_sweeps()
 #find_win_amounts('blue')
 #find_win_types('george')
+#find_win_types('yeuo')
 #find_winners('Ultra Complex')
 #find_winners('Dualing paths')
 #find_winners('Teleport Madness')
-find_winners()
+#find_winners()
 
 #group_wins(['wu', 'blue', 'dewax', 'sid', 'uuu', 'doth'])
 #group_wins(['wu', 'george', 'joy', 'alex', 'hamrick'])
@@ -516,7 +517,7 @@ find_winners()
 
 #get_uc_history({'reverse': True, 'top': 3});
 #get_uc_history({'reverse': False, 'top': 3});
-#count_uc_ties();
+count_uc_ties();
 
 #get_stats(userid, {'reverse': False, 'firstmap': 2580})
 #get_stats(userid, {'reverse': True})

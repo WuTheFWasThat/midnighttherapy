@@ -136,6 +136,8 @@ None, at the moment.  Let me know if you find any!
 
 - Disable new day alert, auto refresh
 
+- Disable achievement earn alert
+
 - Cleanup of old saved solutions
 
 - Notifications when scores are beat?
