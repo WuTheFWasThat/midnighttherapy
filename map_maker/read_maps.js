@@ -105,7 +105,10 @@ function collectResult(results, result) {
   t.cpDist.incr(result.cps);
   t.rockDist.incr(result[tiles.ROCK]);
   t.wallDist.incr(result.walls);
+  t.tpDist.incr(result.tps);
   var CPS = result.cps;
+  t.tpcpdists[CPS].incr(result.tps);
+  t.cptpdists[result.tps].incr(CPS);
   // t.rockDists[CPS].incr(result[tiles.ROCK]);
   // t.wallDists[CPS].incr(result.walls);
   tileTypes.forEach(function(tile) {
@@ -125,7 +128,7 @@ function main() {
                   'Thirty', 'Thirty Too', 'Reverse Order', 'Finite', 'Rocky Maze',
                   'Ultimate Random', 'Centralized', 'Seeing Double', 'Side to Side',
                   'Unlimited', "ABC's ", 'Dualing paths'];
-  var mapTypes = ['Simple', 'Normal',];
+  var mapTypes = ['Complex',];
 
   mapTypes.forEach(function(type) {
     var t = {};
@@ -134,6 +137,13 @@ function main() {
     t.cpDist = new Distribution();
     t.rockDist = new Distribution();
     t.wallDist = new Distribution();
+    t.tpDist = new Distribution();
+    t.tpcpdists = [];
+    t.cptpdists = [];
+    for (var i = 0; i <= 5; i++) {
+      t.tpcpdists[i] = new Distribution();
+      t.cptpdists[i] = new Distribution();
+    }
     // t.rockDists = [];
     // t.wallDists = [];
     // for (var i = 0; i <= 5; i++) {
@@ -156,7 +166,13 @@ function main() {
 
   console.log(results);
 
-  var simples = results['Simple'];
+  var blah = results['Complex'];
+  console.log(blah.tpcpdists[2])
+  console.log(blah.tpcpdists[3])
+  console.log(blah.tpcpdists[4])
+  console.log(blah.tpcpdists[5])
+  console.log(blah.cptpdists[1])
+  console.log(blah.cptpdists[2])
 
 
   // mapTypes.forEach(function(mapType) {
