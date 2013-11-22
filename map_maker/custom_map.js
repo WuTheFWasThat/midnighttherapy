@@ -87,7 +87,8 @@ var main = function() {
     var date = new Date();
     var dateStr = months[date.getMonth()] + ' ' + date.getDate();
     var codesStr = '[spoiler=Maps for ' + dateStr + ']' + nl;
-    var linksStr = '[spoiler=Clickable links]' + nl;
+    var linksStr = "(Reminder: These links only work if you have wu's assist tool.)" + nl;
+    linksStr += '[spoiler=Clickable links]' + nl;
 
     for (var k = 0; k < results.length; k++) {
       var mapk = results[k];

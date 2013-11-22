@@ -519,5 +519,4 @@ function improve_solution(board, blocks, options) {
 }
 exports.improve_solution = improve_solution;
 
-
 })(typeof exports === "undefined" ? Analyst : module.exports)
