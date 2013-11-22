@@ -669,6 +669,7 @@ function refresh_solution_store_display() {
     code_button.data('solution', JSON.stringify(sol))
     code_button.click(function() {
       var sol = $(this).data('solution');
+      console.log(sol);
       alert(sol);
     })
     solution_el.append(code_button);
