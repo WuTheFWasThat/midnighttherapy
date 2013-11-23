@@ -14,8 +14,8 @@
   width: 50px;
 }
 #chatContainer {
-  height:200px;
-  width:396px;
+  height:275px;
+  width:398px;
   margin:0 auto;
   overflow-x: hidden;
   overflow-y: auto;
@@ -81,9 +81,6 @@
   clear:both;
   margin-bottom:1px;
   position:relative;
-  border-radius:20px;
-  border-bottom-left-radius: 10px;
-  border-top-left-radius: 10px;
 
   background-color:#333;
 }
@@ -105,13 +102,14 @@
 
 
 .chatContainer2 {
-  width:396px;
-  height:250px;
+  width:398px;
+  height:325px;
 
   background-color: #222;
   padding-bottom:0px;
-  margin:0 auto 5px;
+  margin:20px auto 5px;
   overflow:auto;
+  border-top: 1px solid #ffffff;
 
   background: rgb(54,54,54); /* Old browsers */
   background: -moz-radial-gradient(center, ellipse cover,  rgba(34,34,34,1) 0%, rgba(119,119,119,1) 100%); /* FF3.6+ */
