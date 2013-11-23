@@ -15,9 +15,10 @@
 }
 #chatContainer {
   height:200px;
-  width:400px;
+  width:396px;
   margin:0 auto;
-  overflow:auto;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 #sendChat {
   margin-left: 10px;
@@ -35,15 +36,15 @@
   overflow:hidden;
   float: left;
   padding-top: 5px;
-  width: 55px;
+  width: 65px;
   white-space:nowrap;
 }
 .chatText {
-  width: 270px;
+  width: 262px;
   font-family: 'Trebuchet MS1', 'Trebuchet MS', sans-serif;
   font-size: 16px;
   display: inline-block;
-  padding:  5px;
+  padding:  5px 2px 5px 5px;
   white-space: pre-wrap;      /* CSS3 */
    white-space: -moz-pre-wrap; /* Firefox */
    white-space: -pre-wrap;     /* Opera <7 */
@@ -104,12 +105,11 @@
 
 
 .chatContainer2 {
-  width:400px;
+  width:396px;
   height:250px;
 
   background-color: #222;
   padding-bottom:0px;
-  border-radius: 12px;
   margin:0 auto 5px;
   overflow:auto;
 

@@ -1199,7 +1199,7 @@ function initialize_toolbar() {
           .append($('<input>').addClass('chatInputMessage').prop('type', 'text').attr({'id':'message', 'name':'message','maxlength':'255','autocomplete':'off'}))
         )
      .css({
-        'width' : toolbar_width,
+        'width' : toolbar_width - 4,
         'margin-top':'20px'
      });
 
