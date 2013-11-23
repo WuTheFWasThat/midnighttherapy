@@ -28,6 +28,7 @@
   height:100%;
   z-index:2;
   float:left;
+  margin: 1px 0px 1px 3px;
 }
 .chatUsername {
   font-family: 'Trebuchet MS1', 'Trebuchet MS', sans-serif;
@@ -75,7 +76,7 @@
 
 .chatMessage {
   width:400px;
-  min-height:35px;
+  min-height:37px;
   margin:0px;
   display:block;
   clear:both;
