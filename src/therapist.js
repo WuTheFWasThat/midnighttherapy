@@ -271,8 +271,17 @@ function reset_map(mapid) {
     var old_solution = get_solution(mapid);
     add_move_to_history(mapid, new ChangeBoardMove(mapid, old_solution, []))
     clearwalls(exports.mapid);
+	refresh_score();
 }
 resetwalls = reset_map; // override snap's function!
+
+var __old_loadSol__ = loadSol;
+function load_solution(solution, numMoves)
+{
+    __old_loadSol__(solution, numMoves);
+	refresh_score();
+}
+loadSol = load_solution
 
 var __old_animatePath__ = animatePath;
 function update_animate_path() {
