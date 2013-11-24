@@ -48,7 +48,7 @@ Check this out:
 ![client side pathing](images/show-values-off.png)
 
 You can have something which updates your score as you place blocks!
-The score is shown next to the speed dropdown.  Remember, the score IS NOT SUBMITTED FOR YOU.
+The score is shown next to the speed dropdown.
 
 If you press "show values", you'll see block values for every block.
 However, this may feel laggy if you're letting the browser do the computation.
