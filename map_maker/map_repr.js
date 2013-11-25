@@ -316,6 +316,7 @@ DenseMap.prototype.dilate = function(k) {
 }
 
 function parseMapCode(mapcode) {
+  mapcode = mapcode.replace(/\n/g, '');  // remove newlines
   var head = mapcode.split(':')[0];
   var body = mapcode.split(':')[1];
 

@@ -66,12 +66,20 @@ var Analyst = {}
     if (maptype == null) {
       maptype = 'rooms';
     }
-
-    console.log(maptype);
-    $.post('/generate_map', {type: maptype}, function(result) {
-      console.log(result)
-      displayMap(result, 0, 'innerMapDsp_0', false, '.');
-    });
+    var mapcode = get_param('mapcode');
+    if (mapcode == null) {
+      $.post('/generate_map', {type: maptype}, function(result) {
+        // console.log(result)
+        displayMap(result, 0, 'innerMapDsp_0', false, '.');
+      });
+    } else {
+      mapcode = mapcode.replace(/%20/g, ''); // TODO: something less hacky
+      console.log(mapcode);
+      $.post('/generate_map', {code: mapcode}, function(result) {
+        // console.log(result)
+        displayMap(result, 0, 'innerMapDsp_0', false, '.');
+      });
+    }
     var values_on = get_param('values');
     if (values_on) {
       Therapist.toggle_values();

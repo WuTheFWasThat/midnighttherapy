@@ -80,28 +80,35 @@ app.post('/compute_values', middleware, function(req, res){
 ///////////////////
 
 app.post('/generate_map', middleware, function(req, res){
-  var maptype = req.param('type')
+  var maptype = req.param('type');
+  var mapcode = req.param('code');
 
-  var Analyst = require('./src/analyst')
+  var Analyst = require('./src/analyst');
   var util = require('./map_maker/map_util');
+  var repr = require('./map_maker/map_repr');
 
-  // TODO: what to do about different map type folders?
+  var map;
+  if (!mapcode) {
+    // TODO: what to do about different map type folders?
 
-  try {
-    var map_gen = require('./map_maker/map_types/' + maptype)
-  } catch (e) {
-    var map_gen = require('./map_maker/old_maps/' + maptype)
+    try {
+      var map_gen = require('./map_maker/map_types/' + maptype);
+    } catch (e) {
+      var map_gen = require('./map_maker/old_maps/' + maptype);
+    }
+
+    map = map_gen.generate();
+    var value = Analyst.compute_value(map.toBoard());
+    var tries = 1;
+    while (isNaN(value)) {
+      map = map_gen.generate();
+      var value = Analyst.compute_value(map.toBoard());
+      tries += 1;
+    }
+    console.log('value', value, 'tries', tries);
+  } else {
+    map = repr.parseMapCode(mapcode);
   }
-
-  var map = map_gen.generate();
-  var value = Analyst.compute_value(map.toBoard())
-  var tries = 1;
-  while (isNaN(value)) {
-    var map = map_gen.generate();
-    var value = Analyst.compute_value(map.toBoard())
-    tries += 1;
-  }
-  console.log('value', value, 'tries', tries)
 
   var code = map.toMapCode();
   var tiles = map.toDumbTiles();
