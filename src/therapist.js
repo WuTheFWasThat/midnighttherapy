@@ -276,12 +276,12 @@ function reset_map(mapid) {
 resetwalls = reset_map; // override snap's function!
 
 var __old_loadSol__ = loadSol;
-function load_solution(solution, numMoves)
+function new_loadSol(solution, numMoves)
 {
     __old_loadSol__(solution, numMoves);
 	refresh_score();
 }
-loadSol = load_solution
+loadSol = new_loadSol;
 
 var __old_animatePath__ = animatePath;
 function update_animate_path() {
