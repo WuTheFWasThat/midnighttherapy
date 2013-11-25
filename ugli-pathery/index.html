@@ -70,6 +70,7 @@ var Analyst = {}
     if (mapcode == null) {
       $.post('/generate_map', {type: maptype}, function(result) {
         // console.log(result)
+        console.log(result.code);
         displayMap(result, 0, 'innerMapDsp_0', false, '.');
       });
     } else {
