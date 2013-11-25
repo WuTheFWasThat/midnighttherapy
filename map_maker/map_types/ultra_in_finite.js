@@ -25,11 +25,11 @@ exports.generate = function() {
   //randomly place OUTs
   var mostIs = range(1, m-3);
   for (var i = 0; i < 5; i++) {
-    map.placeRandomlyInArea(tiles.TELE_OUTS[i], mostIs, allJs);
+    map.placeRandomlyInArea(tiles.TELE_OUTS[i], mostIs, allJs, 2);
   }
 
   //Tune some parameters
-  map.walls = 30;
+  map.walls = 50;
   var numExtraRocks = getRandomInt(12, 22) * 2;
   map.placeRandomlyInArea(tiles.ROCK, mostIs, allJs, numExtraRocks);
 
