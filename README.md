@@ -128,6 +128,8 @@ I'll get to this sometime...
 
 - Improve (I) seems messed up, caused decreased score on a seeing double
 
+- Display with green/red path is messed up on UGLI-pathery. (Red start looks like it's green, and red/green only block pictures are swapped?)
+
 <!--
 None, at the moment.  Let me know if you find any!
 -->
@@ -145,8 +147,6 @@ None, at the moment.  Let me know if you find any!
 - Ability to view person's times/scores
 
 - More customization? e.g. shown values colors, etc.
-
-- Chat in the main page
 
 - An API to support solvers that actually suggest (potentially major) changes, takes suggestions, etc. (and an accompanying prototype)
 
