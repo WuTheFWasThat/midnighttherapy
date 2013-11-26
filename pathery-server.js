@@ -105,7 +105,7 @@ app.post('/generate_map', middleware, function(req, res){
       var value = Analyst.sum_values(Analyst.compute_value(map.toBoard()))
       tries += 1;
     }
-    console.log('value', value, 'tries', tries);
+    // console.log('value', value, 'tries', tries);
   } else {
     map = repr.parseMapCode(mapcode);
   }
