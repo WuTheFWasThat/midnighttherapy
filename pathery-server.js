@@ -98,11 +98,11 @@ app.post('/generate_map', middleware, function(req, res){
     }
 
     map = map_gen.generate();
-    var value = Analyst.compute_value(map.toBoard());
+    var value = Analyst.sum_values(Analyst.compute_value(map.toBoard()))
     var tries = 1;
     while (isNaN(value)) {
       map = map_gen.generate();
-      var value = Analyst.compute_value(map.toBoard());
+      var value = Analyst.sum_values(Analyst.compute_value(map.toBoard()))
       tries += 1;
     }
     console.log('value', value, 'tries', tries);

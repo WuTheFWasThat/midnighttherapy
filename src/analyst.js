@@ -358,6 +358,7 @@ function sum_values(array) {
   if (array.length == 0) {return PATH_BLOCKED_CONSTANT;}
   return array.reduce(function(x, y) {return x + y})
 }
+exports.sum_values = sum_values;
 
 // TODO: FIND BLOCKS WHERE I CAN'T PLACE BLOCKS WITHOUT BLOCKING THE PATH
 // BE VERY CAREFUL.  BECAUSE OF TELEPORTS... THIS IS TRICKY AND I DONT YET KNOW HOW TO DO IT

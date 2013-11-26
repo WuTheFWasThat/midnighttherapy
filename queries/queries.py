@@ -293,8 +293,10 @@ def find_win_types(user):
       print type_count
     mapid -= 1
 
-def find_winners(maptype = 'All'):
+def find_winners(maptype = 'All', options = {}):
   mapid = get_todays_mapids()[3]
+  if 'top' not in options:
+    options['top'] = 10
   winners = {}
   while mapid > -1:
     thismaptype = get_map_type(mapid)
@@ -305,9 +307,15 @@ def find_winners(maptype = 'All'):
       else:
         winners[winner] = 1
 
-      print 'Leaderboard:', mapid
+      sorted_winners = []
       for winner in winners:
-        print winner.ljust(20), ':', winners[winner]
+        sorted_winners.append((winners[winner], winner))
+      sorted_winners.sort((lambda x,y:  y[0]-x[0]))
+
+      print 'Leaderboard:', mapid
+      for i in range(min(len(sorted_winners), options['top'])):
+        (count, winner) = sorted_winners[i]
+        print winner.ljust(20), ':', count
       print
     mapid -= 1
 
@@ -396,7 +404,8 @@ def print_history(options = {}):
     else:
       date += datetime.timedelta(days=1)
 
-def get_stats(userid, options = {}):
+def get_stats(user, options = {}):
+  userid = user_id_map[user]
   if 'reverse' not in options:
     options['reverse'] = False
   if 'firstmap' in options:
@@ -426,8 +435,8 @@ def get_stats(userid, options = {}):
           wins += 1
           print ' | '.join([     x.ljust(8) for x in ['Mapid', 'Points','Moves','Mazes','Ties','Wins', 'Win%']])
           print ' | '.join([str(x).ljust(8) for x in [mapid, points, moves,mazes,ties, wins, (wins / (mazes + 0.0))]])
-    #print ' | '.join([     x.ljust(8) for x in ['Mapid', 'Points','Moves','Mazes','Ties','Wins']])
-    #print ' | '.join([str(x).ljust(8) for x in [mapid, points, moves,mazes,ties, wins]])
+    print ' | '.join([     x.ljust(8) for x in ['Mapid', 'Points','Moves','Mazes','Ties','Wins']])
+    print ' | '.join([str(x).ljust(8) for x in [mapid, points, moves,mazes,ties, wins]])
     if options['reverse']:
       mapid -= 1
     else:
@@ -496,16 +505,14 @@ def count_uc_ties(users = None, misses_allowed = float("Infinity"), options = {}
       mapid += 1
 
 #find_missed_maps('wu')
-#get_score_distribution('Rocky Maze')
 #get_score_distribution('Complex')
 #get_rank_distribution(['wu', 'blue', 'dewax', 'vzl', 'uuu', 'sid'], 10)
 #find_sweeps()
 #find_win_amounts('blue')
 #find_win_types('george')
 #find_win_types('yeuo')
-#find_winners('Ultra Complex')
-#find_winners('Dualing paths')
-#find_winners('Teleport Madness')
+#find_win_types('wu')
+find_winners('Ultra Complex')
 #find_winners()
 
 #group_wins(['wu', 'blue', 'dewax', 'sid', 'uuu', 'doth'])
@@ -517,12 +524,10 @@ def count_uc_ties(users = None, misses_allowed = float("Infinity"), options = {}
 
 #get_uc_history({'reverse': True, 'top': 3});
 #get_uc_history({'reverse': False, 'top': 3});
-count_uc_ties();
+#count_uc_ties();
 
-#get_stats(userid, {'reverse': False, 'firstmap': 2580})
-#get_stats(userid, {'reverse': True})
-#find_winners('Thirty')
-#find_winners('Thirty Too')
-#find_winners('Ultra Complex')
+#get_stats('wu', {'reverse': False, 'firstmap': 3257}) # streak
+#get_stats('wu', {'reverse': False, 'firstmap': 2580})
+#get_stats('wu', {'reverse': True})
 
 #get_mapcodes_of_type('Simple')

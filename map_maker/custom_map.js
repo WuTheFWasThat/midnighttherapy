@@ -12,11 +12,11 @@ var main = function() {
     return function(cb) {
       var map = require('./map_types/' + mapname).generate();
 
-      var value = Analyst.compute_value(map.toBoard())
+      var value = Analyst.sum_values(Analyst.compute_value(map.toBoard()))
       var tries = 1;
       while (isNaN(value)) {
         var map = require('./map_types/' + mapname).generate();
-        var value = Analyst.compute_value(map.toBoard())
+        var value = Analyst.sum_values(Analyst.compute_value(map.toBoard()))
         tries += 1;
       }
       console.log('value', value, 'tries', tries)
