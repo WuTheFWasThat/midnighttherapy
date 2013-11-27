@@ -36,8 +36,7 @@
 
       var postDate = new Date();
       postDate.setTime(postDate.getTime() + chat.secondsSince * 1000);
-      var timestamp = postDate.format("hh:MM:ss");
-      var timestampDetails = postDate.format("ddd h:MM TT");
+      var timestamp = postDate.format("ddd h:MM:ss TT");
 
       if (!chat.message) return;
 
@@ -69,14 +68,13 @@
       }
 
       //console.log("INSIDE BUILD START");
-      p = '';
+      p = "<div  title='"+ timestamp+"'>";
       p = p+ " <div class='chatColumn1'>";
-      p = p+ "    <span class='chatTimestamp' title='"+timestampDetails+"'>["+timestamp+"]</span>";
-      p = p+ "        <div class='grid_td chatBadge' style='float:left; width:35px; height:35px; background:"+chat.wallColor+" url("+linkEmblem(chat.wallEmblem, chat.wallOrientation)+");'>";
-      p = p+ "            <div style='background-color:transparent;' class='grid_td_inner grid_td_rocks'>";
-      p = p+ "            </div>";
+      p = p+ "    <div class='grid_td chatBadge' style='float:left; width:35px; height:35px; background:"+chat.wallColor+" url("+linkEmblem(chat.wallEmblem, chat.wallOrientation)+");'>";
+      p = p+ "        <div style='background-color:transparent;' class='grid_td_inner grid_td_rocks'>";
       p = p+ "        </div>";
       p = p+ "    </div>";
+      p = p+ " </div>";
 
       p = p+ " <div class='chatColumn2'>";
       if (chat.userID == '-1') {
@@ -91,6 +89,7 @@
       p = p+ chatReplaceAndEncode(chat.message);
       p = p+ "    </span>";
       p = p+ "    </div>";
+      p = p+ "</div>";
 
       //Message is legitmently new or a server message?
       if (chat.ID > lastID || typeof(chat.ID) == 'undefined') {
