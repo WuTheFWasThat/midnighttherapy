@@ -1096,7 +1096,6 @@ function find_full_path(graph, blocks, reversed) {
 
     if (lastIndex == index) {
       // we hit a teleporter last time
-      console.log('whee' + stringify_block(graph.snapify(path[0])));
       fullpathinfo.push(graph.serial_board[path[0]]);
       fullpathinfo.push(stringify_block(graph.snapify(path[0])));
       fullpathinfo.push(graph.serial_board[path[0]]);
@@ -1163,7 +1162,6 @@ function find_pathery_path(graph, blocks){
   if (graph.has_regular) {
     solution_green = find_full_path(graph, blocks);
     path.push(solution_green.path);
-    console.log(path[0].path);
     values.push(solution_green.value);
   }
 

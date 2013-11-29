@@ -27,7 +27,7 @@ var main = function() {
       mapStr += '[/code]\n';
 
       var shortener_url = 'https://www.googleapis.com/urlshortener/v1/url'
-      var url = 'http://blue.pathery.net/mapeditor?code=' + map.toMapCode()
+      var url = 'http://patherymaps1-2222.terminal.com/ugli-pathery/index.html?mapcode=' + map.toMapCode();
 
       var response = $.ajax({
         type: "POST",
@@ -87,7 +87,7 @@ var main = function() {
     var date = new Date();
     var dateStr = months[date.getMonth()] + ' ' + date.getDate();
     var codesStr = '[spoiler=Maps for ' + dateStr + ']' + nl;
-    var linksStr = "(Reminder: These links only work if you have wu's assist tool.)" + nl;
+    var linksStr = "";
     linksStr += '[spoiler=Clickable links]' + nl;
 
     for (var k = 0; k < results.length; k++) {
