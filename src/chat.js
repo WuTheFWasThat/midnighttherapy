@@ -180,8 +180,13 @@
     return false;
   }
 
+  function scrollBottom() {
+    $('#chatContainer')[0].scrollTop = $('#chatContainer')[0].scrollHeight
+  }
+
   $(document).ready(function() {
       $('#sendChat').live("submit", function() { sendChat() });
+      scrollBottom();
   });
 
 

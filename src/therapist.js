@@ -14,6 +14,7 @@
 
 var is_mapeditor = ($('#playableMapDisplay').length > 0)
 var is_ugli = (typeof pathery_ugli != 'undefined');
+var is_main = (!is_ugli) && (!is_mapeditor);
 
 function loadScripts(array,callback){
   var loader = function(src,handler){
@@ -1080,6 +1081,10 @@ function initialize_toolbar() {
 
   if (is_ugli) {
     $('#yms').before(button_toolbar)
+    $('#yms').css({
+      'left': toolbar_width,
+      'position': 'fixed'
+    })
     setTimeout(bind_block_events, 1000);
   } else if (is_mapeditor) {
     // mapeditor
@@ -1220,6 +1225,10 @@ function initialize_toolbar() {
     $("<link/>", { rel: "stylesheet", type: "text/css",
        href: mt_url + '/src/chat.css'
     }).appendTo("head");
+  }
+
+  if (is_main) {
+    $('#countdown').css({'position': 'static', 'display': 'inline-block'}).appendTo($('#mt_left_bar'))
   }
 }
 

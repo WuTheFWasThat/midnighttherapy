@@ -3,9 +3,19 @@ import requests
 import json
 import datetime
 
+from subprocess import call
+
+
 domain = 'http://beta.pathery.net';
 domain = 'http://blue.pathery.net';
 domain = 'http://www.pathery.com';
+
+clear_cache = True
+
+cache_location = 'queries/cached_queries'
+if clear_cache:
+  call(['rm', '-rf', cache_location])
+  call(['mkdir', '-p', cache_location])
 
 map_types = [
   'Simple',
@@ -47,9 +57,11 @@ def isodate(date):
 
 # TODO: dont cache requests that could change, i.e. are from today
 
+
+
 request_cache = {} # in-memory cache
 def make_request(url):
-  cache_file = 'queries/cached_queries/' + url.replace(':', '_').replace('/','_') + '.json'
+  cache_file = cache_location + '/' + url.replace(':', '_').replace('/','_') + '.json'
   if url in request_cache:
     # cached in memory
     return request_cache[url]
@@ -283,13 +295,17 @@ def find_win_types(user):
   userid = user_id_map[user]
   mapid = get_todays_mapids()[3]
   type_count = {}
+  total = 0
   while mapid > -1:
     if find_max_user(mapid) == userid:
       maptype = get_map_type(mapid)
+      total += 1
       if maptype in type_count:
         type_count[maptype] += 1
       else:
         type_count[maptype] = 1
+      print '--------'
+      print 'total', total
       print type_count
     mapid -= 1
 
@@ -520,6 +536,7 @@ find_winners('Ultra Complex')
 
 #print_user_history('wu', {'reverse': False, 'firstdate': datetime.datetime(2012, 12, 11)})
 #print_user_history('wu', {'reverse': True})
+#print_user_history('vzl', {'reverse': True})
 #print_history()
 
 #get_uc_history({'reverse': True, 'top': 3});
