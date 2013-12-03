@@ -177,8 +177,6 @@ exports.parse_board = parse_board;
 function get_board(mapid) {
   if (mapid === undefined) {mapid = get_mapid();}
   var code = get_code(mapid);
-  // console.log('code', code)
-  // console.log('board', parse_board(code).board);
   return parse_board(code).board;
 }
 exports.get_board = get_board;
@@ -204,6 +202,13 @@ exports.get_current_solution = get_current_solution;
 function send_solution(mapid) {
   update_animate_path();
   doSend(mapid);
+
+  var sol = get_solution(mapid);
+  solver.compute_value(get_board(mapid), sol, function(values) {
+    var sum = get_score_total(values);
+    solution_storage.update_best(mapid, sol, sum, true);
+  })
+
 }
 exports.send_solution = send_solution;
 
@@ -334,7 +339,14 @@ function refresh_score() {
     var sol = get_solution(mapid);
     solver.compute_value(get_board(mapid), sol, function(values) {
       var sum = get_score_total(values);
-      solution_storage.update_best(mapid, sol, sum);
+      var updated = solution_storage.update_best(mapid, sol, sum);
+
+      var totalWalls = +(mapdata[mapid].walls);
+      var usedWalls = sol.length;
+      if (updated && (usedWalls == totalWalls)) {
+        send_solution(mapid);
+      }
+
       write_score_value(values);
     })
     if (showing_values) { draw_values(); }
@@ -438,17 +450,14 @@ function set_custom(item_name, val) {
 function HTML5_SolutionStorage() {
 }
 
-HTML5_SolutionStorage.prototype.update_best = function(mapid, sol, score) {
+HTML5_SolutionStorage.prototype.update_best = function(mapid, sol, score, break_tie) {
+  break_tie = break_tie ? 1 : 0;
   if (isNaN(score)) {return;}
   var cur_best = this.get_best(mapid);
-  var totalWalls = +(mapdata[mapid].walls);
-  var usedWalls = sol.length;
-  if ((!cur_best) || (score > cur_best)) {
+  if ((!cur_best) || (score + break_tie > cur_best)) {
     localStorage['best:' + mapdata[mapid].code] = score;
     this.add_solution(mapid, sol, 'best');
-    if (usedWalls == totalWalls) {
-      send_solution(mapid);
-    }
+    return true;
   }
 
   // if (score == cur_best && usedWalls == totalWalls) {
@@ -530,17 +539,14 @@ JS_SolutionStorage.prototype.get_best = function(mapid) {
   return this.best[mapid];
 }
 
-JS_SolutionStorage.prototype.update_best = function(mapid, sol, score) {
+JS_SolutionStorage.prototype.update_best = function(mapid, sol, score, break_tie) {
+  break_tie = break_tie ? 1 : 0;
   if (isNaN(score)) {return;}
   var cur_best = this.get_best(mapid);
-  var totalWalls = +(mapdata[mapid].walls);
-  var usedWalls = sol.length;
-  if ((!cur_best) || (score > cur_best)) {
+  if ((!cur_best) || (score + break_tie > cur_best)) {
     this.best[mapid] = score;
     this.add_solution(mapid, sol, 'best');
-    if (usedWalls == totalWalls) {
-      send_solution(mapid);
-    }
+    return true;
   }
 }
 
@@ -679,7 +685,6 @@ function refresh_solution_store_display() {
     code_button.data('solution', JSON.stringify(sol))
     code_button.click(function() {
       var sol = $(this).data('solution');
-      console.log(sol);
       alert(sol);
     })
     solution_el.append(code_button);
@@ -1221,7 +1226,6 @@ function initialize_toolbar() {
 
     $.getScript(mt_url + '/src/chat.js');
 
-       console.log( mt_url + '/src/chat.css')
     $("<link/>", { rel: "stylesheet", type: "text/css",
        href: mt_url + '/src/chat.css'
     }).appendTo("head");
