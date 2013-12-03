@@ -160,7 +160,7 @@
     }
     $.ajax({
       type: "POST",
-      url: "http://www.pathery.com/ajax/chat.ajax.php",
+      url: "/ajax/chat.ajax.php",
       data: dataString,
       error: function() {
         chatBuffer = backup.concat(chatBuffer);
