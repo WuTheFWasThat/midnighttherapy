@@ -343,7 +343,7 @@ function refresh_score() {
 
       var totalWalls = +(mapdata[mapid].walls);
       var usedWalls = sol.length;
-      if (updated && (usedWalls == totalWalls)) {
+      if (updated && (usedWalls == totalWalls) && is_main) {
         send_solution(mapid);
       }
 
