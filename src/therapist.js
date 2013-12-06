@@ -685,7 +685,8 @@ function refresh_solution_store_display() {
     code_button.data('solution', JSON.stringify(sol))
     code_button.click(function() {
       var sol = $(this).data('solution');
-      alert(sol);
+      window.prompt("Copy to clipboard: Ctrl/Cmd+C, Enter", sol);
+      //alert(sol);
     })
     solution_el.append(code_button);
 
@@ -1079,7 +1080,7 @@ function initialize_toolbar() {
     'background' : '-ms-linear-gradient(top, #555555 0%,#222222 100%)',
     'background' : 'linear-gradient(to bottom, #555555 0%,#222222 100%)',
     'border-radius' : '15px',
-    'box-shadow' : 'inset 0 0 0 1px #fff',
+    //'box-shadow' : 'inset 0 0 0 1px #fff',
     'padding' : '8px 0px',
     'margin-top' : '21px'
   })
