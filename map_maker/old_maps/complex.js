@@ -23,11 +23,11 @@ exports.generate = function() {
   CPDist.add(4, 1);
   CPDist.add(5, 1);
   var numCps = CPDist.sample();
-  map.placeCheckpoints(numCps, {no_left_right: 1});
+  map.placeCheckpoints(numCps, {xrange: range(2,m-2)});
 
   // uniform between 1 and 2 TPs
   var numTps = getRandomInt(1,2);
-  map.placeTps(numTps, {no_left_right: 1});
+  map.placeTps(numTps, {xrange: range(2,m-2)});
 
   // Rock probability 1/8?
   map.placeRocks(1/8);

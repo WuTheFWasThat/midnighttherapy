@@ -18,7 +18,7 @@ exports.generate = function() {
 
   // A with probability 0.5
   var numCps = getRandomInt(0,1);
-  map.placeCheckpoints(numCps, {no_left_right: 1});
+  map.placeCheckpoints(numCps, {xrange: range(2,m-2)});
 
   // Rock probability 1/12?
   map.placeRocks(1/12);

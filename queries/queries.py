@@ -531,7 +531,7 @@ def count_uc_ties(users = None, misses_allowed = float("Infinity"), options = {}
 #find_winners('Ultra Complex')
 #find_winners()
 
-group_wins(['wu', 'blue', 'dewax',  'uuu'])
+#group_wins(['wu', 'blue', 'dewax',  'uuu'])
 #group_wins(['wu', 'george', 'joy', 'alex', 'hamrick'])
 
 #print_user_history('wu', {'reverse': False, 'firstdate': datetime.datetime(2012, 12, 11)})
@@ -547,4 +547,4 @@ group_wins(['wu', 'blue', 'dewax',  'uuu'])
 #get_stats('wu', {'reverse': False, 'firstmap': 2580})
 #get_stats('wu', {'reverse': True})
 
-#get_mapcodes_of_type('Simple')
+get_mapcodes_of_type('Ultra Complex')

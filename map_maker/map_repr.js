@@ -66,11 +66,8 @@ DenseMap.prototype.repr = function() {
 DenseMap.prototype.placeCheckpoints = function(numCps, options) {
   if (!options) options = {};
 
-  var Is = range(0, this.m);
-  if (options.no_left_right) {
-    Is = range(2, this.m-2);
-  }
-  var Js = range(0, this.n);
+  var Is = options.xrange || range(0, this.m);
+  var Js = options.yrange || range(0, this.n);
 
   for (var i = 0; i < numCps; i++) {
     var tile = tiles.CHECKPOINTS[i];
@@ -80,22 +77,22 @@ DenseMap.prototype.placeCheckpoints = function(numCps, options) {
   }
 }
 
-// Place the number of teleport pairs requested. 
+// Place the number of teleport pairs requested.
 DenseMap.prototype.placeTps = function(numCps, options) {
   if (!options) options = {};
 
-  var Is = range(0, this.m);
-  if (options.no_left_right) {
-    Is = range(2, this.m-2);
-  }
-  var Js = range(0, this.n);
+  var Is = options.xrange || range(0, this.m);
+  var Js = options.yrange || range(0, this.n);
 
   for (var i = 0; i < numCps; i++) {
     var tile1 = tiles.TELE_INS[i];
     var tile2 = tiles.TELE_OUTS[i];
     if (tile1) {
       this.placeRandomlyInArea(tile1, Is, Js);
-      this.placeRandomlyInArea(tile2, Is, Js);
+      var numOuts = (options.numOuts && options.numOuts(i)) || 1;
+      for (var j = 0; j < numOuts; j ++ ) {
+        this.placeRandomlyInArea(tile2, Is, Js);
+      }
     }
   }
 }
