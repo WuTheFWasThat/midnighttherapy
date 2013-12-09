@@ -10,7 +10,7 @@ domain = 'http://beta.pathery.net';
 domain = 'http://blue.pathery.net';
 domain = 'http://www.pathery.com';
 
-clear_cache = True
+clear_cache = False
 
 cache_location = 'queries/cached_queries'
 if clear_cache:
@@ -136,7 +136,6 @@ def find_nth_helper(mapid, n = 1):
     return None
   return s
 
-# get max score of a day
 def find_nth_score(mapid, n = 1):
   res = find_nth_helper(mapid, n)
   return None if (res is None) else int(res[u'moves'])
@@ -149,10 +148,19 @@ def find_nth_display(mapid, n = 1):
   res = find_nth_helper(mapid, n)
   return None if (res is None) else res[u'display']
 
+def find_nth_time(mapid, n = 1):
+  res = find_nth_helper(mapid, n)
+  if res is None:
+    return None
+  time = res[u'cdate'].split(' ')[1].split(':')
+  seconds = int(time[0]) * 60 * 60 + int(time[1]) * 60 + int(time[2])
+  return seconds
+
+# get mapid's best's info
+
 def find_max_helper(mapid):
   return find_nth_helper(mapid, 1);
 
-# get max score of a day
 def find_max_score(mapid):
   return find_nth_score(mapid, 1);
 
@@ -161,6 +169,9 @@ def find_max_user(mapid):
 
 def find_max_display(mapid):
   return find_nth_display(mapid, 1);
+
+def find_fastest_time(mapid):
+  return find_nth_time(mapid, 1);
 
 # find a give users' performance on a given map
 def find_user_helper(mapid, userid):
@@ -359,6 +370,7 @@ def group_wins(group):
       print isodate(date), 'winners', winners
       print count, str(num)+'/'+str(den), (num / (den + 0.0))
 
+first_pathery_date = datetime.datetime(2011, 3, 30) # 3/3 was snap's join date, 3/11 starts having regular maps, 3/16-3/29 is broken
 
 def print_user_history(user, options = {}):
   userid = user_id_map[user]
@@ -370,7 +382,7 @@ def print_user_history(user, options = {}):
     if options['reverse']:
       date = datetime.datetime.now()
     else:
-      date = datetime.datetime(2011, 3, 30) # 3/3 was snap's join date, 3/11 starts having regular maps, 3/16-3/29 is broken
+      date = first_pathery_date
   while True:
     mapids = get_mapids(date)
     print isodate(date)
@@ -405,7 +417,7 @@ def print_history(options = {}):
     if options['reverse']:
       date = datetime.datetime.now()
     else:
-      date = datetime.datetime(2011, 3, 30) # 3/3 was snap's join date, 3/11 starts having regular maps, 3/16-3/29 is broken
+      date = first_pathery_date
   while True:
     mapids = get_mapids(date)
     print isodate(date)
@@ -520,6 +532,55 @@ def count_uc_ties(users = None, misses_allowed = float("Infinity"), options = {}
     else:
       mapid += 1
 
+def graph_win_times(options = {}):
+  import numpy as np
+  import matplotlib.pyplot as plt
+
+  # number of days to do moving average over
+  if 'ndays' not in options:
+    options['ndays'] = 50
+  if 'type' not in options:
+    options['type'] = 'median' # 'mean'
+  if  options['type'] == 'median':
+    def average(lst):
+      return np.median([x for x in lst if x is not None])
+  else:
+    def average(lst):
+      return np.mean([x for x in lst if x is not None])
+
+  averages = [ [] for i in range(0, 3) ]
+  times = [ [None for j in range(options['ndays'])] for i in range(0, 3) ]
+  day = 0
+
+  #date = first_pathery_date
+  date = datetime.datetime.now() - datetime.timedelta(days=365)
+  today = datetime.datetime.now()
+  while date < today:
+
+    mapids = get_mapids(date)
+    for i in range(0,3):
+      t = find_fastest_time(mapids[i])
+      times[i][day % options['ndays']] = t
+      if day >= options['ndays']-1:
+        averages[i].append(average(times[i]))
+
+    day  = day + 1
+    date += datetime.timedelta(days=1)
+
+
+  f, (ax1, ax2, ax3) = plt.subplots(3, 1)
+  ax1.plot(averages[0])
+  ax1.set_title('Simple')
+  ax1.set_ylim(ymin=0)#,ymax=30)
+  ax2.plot(averages[1])
+  ax2.set_title('Normal')
+  ax2.set_ylim(ymin=0)#,ymax=2*60)
+  ax3.plot(averages[2])
+  ax3.set_title('Complex')
+  ax3.set_ylim(ymin=0)#,ymax=8*60)
+  plt.show()
+
+graph_win_times()
 #find_missed_maps('wu')
 #get_score_distribution('Complex')
 #get_rank_distribution(['wu', 'blue', 'dewax', 'vzl', 'uuu', 'sid'], 10)
@@ -547,4 +608,4 @@ def count_uc_ties(users = None, misses_allowed = float("Infinity"), options = {}
 #get_stats('wu', {'reverse': False, 'firstmap': 2580})
 #get_stats('wu', {'reverse': True})
 
-get_mapcodes_of_type('Ultra Complex')
+#get_mapcodes_of_type('Ultra Complex')
