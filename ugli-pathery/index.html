@@ -44,6 +44,8 @@ var Analyst = {}
 <ul id="messages">
 </ul>
 
+<select id="maptype_list"> </select>
+
 <div class ="unselectable">
 
   <div id ="yms" class =' shown-maps'>
@@ -60,20 +62,33 @@ var Analyst = {}
 </div>
 
 <script>
+  function get_param(name) {
+    var results = new RegExp('[\\?&]' + name + '=([^&#]*)').exec(window.location.href);
+    return (results == null ? null : (results[1] || 0));
+  }
+  var maptype = get_param('maptype') || 'simple';
+
   $(document).ready(function() {
+    $.post('/get_map_types', function(maptypes) {
+      for (var category in maptypes) {
+        $('#maptype_list').append( $('<optgroup>').attr('label',"-- " + category + " --"))
+        for (var type in maptypes[category]) {
+          var option = $('<option>').text(type).attr('value', type).appendTo($('#maptype_list'))
+          if (type === maptype) {option.attr('selected', 'selected')}
+        }
+      }
+
+      $('select').on('change', function() {
+        var link = window.location.href.split('?')[0] + '?maptype=' +(this.value);
+        window.location.href = link;
+      });
+
+    });
 
     function add_message(message) {
       $('#messages').append($('<li>').append(message));
     }
 
-    function get_param(name) {
-      var results = new RegExp('[\\?&]' + name + '=([^&#]*)').exec(window.location.href);
-      return (results == null ? null : (results[1] || 0));
-    }
-    var maptype = get_param('maptype');
-    if (maptype == null) {
-      maptype = 'rooms';
-    }
     var mapcode = get_param('mapcode');
     if (mapcode == null) {
       $.post('/generate_map', {type: maptype}, function(result) {

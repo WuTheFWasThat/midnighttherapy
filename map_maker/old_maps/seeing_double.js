@@ -30,7 +30,6 @@ exports.generate = function() {
   map.placeRocks(1/9);
 
   map.walls = util.getRandomElt([20, 20, 21, 21, 22, 23]);
-  console.log(map.repr())
 
   return map;
 }

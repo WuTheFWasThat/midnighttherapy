@@ -79,6 +79,8 @@ app.post('/compute_values', middleware, function(req, res){
 // FOR UGLI
 ///////////////////
 
+var fs = require('fs');
+
 app.post('/generate_map', middleware, function(req, res){
   var maptype = req.param('type');
   var mapcode = req.param('code');
@@ -135,6 +137,28 @@ app.post('/generate_map', middleware, function(req, res){
   }
   res.json(result);
 });
+
+app.post('/get_map_types', middleware, function(req, res){
+  var result = {
+    custom: {},
+    original: {}
+  }
+
+  var custom_types = fs.readdirSync('./map_maker/map_types/');
+  for (var i in custom_types) {
+    var type = custom_types[i].split('.')[0];
+    result.custom[type] = true;
+  }
+
+  var original_types = fs.readdirSync('./map_maker/old_maps/');
+  for (var i in original_types) {
+    var type = original_types[i].split('.')[0];
+    result.original[type] = true;
+  }
+
+  res.json(result);
+});
+
 
 app.use(express.static(__dirname));
 
