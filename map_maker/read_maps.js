@@ -91,7 +91,9 @@ function resultIncr(result, type) {
 }
 
 // The tileTypes we care about
-var tileTypes = ['cps', 'tps', 'walls', tiles.ROCK];
+var tileTypes = ['cps', 'tps', 'walls', tiles.ROCK,
+                 'a', 'b', 'c', 'd', 'e',
+                 't', 'u', 'm', 'n', 'g', 'h', 'i', 'j', 'k', 'l',];
 
 // Collect result
 function collectResult(results, result) {
@@ -107,18 +109,37 @@ function collectResult(results, result) {
   t.wallDist.incr(result.walls);
   t.tpDist.incr(result.tps);
   var CPS = result.cps;
-  t.tpcpdists[CPS].incr(result.tps);
-  t.cptpdists[result.tps].incr(CPS);
-  // t.rockDists[CPS].incr(result[tiles.ROCK]);
-  // t.wallDists[CPS].incr(result.walls);
+
+
   tileTypes.forEach(function(tile) {
     t[tile] += (result[tile] ? result[tile] : 0);
   });
+
+  var totalCp = 0;
+  for (var i = 0; i < 5; i++) {
+    var tile = tiles.CHECKPOINTS[i];
+    var amt = (result[tile] ? result[tile] : 0);
+    totalCp += amt;
+    t.indivCpDists[i].incr(amt);
+  }
+
+  var totalTp = 0;
+  for (var i = 0; i < 5; i++) {
+    var tile = tiles.TELE_OUTS[i];
+    var amt = (result[tile] ? result[tile] : 0);
+    totalTp += amt;
+    t.indivTpDists[i].incr(amt);
+  }
+
+  t.totalCpDist.incr(totalCp);
+  t.totalTpDist.incr(totalTp);
+
 }
 
 
 function main() {
-  var file = fs.readFileSync('./codes.txt');
+  var file = fs.readFileSync('./ucs');
+  // var file = fs.readFileSync('./codes.txt');
   var text = file.toString();
   var codes = text.split('\n');
 
@@ -128,7 +149,7 @@ function main() {
                   'Thirty', 'Thirty Too', 'Reverse Order', 'Finite', 'Rocky Maze',
                   'Ultimate Random', 'Centralized', 'Seeing Double', 'Side to Side',
                   'Unlimited', "ABC's ", 'Dualing paths'];
-  var mapTypes = ['Complex',];
+  var mapTypes = ['Ultra Complex',];
 
   mapTypes.forEach(function(type) {
     var t = {};
@@ -138,18 +159,20 @@ function main() {
     t.rockDist = new Distribution();
     t.wallDist = new Distribution();
     t.tpDist = new Distribution();
-    t.tpcpdists = [];
-    t.cptpdists = [];
-    for (var i = 0; i <= 5; i++) {
-      t.tpcpdists[i] = new Distribution();
-      t.cptpdists[i] = new Distribution();
+
+    t.indivCpDists = [];
+    for (var i = 0; i < 5; i++) {
+      t.indivCpDists[i] = new Distribution();
     }
-    // t.rockDists = [];
-    // t.wallDists = [];
-    // for (var i = 0; i <= 5; i++) {
-    //   t.rockDists[i] = new Distribution();
-    //   t.wallDists[i] = new Distribution();
-    // }
+
+    t.indivTpDists = [];
+    for (var i = 0; i < 5; i++) {
+      t.indivTpDists[i] = new Distribution();
+    }
+
+    t.totalCpDist = new Distribution();
+    t.totalTpDist = new Distribution();
+
     tileTypes.forEach(function(tile) {
       t[tile] = 0;
     });
@@ -166,13 +189,21 @@ function main() {
 
   console.log(results);
 
-  var blah = results['Complex'];
-  console.log(blah.tpcpdists[2])
-  console.log(blah.tpcpdists[3])
-  console.log(blah.tpcpdists[4])
-  console.log(blah.tpcpdists[5])
-  console.log(blah.cptpdists[1])
-  console.log(blah.cptpdists[2])
+  var blah = results['Ultra Complex'];
+
+  console.log(blah.indivCpDists[0]);
+  console.log(blah.indivCpDists[1]);
+  console.log(blah.indivCpDists[2]);
+  console.log(blah.indivCpDists[3]);
+  console.log(blah.indivCpDists[4]);
+  console.log(blah.indivTpDists[0]);
+  console.log(blah.indivTpDists[1]);
+  console.log(blah.indivTpDists[2]);
+  console.log(blah.indivTpDists[3]);
+  console.log(blah.indivTpDists[4]);
+  console.log('total');
+  console.log(blah.totalCpDist);
+  console.log(blah.totalTpDist);
 
 
   // mapTypes.forEach(function(mapType) {
