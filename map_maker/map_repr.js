@@ -62,9 +62,22 @@ DenseMap.prototype.repr = function() {
   return result;
 }
 
+// replace all instances of x with y
+DenseMap.prototype.replaceAll = function(x, y) {
+  for (var i = 0; i < this.m * this.n; i++) {
+    if (this.tiles[i] == x) {
+      this.tiles[i] = y;
+    }
+  }
+}
+
 // Place the number of checkpoints requested. (0 = none, 1 = A, 2 = AB, etc)
 DenseMap.prototype.placeCheckpoints = function(numCps, options) {
   if (!options) options = {};
+  for (var i = 0; i < this.m; i++) {
+    for (var j = 0; j < this.n; j++) {
+    }
+  }
 
   var Is = options.xrange || range(0, this.m);
   var Js = options.yrange || range(0, this.n);

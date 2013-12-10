@@ -23,29 +23,27 @@ exports.generate = function() {
     }
   }
 
-  // D-E, ratio 1:1:1:1
-  map.placeCheckpoints(5, {
-    xrange: range(2,m-2),
-    yrange: range(1,n-1),
-  });
+  map.set('?', 1, allJs)
+  map.set('?', m-2, allJs)
+  map.set('?', range(1,m-1), 0)
+  map.set('?', range(1,m-1), n-1)
 
-  map.placeTps(4, {
-    xrange: range(2,m-2),
-    yrange: range(1,n-1),
-    numouts: function(i) {
-      return 1;
-    }
-  });
+  var num_cps = 5;
+  var num_tps = 4;
+  map.placeCheckpoints(num_cps);
+  map.placeTps(num_tps);
 
-  // Rock probability 1/8?
-  map.placeRocks(1/10);
+  map.placeRandomly( util.getRandomElt(tiles.CHECKPOINTS) );
+  var cp_or_tele_out = []
+  for (var i = 0; i < num_cps; i ++ ) {cp_or_tele_out.push(tiles.CHECKPOINTS[i])}
+  for (var i = 0; i < num_tps; i ++ ) {cp_or_tele_out.push(tiles.TELE_OUTS[i])}
+  map.placeRandomly( util.getRandomElt(cp_or_tele_out) );
+  map.placeRandomly( util.getRandomElt(cp_or_tele_out) );
 
-  map.set(tiles.DEFAULT, 1, range(0,n));
-  map.set(tiles.DEFAULT, m-2, range(0,n));
-  map.set(tiles.DEFAULT, range(1,m-1), 0);
-  map.set(tiles.DEFAULT, range(1,m-1), n-1);
+  map.placeRocks(1/12);
 
-  // Walls uniform from 14-16?
+  map.replaceAll('?', tiles.DEFAULT)
+
   map.walls = 50;
 
   return map;
