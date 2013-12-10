@@ -1,5 +1,4 @@
 var util = require('../map_util');
-var getRandomInt = util.getRandomInt;
 var range = util.range;
 var rangeInclusive = util.rangeInclusive;
 

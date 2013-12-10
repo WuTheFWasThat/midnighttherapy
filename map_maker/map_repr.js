@@ -380,19 +380,15 @@ var dumb_tile_map = {
   , 'o': 'o '
   , 'r': 'r '
 
-// TODO: is this right?
   , 'R': 'r2'
-// TODO: is this right?
   , 'q': 'r3'
 
   , 'p': 'p '
 
-// TODO: is this right?
-  , 'X': 'x '
-  , 'x': 'x2'
+  , 'X': 'x2'
+  , 'x': 'x '
 
   , 's': 's '
-// TODO: is this right?
   , 'S': 's2'
 
   , 'f': 'f '

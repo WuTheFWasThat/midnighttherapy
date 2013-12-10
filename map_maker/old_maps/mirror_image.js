@@ -1,7 +1,4 @@
 var util = require('../map_util');
-var getRandomInt = util.getRandomInt;
-var range = util.range;
-var rangeInclusive = util.rangeInclusive;
 
 var tiles = require('../tile_types');
 var map_repr = require('../map_repr');
@@ -12,14 +9,14 @@ exports.generate = function() {
   var map = new DenseMap(m, n, 0, 'Mirror Image');
 
   var mid = (n-1)/2;
-  var top_half = range(0,mid);
-  var bot_half = range(mid+1,n);
+  var top_half = util.range(0,mid);
+  var bot_half = util.range(mid+1,n);
 
-  var allJs = range(0, n);
+  var allJs = util.range(0, n);
   // start and finish columns
   map.set('?', 1, allJs)
   map.set('?', m-2, allJs)
-  map.set('q', range(0,m), mid)
+  map.set('q', util.range(0,m), mid)
   map.set(tiles.FINISH      , 0   , top_half);
   map.set(tiles.RED_START   , m-1 , top_half);
 
