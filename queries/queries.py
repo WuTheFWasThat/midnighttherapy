@@ -580,7 +580,7 @@ def graph_win_times(options = {}):
   ax3.set_ylim(ymin=0)#,ymax=8*60)
   plt.show()
 
-graph_win_times()
+#graph_win_times()
 #find_missed_maps('wu')
 #get_score_distribution('Complex')
 #get_rank_distribution(['wu', 'blue', 'dewax', 'vzl', 'uuu', 'sid'], 10)

@@ -582,6 +582,9 @@ if (!supports_HTML5_Storage()) {
   solution_storage = new HTML5_SolutionStorage();
 }
 
+var phil_link = "http://forums.pathery.com/showthread.php?tid=50"
+add_message("<a href='" + phil_link + "'>Wu's philosophy on the assist</a>")
+
 // TODO: auto-save best
 // TODO: clear solutions for past maps?
 function save_current_solution() {
