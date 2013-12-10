@@ -1,27 +1,25 @@
 var util = require('../map_util');
-var getRandomInt = util.getRandomInt;
-var range = util.range;
-var rangeInclusive = util.rangeInclusive;
 
 var tiles = require('../tile_types');
 var map_repr = require('../map_repr');
 var DenseMap = map_repr.DenseMap;
 
+exports.name = 'orderINg'
 exports.generate = function() {
   var k = 19;
   var m = k + 2, n = 11;
 
-  var map = new DenseMap(m, n, 0, 'orderINg');
+  var map = new DenseMap(m, n, 0, exports.name);
 
-  var allJs = range(0, n);
+  var allJs = util.range(0, n);
 
   //start and finish columns
   map.set(tiles.GREEN_START, 0, allJs);
   map.set(tiles.FINISH, k-1, allJs);
 
   //paint the right side all black
-  var mostIs = range(0, k);
-  var restIs = range(k, m);
+  var mostIs = util.range(0, k);
+  var restIs = util.range(k, m);
   map.set(tiles.EMPTY, restIs, allJs);
 
   // Weird right col thing
@@ -50,8 +48,8 @@ exports.generate = function() {
   map.placeRandomlyInArea(tiles.TELE_OUT_5, mostIs, allJs);
 
   //Tune some parameters
-  map.walls = getRandomInt(16, 22);
-  var numRocks = getRandomInt(15, 25);
+  map.walls = util.getRandomInt(16, 22);
+  var numRocks = util.getRandomInt(15, 25);
   map.placeRandomlyInArea(tiles.ROCK, mostIs, allJs, numRocks);
   return map;
 }

@@ -1,6 +1,6 @@
 var util = require('../map_util');
-var getRandomInt = util.getRandomInt;
 var gen_map = require('../generate_map');
+exports.name = 'Thirty';
 
 exports.generate = function() {
   var m = 18, n = 14;
@@ -8,6 +8,5 @@ exports.generate = function() {
   var walls = 30;
   var cps = 1
   var tps = 1;
-  var name = 'Thirty';
-  return gen_map.generateMap(m, n, rockProb, walls, cps, tps, name);
+  return gen_map.generateMap(m, n, rockProb, walls, cps, tps, exports.name);
 }

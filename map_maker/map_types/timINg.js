@@ -1,28 +1,26 @@
 
 var util = require('../map_util');
-var getRandomInt = util.getRandomInt;
-var range = util.range;
-var rangeInclusive = util.rangeInclusive;
 
 var tiles = require('../tile_types');
 var map_repr = require('../map_repr');
 var DenseMap = map_repr.DenseMap;
 
+exports.name = 'timINg';
 exports.generate = function() {
   var k = 19, n = 9;
   var m = k + 6;
 
-  var map = new DenseMap(m, n, 0, 'timINg');
+  var map = new DenseMap(m, n, 0, exports.name);
 
-  var allJs = range(0, n);
+  var allJs = util.range(0, n);
 
   //start and finish columns
   map.set(tiles.GREEN_START, 0, allJs);
   map.set(tiles.FINISH, k-1, allJs);
 
   //paint the right side all black
-  var mostIs = range(0, k);
-  var restIs = range(k, m);
+  var mostIs = util.range(0, k);
+  var restIs = util.range(k, m);
   map.set(tiles.EMPTY, restIs, allJs);
 
   //A, B, C
@@ -53,8 +51,8 @@ exports.generate = function() {
   map.set(tiles.FINISH, mp-2, np);
 
   //Tune some parameters
-  map.walls = getRandomInt(18,18);
-  var numExtraRocks = getRandomInt(10, 20);
+  map.walls = util.getRandomInt(18,18);
+  var numExtraRocks = util.getRandomInt(10, 20);
   map.placeRandomlyInArea(tiles.ROCK, mostIs, allJs, numExtraRocks);
 
   return map;

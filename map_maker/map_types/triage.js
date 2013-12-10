@@ -1,21 +1,19 @@
 
 var util = require('../map_util');
-var getRandomInt = util.getRandomInt;
-var range = util.range;
-var rangeInclusive = util.rangeInclusive;
 
 var tiles = require('../tile_types');
 var map_repr = require('../map_repr');
 var DenseMap = map_repr.DenseMap;
 
+exports.name = 'Triage'
 exports.generate = function() {
   var k = 10;
   var m = 3*k + 4, n = 13;
-  var map = new DenseMap(m, n, 0, 'Triage');
+  var map = new DenseMap(m, n, 0, exports.name);
 
   //Three regions, k wide and n tall.
   //Separate the three regions.
-  var allJs = range(0, n);
+  var allJs = util.range(0, n);
   map.set(tiles.EMPTY, [0,k+1, 2*k+2, 3*k+3], allJs);
   //permute the ins/outs
   var p = [3,4,0,1,2];
@@ -34,13 +32,13 @@ exports.generate = function() {
   //Second region: Out1, B
   //Third region: Out2, C, [End]
   //Each region has a warp
-  var I1 = range(1, k+1);
-  var I2 = range(k+2, 2*k+2);
-  var I3 = range(2*k+3, 3*k+3);
+  var I1 = util.range(1, k+1);
+  var I2 = util.range(k+2, 2*k+2);
+  var I3 = util.range(2*k+3, 3*k+3);
 
   //Tune some parameters
   map.walls = 21;
-  var numExtraRocksPerArea = getRandomInt(6,16);
+  var numExtraRocksPerArea = util.getRandomInt(6,16);
 
   map.set(tiles.GREEN_START, 0, n/2 >> 0);
   //map.placeRandomlyInArea(tiles.GREEN_START, I1, allJs);

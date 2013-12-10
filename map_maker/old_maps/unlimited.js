@@ -4,9 +4,10 @@ var tiles = require('../tile_types');
 var map_repr = require('../map_repr');
 var DenseMap = map_repr.DenseMap;
 
+exports.name = 'Unlimited'
 exports.generate = function() {
   var m = 17, n = 9;
-  var map = new DenseMap(m, n, 0, 'Unlimited');
+  var map = new DenseMap(m, n, 0, exports.name);
 
   var allJs = util.range(0, n);
   // start and finish columns

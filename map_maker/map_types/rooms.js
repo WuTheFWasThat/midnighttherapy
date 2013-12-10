@@ -1,12 +1,10 @@
 var util = require('../map_util');
-var getRandomInt = util.getRandomInt;
-var range = util.range;
-var rangeInclusive = util.rangeInclusive;
 
 var tiles = require('../tile_types');
 var map_repr = require('../map_repr');
 var DenseMap = map_repr.DenseMap;
 
+exports.name = 'Rooms'
 exports.generate = function() {
   var num_w = 4, num_h = 4;
 
@@ -14,13 +12,13 @@ exports.generate = function() {
 
   var m = (room_w+1) * num_w - 1;
   var n = (room_h+1) * num_h - 1
-  var map = new DenseMap(m, n, 0, 'Rooms');
+  var map = new DenseMap(m, n, 0, exports.name);
 
   for (var k =1; k <  num_w; k++) {
-    map.set(tiles.EMPTY, (room_w+1) * k - 1, range(0, n));
+    map.set(tiles.EMPTY, (room_w+1) * k - 1, util.range(0, n));
   }
   for (var k =1; k <  num_h; k++) {
-    map.set(tiles.EMPTY, range(0, m), (room_h+1) * k - 1);
+    map.set(tiles.EMPTY, util.range(0, m), (room_h+1) * k - 1);
   }
 
   for (var k =1; k <  num_w; k++) {
@@ -57,7 +55,7 @@ exports.generate = function() {
     return true;
   };
 
-  var numExtraRocks = getRandomInt(13, 20);
+  var numExtraRocks = util.getRandomInt(13, 20);
   map.placeRandomly(tiles.ROCK, numExtraRocks, {condition: condition});
 
   var numCheckpoints = 2;

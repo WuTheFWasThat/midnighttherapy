@@ -1,29 +1,27 @@
 var util = require('../map_util');
-var getRandomInt = util.getRandomInt;
-var range = util.range;
-var rangeInclusive = util.rangeInclusive;
 
 var tiles = require('../tile_types');
 var map_repr = require('../map_repr');
 var DenseMap = map_repr.DenseMap;
 
+exports.name = 'INception';
 exports.generate = function() {
   var outWidth = 4;
   var midWidth = 6;
   var m = 2*outWidth + 2 + 2*midWidth + 4;
   var n = m;
-  var map = new DenseMap(m, n, 0, 'INception');
+  var map = new DenseMap(m, n, 0, exports.name);
 
   // Separate the rings
-  map.set(tiles.EMPTY, outWidth, range(outWidth, n-outWidth));
-  map.set(tiles.EMPTY, m-outWidth-1, range(outWidth, n-outWidth));
-  map.set(tiles.EMPTY, range(outWidth, m-outWidth), outWidth);
-  map.set(tiles.EMPTY, range(outWidth, m-outWidth), n-outWidth-1);
+  map.set(tiles.EMPTY, outWidth, util.range(outWidth, n-outWidth));
+  map.set(tiles.EMPTY, m-outWidth-1, util.range(outWidth, n-outWidth));
+  map.set(tiles.EMPTY, util.range(outWidth, m-outWidth), outWidth);
+  map.set(tiles.EMPTY, util.range(outWidth, m-outWidth), n-outWidth-1);
 
-  map.set(tiles.EMPTY, outWidth + midWidth + 1, range(outWidth+midWidth + 1, n-outWidth-midWidth-1));
-  map.set(tiles.EMPTY, m-(outWidth + midWidth + 1) - 1, range(outWidth+midWidth + 1, n-outWidth-midWidth-1));
-  map.set(tiles.EMPTY, range(outWidth+midWidth + 1, m-outWidth-midWidth-1), outWidth + midWidth + 1);
-  map.set(tiles.EMPTY, range(outWidth+midWidth + 1, m-outWidth-midWidth-1), n-(outWidth + midWidth + 1) - 1);
+  map.set(tiles.EMPTY, outWidth + midWidth + 1, util.range(outWidth+midWidth + 1, n-outWidth-midWidth-1));
+  map.set(tiles.EMPTY, m-(outWidth + midWidth + 1) - 1, util.range(outWidth+midWidth + 1, n-outWidth-midWidth-1));
+  map.set(tiles.EMPTY, util.range(outWidth+midWidth + 1, m-outWidth-midWidth-1), outWidth + midWidth + 1);
+  map.set(tiles.EMPTY, util.range(outWidth+midWidth + 1, m-outWidth-midWidth-1), n-(outWidth + midWidth + 1) - 1);
 
   // Set inner ring
   var innerM = outWidth + 1 + midWidth + 1;
@@ -78,7 +76,7 @@ exports.generate = function() {
 
 
   //Tune some parameters
-  map.walls = getRandomInt(22, 27);
+  map.walls = util.getRandomInt(22, 27);
   var outerRocks = 40,
       innerRocks = 20;
 

@@ -144,17 +144,19 @@ app.post('/get_map_types', middleware, function(req, res){
     original: {}
   }
 
-  var custom_types = fs.readdirSync('./map_maker/map_types/');
-  for (var i in custom_types) {
-    var type = custom_types[i].split('.')[0];
-    result.custom[type] = true;
+
+  function add_types(category, directory) {
+    var files = fs.readdirSync(directory);
+    for (var i in files) {
+      var parts = files[i].split('.')
+      if ((parts.length !== 2) || (parts[parts.length - 1] !== 'js')) continue;
+      var type = parts[0];
+      result[category][type] = require(directory + '/' + files[i]).name;
+    }
   }
 
-  var original_types = fs.readdirSync('./map_maker/old_maps/');
-  for (var i in original_types) {
-    var type = original_types[i].split('.')[0];
-    result.original[type] = true;
-  }
+  add_types('custom', './map_maker/map_types');
+  add_types('original', './map_maker/old_maps');
 
   res.json(result);
 });

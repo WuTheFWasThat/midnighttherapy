@@ -1,19 +1,18 @@
 var util = require('../map_util');
-var getRandomInt = util.getRandomInt;
-var range = util.range;
-var rangeInclusive = util.rangeInclusive;
 
 var tiles = require('../tile_types');
 var map_repr = require('../map_repr');
 var DenseMap = map_repr.DenseMap;
 
+exports.name = 'Double Normal';
+
 exports.generate = function() {
   var k = 9;
   var m = 15, n = 2*k+1;
-  var map = new DenseMap(m, n, 0, 'Double Normal');
-  var allIs = range(0, m);
-  var J1 = range(0,k);
-  var J2 = range(k+1, 2*k+1);
+  var map = new DenseMap(m, n, 0, exports.name);
+  var allIs = util.range(0, m);
+  var J1 = util.range(0,k);
+  var J2 = util.range(k+1, 2*k+1);
 
   //middle row is empty
   map.set(tiles.EMPTY, allIs, k);
@@ -25,7 +24,7 @@ exports.generate = function() {
   map.set(tiles.FINISH, 0, J2);
 
   //Tune some parameters
-  map.walls = getRandomInt(17, 19);
+  map.walls = util.getRandomInt(17, 19);
   var numCheckpoints;
   if (Math.random() < .75) {
     numCheckpoints = 2;
@@ -37,7 +36,7 @@ exports.generate = function() {
     map.placeRandomlyInArea(tiles.CHECKPOINTS[i], allIs, J2);
   }
 
-  var numExtraRocks = getRandomInt(11,15);
+  var numExtraRocks = util.getRandomInt(11,15);
   map.placeRandomlyInArea(tiles.ROCK, allIs, J1, numExtraRocks);
   map.placeRandomlyInArea(tiles.ROCK, allIs, J2, numExtraRocks);
 

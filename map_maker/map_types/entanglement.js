@@ -1,7 +1,4 @@
 var util = require('../map_util');
-var getRandomInt = util.getRandomInt;
-var range = util.range;
-var rangeInclusive = util.rangeInclusive;
 
 var tiles = require('../tile_types');
 var map_repr = require('../map_repr');
@@ -23,9 +20,10 @@ function isSeparated(spotsX, spotsY) {
   return true;
 }
 
+exports.name = 'Entanglement'
 exports.generate = function() {
   var m = 19, n = 19;
-  var map = new DenseMap(m, n, 0, 'Entanglement');
+  var map = new DenseMap(m, n, 0, exports.name);
 
   //start corners
   map.set(tiles.GREEN_START, 0, 0);
@@ -46,8 +44,8 @@ exports.generate = function() {
     spotsX = []; //vertical... lol
     spotsY = [];
     for (var i = 0; i < SPOTS; i++) {
-      spotsX[i] = getRandomInt(2, m-3);
-      spotsY[i] = getRandomInt(2, n-3);
+      spotsX[i] = util.getRandomInt(2, m-3);
+      spotsY[i] = util.getRandomInt(2, n-3);
     }
     done = isSeparated(spotsX, spotsY);
   }
@@ -69,8 +67,8 @@ exports.generate = function() {
   }
 
   //Tune some parameters
-  map.walls = getRandomInt(20,20);
-  var numExtraRocks = getRandomInt(19, 38);
+  map.walls = util.getRandomInt(20,20);
+  var numExtraRocks = util.getRandomInt(19, 38);
   map.placeRandomly(tiles.ROCK, numExtraRocks);
 
   return map;

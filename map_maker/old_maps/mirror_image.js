@@ -4,9 +4,10 @@ var tiles = require('../tile_types');
 var map_repr = require('../map_repr');
 var DenseMap = map_repr.DenseMap;
 
+exports.name = 'Mirror Image'
 exports.generate = function() {
   var m = 23, n = 15;
-  var map = new DenseMap(m, n, 0, 'Mirror Image');
+  var map = new DenseMap(m, n, 0, exports.name);
 
   var mid = (n-1)/2;
   var top_half = util.range(0,mid);

@@ -1,16 +1,15 @@
 var util = require('../map_util');
-var range = util.range;
-var rangeInclusive = util.rangeInclusive;
 
 var tiles = require('../tile_types');
 var map_repr = require('../map_repr');
 var DenseMap = map_repr.DenseMap;
 
+exports.name = 'Ultra Complex';
 exports.generate = function() {
   var m = 25, n = 15;
-  var map = new DenseMap(m, n, 0, 'Ultra Complex');
+  var map = new DenseMap(m, n, 0, exports.name);
 
-  var allJs = range(0, n);
+  var allJs = util.range(0, n);
   // start and finish columns
   map.set(tiles.GREEN_START, 0, allJs);
   map.set(tiles.FINISH, m-1, allJs);
@@ -24,8 +23,8 @@ exports.generate = function() {
 
   map.set('?', 1, allJs)
   map.set('?', m-2, allJs)
-  map.set('?', range(1,m-1), 0)
-  map.set('?', range(1,m-1), n-1)
+  map.set('?', util.range(1,m-1), 0)
+  map.set('?', util.range(1,m-1), n-1)
 
   var num_cps = 5;
   var num_tps = 4;

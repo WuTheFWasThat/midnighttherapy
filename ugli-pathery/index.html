@@ -73,7 +73,7 @@ var Analyst = {}
       for (var category in maptypes) {
         $('#maptype_list').append( $('<optgroup>').attr('label',"-- " + category + " --"))
         for (var type in maptypes[category]) {
-          var option = $('<option>').text(type).attr('value', type).appendTo($('#maptype_list'))
+          var option = $('<option>').text(maptypes[category][type]).attr('value', type).appendTo($('#maptype_list'))
           if (type === maptype) {option.attr('selected', 'selected')}
         }
       }

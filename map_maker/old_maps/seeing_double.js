@@ -1,25 +1,23 @@
 var util = require('../map_util');
-var getRandomInt = util.getRandomInt;
-var range = util.range;
-var rangeInclusive = util.rangeInclusive;
 
 var tiles = require('../tile_types');
 var map_repr = require('../map_repr');
 var DenseMap = map_repr.DenseMap;
 
+exports.name = 'Seeing Double';
 exports.generate = function() {
   var m = 21, n = 13;
-  var map = new DenseMap(m, n, 0, 'Seeing Double');
+  var map = new DenseMap(m, n, 0, exports.name);
 
   var mid = (n-1)/2;
-  var top_half = range(0,mid);
-  var bot_half = range(mid+1,n);
+  var top_half = util.range(0,mid);
+  var bot_half = util.range(mid+1,n);
 
-  var allJs = range(0, n);
+  var allJs = util.range(0, n);
   // start and finish columns
   map.set('s', 0, allJs)
   map.set('f', m-1, allJs)
-  map.set('q', range(1,m-1), mid)
+  map.set('q', util.range(1,m-1), mid)
   map.set('o', 0, mid)
   map.set('o', m-1, mid)
 
