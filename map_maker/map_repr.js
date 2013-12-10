@@ -392,7 +392,7 @@ var dumb_tile_map = {
 
   , 's': 's '
 // TODO: is this right?
-  , 'S': 's '
+  , 'S': 's2'
 
   , 'f': 'f '
 

@@ -9,7 +9,7 @@ var DenseMap = map_repr.DenseMap;
 
 exports.generate = function() {
   var m = 25, n = 15;
-  var map = new DenseMap(m, n, 0, 'Complex');
+  var map = new DenseMap(m, n, 0, 'Ultra Complex');
 
   var allJs = range(0, n);
   // start and finish columns
