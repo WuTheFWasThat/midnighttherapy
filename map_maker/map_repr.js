@@ -377,6 +377,7 @@ DenseMap.prototype.toDumbTiles = function() {
 
 var dumb_tile_map = {
     ' ': 'o '
+  , 'o': 'o '
   , 'r': 'r '
 
 // TODO: is this right?

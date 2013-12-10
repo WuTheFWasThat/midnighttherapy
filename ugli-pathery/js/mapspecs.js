@@ -120,7 +120,7 @@ function doSend(mapid) {
   //   solution: sol,
   //   success: request_path_done
   // });
-  
+
   // TODO: async
   request_path_done(getPath(board, sol));
 
@@ -1107,7 +1107,7 @@ function find_full_path(graph, blocks, reversed) {
       // initialize this checkpoint
       fullpathinfo.push(cpname);
     }
-    
+
     // push things onto actual path, until we hit a teleport
     last_block = path[0];
     for (var k = 1; k < path.length; k++) {
