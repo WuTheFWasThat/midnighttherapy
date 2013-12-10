@@ -53,7 +53,6 @@ exports.generate = function() {
   map.replaceAll('?', tiles.DEFAULT)
 
   map.walls = 999;
-  console.log(map.repr())
 
   return map;
 }

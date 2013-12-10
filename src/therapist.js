@@ -1091,8 +1091,7 @@ function initialize_toolbar() {
   if (is_ugli) {
     $('#yms').before(button_toolbar)
     $('#yms').css({
-      'left': toolbar_width,
-      'position': 'fixed'
+      'margin-left': toolbar_width
     })
     setTimeout(bind_block_events, 1000);
   } else if (is_mapeditor) {
