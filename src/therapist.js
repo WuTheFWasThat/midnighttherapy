@@ -1268,9 +1268,6 @@ function update_wall_images() {
 
 $(document).ready(function() {
 
-  // NOTE:  DO NOT UNCOMMENT THIS LINE
-  // $(document).on('click', function() {$('.map.playable .o').css('background-image', 'url(http://24.media.tumblr.com/tumblr_lg3ynmrMvc1qcpyl1o1_400.gif)')})
-
   update_rock_images();
   update_wall_images();
 
@@ -1292,6 +1289,17 @@ $(document).ready(function() {
   initialize_toolbar();
 
   refresh_all();
+  $($('#topbarContent').children()[3]).remove()
+  $($('#topbarContent').children()[0]).remove()
+  $('#topbarContent').prepend(
+    $('<a>').attr('href','//patherymaps1-2222.terminal.com/ugli-pathery/').addClass('nav').text('Playground').css('color', 'green')
+  ).prepend(
+    $('<a>').attr('href','//blue.pathery.net/home').addClass('nav').text('Blue home').css('color', 'blue')
+  ).prepend(
+    $('<a>').attr('href','//beta.pathery.net/home').addClass('nav').text('Beta home').css('color', 'red')
+  ).prepend(
+    $('<a>').attr('href','//www.pathery.com/home' ).addClass('nav').text('Pathery home')
+  )
 })
 
 
