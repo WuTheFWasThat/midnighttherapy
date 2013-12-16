@@ -1289,9 +1289,14 @@ $(document).ready(function() {
   initialize_toolbar();
 
   refresh_all();
-  $($('#topbarContent').children()[3]).remove()
-  $($('#topbarContent').children()[0]).remove()
-  $('#topbarContent').prepend(
+
+  var topbar = $('#topbarContent');
+  if (!is_ugli)  {
+    $(topbar.children()[3]).remove()
+    $(topbar.children()[0]).remove()
+  }
+
+  topbar.prepend(
     $('<a>').attr('href','//patherymaps1-2222.terminal.com/ugli-pathery/').addClass('nav').text('Playground').css('color', 'green')
   ).prepend(
     $('<a>').attr('href','//blue.pathery.net/home').addClass('nav').text('Blue home').css('color', 'blue')
