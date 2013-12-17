@@ -209,13 +209,14 @@ var find_path_ret_val = new Int32Array(2500);
 // path: (typed) array of block keys in path
 // numel: the number of elements this path should be taken up to.
 // Note: the elements should be accessed backwards, from numel-1 to 0.
+// If no path found, instead returns null.
 PatheryGraph.prototype.find_path = function(
              blocks, // currently placed blocks
              extra_block, // unpassable square (used for green or red only)
              sources, // list of source vertices, in order of priority
              targets // set of target vertices
             ) {
-  parent_map = []; // keyified index ->  parent key (or -1 if was source, and undefined if not yet reached)
+  parent_map = {}; // keyified index ->  parent key (or -1 if was source, and undefined if not yet reached)
   var queue = BFS_queue;
   var queue_start = 0,
       queue_end = 0;
