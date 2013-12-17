@@ -64,10 +64,7 @@ $(document).ready(function() {
 
 exports.mapid = null;
 
-var last_compute_values_time = Date.now();
-var compute_values_interval = 500;
 var new_map_timeout = 100;
-var draw_values_var = null;
 
 /////////////////////
 // GENERAL UTILITIES
@@ -307,6 +304,10 @@ function update_animate_path() {
 // drawing values and scores
 ////////////////////////////////
 
+var draw_values_var = null;
+var draw_values_in_flight = false;
+var last_compute_values_time = Date.now();
+var compute_values_interval = 500;
 function draw_values() {
     var mapid = get_mapid();
 
@@ -316,11 +317,13 @@ function draw_values() {
     clearTimeout(draw_values_var);
 
     // Don't draw values if compute_values_interval hasn't elapsed since the last request sent
-    if (time - last_compute_values_time < compute_values_interval) {
+    if ((draw_values_in_flight) || (time - last_compute_values_time < compute_values_interval)) {
       draw_values_var = setTimeout(draw_values, compute_values_interval);
     } else {
-      last_compute_values_time = time;
+      draw_values_in_flight = true;
       solver.compute_values(get_board(mapid), get_solution(mapid), function(result) {
+         draw_values_in_flight = false;
+         last_compute_values_time = time;
          var value  = result.value;
          var values_list  = result.values_list;
          var maxValue = Math.max.apply(Math, values_list.map(function(x) { return (x.hasOwnProperty('val') && !isNaN(x.val) && !x.blocking ? x.val : -1); }));
