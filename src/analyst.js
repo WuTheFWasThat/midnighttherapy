@@ -203,7 +203,12 @@ PatheryGraph.prototype.teleport = function(block, used_teleports) {
 
 // var BFS_queue = new Int32Array(graph.m * graph.n); // new Array(...)
 var BFS_queue = new Int32Array(1000); // new Array(...)
+var find_path_ret_val = new Int32Array(2500);
 
+// Returns: Object with fields
+// path: (typed) array of block keys in path
+// numel: the number of elements this path should be taken up to.
+// Note: the elements should be accessed backwards, from numel-1 to 0.
 PatheryGraph.prototype.find_path = function(
              blocks, // currently placed blocks
              extra_block, // unpassable square (used for green or red only)
@@ -240,12 +245,13 @@ PatheryGraph.prototype.find_path = function(
 
       // found target!
       if (targets[v]) {
-        var path = [];
+        var path = find_path_ret_val;
+        var idx = 0;
         while (v !== -1) {
-          path.push(v);
+          path[idx++] = v;
           v = parent_map[v];
         }
-        return path.reverse();
+        return {'path': path, 'numel': idx};
       }
 
       // add to queue
@@ -289,21 +295,23 @@ function find_full_path(graph, blocks, reversed){
       var target = targets[i];
       target_dict[target] = true;
     }
-    var path = graph.find_path(blocks, extra_block, cur, target_dict);
-    if (path == null) {
+    var pathObj = graph.find_path(blocks, extra_block, cur, target_dict);
+    if (pathObj == null) {
       return {path: null, value: PATH_BLOCKED_CONSTANT, relevant_blocks: {}};
     }
     var out_blocks = null;
 
     var block;
     // blocking these could affect things
-    for (var k in path) {
+    var path_len = pathObj.numel;
+    var path = pathObj.path;
+    for (var k = path_len - 1; k >= 0; k--) {
       block = path[k];
       relevant_blocks[block] = true;
     }
 
     // push things onto actual path, until we hit a teleport
-    for (var k in path) {
+    for (var k = path_len - 1; k >= 0; k--) {
       block = path[k];
       out_blocks = graph.teleport(block, used_teleports);
       if (out_blocks != null) {
@@ -313,7 +321,7 @@ function find_full_path(graph, blocks, reversed){
         break;
       }
       // if no teleport, and last block of not last leg, skip (to avoid overcount)
-      if ((k < path.length - 1) || (index == graph.checkpoints.length)) {
+      if ((k > 0) || (index == graph.checkpoints.length)) {
         fullpath.push(block);
       }
     }
@@ -583,8 +591,8 @@ function pa_find_full_path(graph, blocks, reversed) {
       var target = targets[i];
       target_dict[target] = true;
     }
-    var path = graph.find_path(blocks, extra_block, cur, target_dict); // returns a list of keys, or null
-    if (path == null) {
+    var pathObj = graph.find_path(blocks, extra_block, cur, target_dict); // returns a list of keys, or null
+    if (pathObj == null) {
       if (!start_block_str) {
         // TODO: make sure this is right? it doesn't seem to matter
         start_block_str = stringify_block(graph.snapify(cur[0]));
@@ -609,23 +617,27 @@ function pa_find_full_path(graph, blocks, reversed) {
     }
     var out_blocks = null;
 
+    var path_len = pathObj.numel;
+    var path = pathObj.path;
+    var first_block_idx = path_len - 1; //path is returned backwards
     if (lastIndex == index) {
       // we hit a teleporter last time
-      fullpathinfo.push(graph.serial_board[path[0]]);
-      fullpathinfo.push(stringify_block(graph.snapify(path[0])));
-      fullpathinfo.push(graph.serial_board[path[0]]);
+      fullpathinfo.push(graph.serial_board[path[first_block_idx]]);
+      fullpathinfo.push(stringify_block(graph.snapify(path[first_block_idx])));
+      fullpathinfo.push(graph.serial_board[path[first_block_idx]]);
     } else {
       if (lastIndex == -1) {
         // first pass: initialize
-        start_block_str = stringify_block(graph.snapify(path[0]));
+        start_block_str = stringify_block(graph.snapify(path[first_block_idx]));
       }
       // initialize this checkpoint
       fullpathinfo.push(cpname);
     }
 
     // push things onto actual path, until we hit a teleport
-    last_block = path[0];
-    for (var k = 1; k < path.length; k++) {
+
+    last_block = path[path_len - 1];
+    for (var k = path_len - 2; k >= 0; k--) {
       totalMoves += 1;
       block = path[k];
       fullpathinfo.push(graph.path_dir(last_block, block));
@@ -640,7 +652,7 @@ function pa_find_full_path(graph, blocks, reversed) {
         var tpchar = graph.serial_board[block];
         fullpathinfo.push(tpchar);
         break;
-      } else if (k == path.length - 1) {
+      } else if (k == 0) {
         // last step in the path for this checkpoint
         if (index == graph.checkpoints.length) {
           // special case: last step in the entire path
