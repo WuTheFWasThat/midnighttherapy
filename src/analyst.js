@@ -25,6 +25,7 @@ CHECKPOINT_2       = 'b';
 CHECKPOINT_3       = 'c';
 CHECKPOINT_4       = 'd';
 CHECKPOINT_5       = 'e';
+CHECKPOINTS        = [CHECKPOINT_1, CHECKPOINT_2, CHECKPOINT_3, CHECKPOINT_4, CHECKPOINT_5];
 
 // dark blue
 TELE_IN_1          = 't';
@@ -150,6 +151,27 @@ PatheryGraph.prototype.keyify = function(block) {
 
 PatheryGraph.prototype.unkeyify = function(blockkey) {
   return [Math.floor(blockkey / this.m), blockkey % this.m];
+}
+
+PatheryGraph.prototype.snapify = function(keyed) {
+  var unkeyed = this.unkeyify(keyed);
+  return [unkeyed[1], unkeyed[0] + 1];
+}
+
+PatheryGraph.prototype.path_dir = function(oldkey, newkey) {
+  var diff = newkey - oldkey;
+  switch(diff) {
+    case -this.m:
+      return '1'; // up
+    case 1:
+      return '2'; // right
+    case this.m:
+      return '3'; // down
+    case -1:
+      return '4'; // left
+    default:
+      throw new Error("unexpected value in pathing");
+  }
 }
 
 PatheryGraph.prototype.dictify_blocks = function(blocks_list) {
@@ -360,6 +382,10 @@ function sum_values(array) {
 }
 exports.sum_values = sum_values;
 
+function stringify_block(block) {
+  return block[0] + ',' + block[1];
+}
+
 // TODO: FIND BLOCKS WHERE I CAN'T PLACE BLOCKS WITHOUT BLOCKING THE PATH
 // BE VERY CAREFUL.  BECAUSE OF TELEPORTS... THIS IS TRICKY AND I DONT YET KNOW HOW TO DO IT
 PatheryGraph.prototype.find_bridges = function(
@@ -519,5 +545,162 @@ function improve_solution(board, blocks, options) {
   return graph.listify_blocks(blocks);
 }
 exports.improve_solution = improve_solution;
+
+// Path animation
+
+function pa_find_full_path(graph, blocks, reversed) {
+  var used_teleports = {};
+  var fullpathinfo = [];
+  var cur; // current list of start points
+  var extra_block;
+  if (reversed) {     // red path
+    cur = graph.red_starts;
+    extra_block = GREEN_THROUGH_ONLY;
+  } else {            // green path
+    cur = graph.green_starts;
+    extra_block = RED_THROUGH_ONLY;
+  }
+  var num_teleports_used = 0;
+
+  var start_block_str, end_block_str;
+  var block, last_block;
+
+  var lastIndex = -1, index = 0;
+  var totalMoves = 0;
+  while (index < graph.checkpoints.length  + 1) {
+    var target_dict = {}
+    if (index == graph.checkpoints.length) {
+      var targets = graph.finishes;
+      var cpname = FINISH;
+    } else if (reversed)  {
+      var targets = graph.checkpoints[graph.checkpoints.length - 1 - index];
+      var cpname = CHECKPOINTS[graph.checkpoints.length - 1 - index];
+    } else {
+      var targets = graph.checkpoints[index];
+      var cpname = CHECKPOINTS[index];
+    }
+    for (var i in targets) {
+      var target = targets[i];
+      target_dict[target] = true;
+    }
+    var path = graph.find_path(blocks, extra_block, cur, target_dict); // returns a list of keys, or null
+    if (path == null) {
+      if (!start_block_str) {
+        // TODO: make sure this is right? it doesn't seem to matter
+        start_block_str = stringify_block(graph.snapify(cur[0]));
+      }
+      if (!end_block_str) {
+        // TODO: make sure this is right? it doesn't seem to matter
+        end_block_str = stringify_block(graph.snapify(graph.finishes[0]));
+      }
+      var lastTarget = cpname;
+      var totalMoves = NaN;
+      var retpath = {
+        blocked: true,
+        start: start_block_str,
+        end: end_block_str,
+        lastTarget: lastTarget,
+        path: fullpathinfo.join(''),
+      };
+      return {
+        path: retpath,
+        value: totalMoves,
+      };
+    }
+    var out_blocks = null;
+
+    if (lastIndex == index) {
+      // we hit a teleporter last time
+      fullpathinfo.push(graph.serial_board[path[0]]);
+      fullpathinfo.push(stringify_block(graph.snapify(path[0])));
+      fullpathinfo.push(graph.serial_board[path[0]]);
+    } else {
+      if (lastIndex == -1) {
+        // first pass: initialize
+        start_block_str = stringify_block(graph.snapify(path[0]));
+      }
+      // initialize this checkpoint
+      fullpathinfo.push(cpname);
+    }
+
+    // push things onto actual path, until we hit a teleport
+    last_block = path[0];
+    for (var k = 1; k < path.length; k++) {
+      totalMoves += 1;
+      block = path[k];
+      fullpathinfo.push(graph.path_dir(last_block, block));
+      last_block = block;
+
+      out_blocks = graph.teleport(block, used_teleports);
+      if (out_blocks != null) {
+        // fullpath.push(block);
+        num_teleports_used += 1;
+        cur = out_blocks;
+
+        var tpchar = graph.serial_board[block];
+        fullpathinfo.push(tpchar);
+        break;
+      } else if (k == path.length - 1) {
+        // last step in the path for this checkpoint
+        if (index == graph.checkpoints.length) {
+          // special case: last step in the entire path
+          end_block_str = stringify_block(graph.snapify(block));
+        }
+        fullpathinfo.push('r'); // signify done with this checkpoint
+      }
+    }
+
+    lastIndex = index;
+
+    if (out_blocks == null) {
+      index += 1;
+      cur = [block];
+    }
+  }
+  var retpath = {
+    blocked: false,
+    start: start_block_str,
+    end: end_block_str,
+    path: fullpathinfo.join(''),
+    moves: totalMoves,
+  };
+  return {
+    path: retpath,
+    value: totalMoves,
+  };
+}
+
+function pa_find_pathery_path(graph, blocks){
+  var path = [];
+  var values = [];
+
+  if (graph.has_regular) {
+    solution_green = pa_find_full_path(graph, blocks);
+    path.push(solution_green.path);
+    values.push(solution_green.value);
+  }
+
+  if (graph.has_reverse) {
+    solution_red = pa_find_full_path(graph, blocks, true);
+    path.push(solution_red.path);
+    values.push(solution_red.value);
+  }
+  return {path: path,
+          value: sum_values(values),
+  };
+}
+
+
+function pa_compute_solution(board, cur_blocks) {
+    if (cur_blocks === undefined) {cur_blocks = []}
+    var graph = new PatheryGraph(board);
+
+    var current_blocks = graph.dictify_blocks(cur_blocks);
+    var solution = pa_find_pathery_path(graph, current_blocks);
+
+    return solution;
+}
+exports.pa_compute_solution = pa_compute_solution;
+
 
 })(typeof exports === "undefined" ? Analyst : module.exports)
