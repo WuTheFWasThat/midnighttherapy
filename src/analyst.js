@@ -203,7 +203,12 @@ PatheryGraph.prototype.teleport = function(block, used_teleports) {
 
 // var BFS_queue = new Int32Array(graph.m * graph.n); // new Array(...)
 var BFS_queue = new Int32Array(1000); // new Array(...)
-var find_path_ret_val = new Int32Array(2500);
+var find_path_ret_val = new Int32Array(2500); // Can probably make this smaller (3/4 * 2500)
+var BFS_parent_map = new Int32Array(2500);
+var BFS_pm_mask = 0; // Used to read old values in the parent map as cleared
+var BFS_pm_mask_incr = 1 << 12; // Since values go from 0 to 2499 (up to 12 bits [4096 = 2^12]), the other bits can be the mask
+var BFS_pm_mask_limit = 1 << 30; // reset the table every 2^18 times it's used
+var BFS_pm_bitmask = (1 << 30) - (1 << 12);
 
 // Returns: Object with fields
 // path: (typed) array of block keys in path
@@ -216,7 +221,19 @@ PatheryGraph.prototype.find_path = function(
              sources, // list of source vertices, in order of priority
              targets // set of target vertices
             ) {
-  parent_map = {}; // keyified index ->  parent key (or -1 if was source, and undefined if not yet reached)
+  // parent_map = {}; // keyified index ->  parent key (or -1 if was source, and undefined if not yet reached)
+  // parent_map: array w/ keyified index -> BFS_pm_mask + parent key (or -1 if was source).
+  // values with the wrong BFS_pm_mask are not yet reached
+  var parent_map = BFS_parent_map;
+  BFS_pm_mask += BFS_pm_mask_incr;
+  // clean the BFS map? it happens not very often though
+  if (BFS_pm_mask >= BFS_pm_mask_limit) {
+    BFS_pm_mask = BFS_pm_mask_incr;
+    for (var i = 0; i < parent_map.length; i++) {
+      parent_map[i] = 0;
+    }
+  }
+
   var queue = BFS_queue;
   var queue_start = 0,
       queue_end = 0;
@@ -224,7 +241,7 @@ PatheryGraph.prototype.find_path = function(
   for (var k in sources) {
     var source = sources[k];
     queue[queue_end++] = source;
-    parent_map[source] = -1;
+    parent_map[source] = BFS_pm_mask-1;
   }
 
   while (queue_start != queue_end) {
@@ -235,14 +252,14 @@ PatheryGraph.prototype.find_path = function(
       var v = neighbors[i];
 
       // already found this square
-      if (parent_map.hasOwnProperty(v)) { continue;}
-
+      // if (parent_map.hasOwnProperty(v)) { continue;}
+      if ((BFS_pm_bitmask & (parent_map[v]+1)) == BFS_pm_mask) { continue; }
       if (blocks[v]) {continue;}
 
       // impassable square
       if (this.serial_board[v] === extra_block) {continue;}
 
-      parent_map[v] = u;
+      parent_map[v] = BFS_pm_mask + u;
 
       // found target!
       if (targets[v]) {
@@ -250,7 +267,7 @@ PatheryGraph.prototype.find_path = function(
         var idx = 0;
         while (v !== -1) {
           path[idx++] = v;
-          v = parent_map[v];
+          v = parent_map[v] - BFS_pm_mask;
         }
         return {'path': path, 'numel': idx};
       }
