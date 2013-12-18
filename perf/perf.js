@@ -33,4 +33,5 @@ for (var i in files) {
   console.log("average time:                    " , avgTime);
   console.log("find_pathery_path count:         " , result.find_pathery_path_count);
   console.log("average ms / #find_pathery_path: " , avgTime / result.find_pathery_path_count)
+  console.log("#find_pathery_path / s: " , 1000 * result.find_pathery_path_count / avgTime)
 }
