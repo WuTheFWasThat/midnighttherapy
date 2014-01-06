@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" width="1200" height="116" onload="init(evt)" viewBox="0 0 1200 116" xmlns="http://www.w3.org/2000/svg" >
+    <defs >
+        <linearGradient id="background" y1="0" y2="1" x1="0" x2="0" >
+            <stop stop-color="#eeeeee" offset="5%" />
+            <stop stop-color="#eeeeb0" offset="95%" />
+        </linearGradient>
+    </defs>
+    <style type="text/css" >
+	rect[rx]:hover { stroke:black; stroke-width:1; }
+	text:hover { stroke:black; stroke-width:1; stroke-opacity:0.35; }
+    </style>
+    <script type="text/ecmascript" >
+	var details;
+	function init(evt) {
+		details = document.getElementById(&quot;details&quot;).
+		    firstChild;
+	}
+	function s(info) { details.nodeValue = info; }
+	function c() { details.nodeValue = &quot; &quot;; }
+    </script>
+    <rect x="0.0" y="0.0" width="1200.0" height="116.0" fill="url(#background)" />
+    <text text-anchor="middle" x="600" y="24" font-size="17" font-family="Verdana" fill="rgb(0, 0, 0)" >Flame Graph</text>
+    <text text-anchor="left" x="10" y="48" font-size="12" font-family="Verdana" fill="rgb(0, 0, 0)" >Function:</text>
+    <text text-anchor="left" x="70" y="48" font-size="12" font-family="Verdana" fill="rgb(0, 0, 0)" id="details" > </text>
+</svg>

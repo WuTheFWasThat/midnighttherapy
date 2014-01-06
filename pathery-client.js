@@ -1,6 +1,7 @@
 // NOTE: set mt_local_testing to use local version
 
 // globals all mentioned here
+mt_local_testing = true
 var Analyst  = {};
 Analyst.server = 'http://127.0.0.1:2222',
 Analyst.post = function(path, data, cb) {
@@ -14,6 +15,7 @@ Analyst.post = function(path, data, cb) {
 }
 
 Analyst.compute_values = function(board, solution, cb) {
+  //return
   this.post('compute_values',
     {'board': JSON.stringify(board), 'solution': JSON.stringify(solution)},
     cb);

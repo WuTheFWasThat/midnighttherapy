@@ -99,6 +99,7 @@ function PatheryGraph(board) {
   this.finishes = this.boardstuff[FINISH]; // list of keyified finishes
 
   this.teleports = {};
+  this.has_teleports = false
   for (teleport_key in teleports_map) {
     // TODO: NOT TRUE IN GENERAL!!!
     var teleport_ins = this.boardstuff[teleport_key];
@@ -107,12 +108,27 @@ function PatheryGraph(board) {
 
     for (var i = 0; i < teleport_ins.length; i++) {
       this.teleports[teleport_ins[i]] = teleport_outs;
+      this.has_teleports = true
     }
   }
 
   // NOTE: Order is important.  DETERMINES MOVE PRIORITIES
   this.moves = [[-1, 0], [0, 1], [1, 0], [0, -1]];
 
+  this.possible_neighbors = [[-1, 0], [-1,-1], [1,1], [1,-1], [-1,1], [0, 1], [1, 0], [0, -1]]
+  this.determine_ordinal = function(vector) {
+    if (vector[0] == 0 && vector[1] == 1){
+      return 1
+    } else if (vector[0] == 1 && vector[1] == 0){
+      return 2
+    } else if (vector[0] == 0 && vector[1] == -1){
+      return 3
+    } else if (vector[0] == -1 && vector[1] == 0){
+      return 4
+    } else {
+      return -1
+    }
+  }
   // Preprocess neighbors
   // Index is the keyified block
   this.neighbors = [];
@@ -215,11 +231,14 @@ var BFS_pm_bitmask = (1 << 30) - (1 << 12);
 // numel: the number of elements this path should be taken up to.
 // Note: the elements should be accessed backwards, from numel-1 to 0.
 // If no path found, instead returns null.
+
 PatheryGraph.prototype.find_path = function(
              blocks, // currently placed blocks
              extra_block, // unpassable square (used for green or red only)
              sources, // list of source vertices, in order of priority
              targets // set of target vertices
+             //helper_solution,  // solution before the last block placed
+             //last_block_placed // last block placed.
             ) {
   // parent_map = {}; // keyified index ->  parent key (or -1 if was source, and undefined if not yet reached)
   // parent_map: array w/ keyified index -> BFS_pm_mask + parent key (or -1 if was source).
@@ -233,22 +252,27 @@ PatheryGraph.prototype.find_path = function(
       parent_map[i] = 0;
     }
   }
-
+  //console.log("TARGETS")
+  //console.log(targets)
+  //console.log("SOURCES")
+  //console.log(sources)
   var queue = BFS_queue;
   var queue_start = 0,
       queue_end = 0;
 
-  for (var k in sources) {
+  for (var k = 0; k < sources.length; k++) {
     var source = sources[k];
     queue[queue_end++] = source;
     parent_map[source] = BFS_pm_mask-1;
   }
+  //console.log("QUEUE")
+  //console.log(queue)
 
   while (queue_start != queue_end) {
     var u = queue[queue_start++];
 
     var neighbors = this.neighbors[u];
-    for (var i = 0; i < neighbors.length; i++) {
+    for (var i = 0, il = neighbors.length; i < il; i++) {
       var v = neighbors[i];
 
       // already found this square
@@ -267,8 +291,15 @@ PatheryGraph.prototype.find_path = function(
         var idx = 0;
         while (v !== -1) {
           path[idx++] = v;
+          //console.log("BFS PM MASK")
+          //console.log(BFS_pm_mask)
+          //console.log("v")
+          //console.log(v)
+          //console.log("parent_map[v]")
+          //console.log(parent_map[v])
           v = parent_map[v] - BFS_pm_mask;
         }
+        //console.log(path);
         return {'path': path, 'numel': idx};
       }
 
@@ -278,8 +309,17 @@ PatheryGraph.prototype.find_path = function(
   }
   return null;
 }
+// previous solution is an array of keyified blocks 
+// ie.  [1,55,330] which represents the previous solution for path caching
 
-function find_full_path(graph, blocks, reversed){
+function find_full_path(graph, blocks, reversed, previous_solution, last_block_placed){
+  //console.log("FIND FULL PATH")
+  block_in_question = 210000
+  //previous_solution = []
+  if (previous_solution == null || previous_solution == undefined) {
+    //console.log("SETTING PREVIOUS SOLUTION TO []")
+    previous_solution = []
+  }
   var used_teleports = {};
   var index = 0;
   var fullpath = [];
@@ -301,6 +341,7 @@ function find_full_path(graph, blocks, reversed){
   var relevant_blocks = {}; // The set of blocks which blocking may help
 
   while (index < graph.checkpoints.length  + 1) {
+    //console.log("NEW CHECKPOINT")
     var target_dict = {}
     if (index == graph.checkpoints.length) {
       var targets = graph.finishes;
@@ -313,14 +354,115 @@ function find_full_path(graph, blocks, reversed){
       var target = targets[i];
       target_dict[target] = true;
     }
+    //console.log("TARGETS")
+    //console.log(targets)
+
+     //console.log("last_block_placed");
+     //console.log(last_block_placed);
+
+    //console.log(graph.unkeyify(last_block_placed));
+    //var shortcut_ever = false
+    // if (last_block_placed == block_in_question){
+
+    //   shortcut_ever = true
+    //   console.log("PREVIOUS SOLUTION")
+    //   for (iii = 0; iii < previous_solution.length; iii++){
+    //     console.log(graph.unkeyify(previous_solution[iii]))
+    //   }
+    //   //console.log(previous_solution);
+    //   console.log("_____________________")
+    //   console.log("BEGIN")
+    //   console.log(cur)
+    //   console.log("current full path");
+    //   console.log(fullpath)
+    //   console.log("TARGETS")
+    //   console.log(target_dict);
+    //   console.log("LOOP")
+    // }
+    var shortcut = false
+    var ii1 = 0
+    for (var ii = 0, q = previous_solution.length; ii < q; ii++){
+      //console.log("within loop")
+      //console.log(previous_solution.length)
+      //console.log(previous_solution)
+      //console.log("jfiowfweoijjoi")
+      // if (last_block_placed == block_in_question){
+      //   console.log("INDEX")
+      //   console.log(ii)
+      //   console.log(graph.unkeyify(previous_solution[ii]))
+      // }
+      //console.log(previous_solution[ii])
+      block = previous_solution[ii]
+      if (block == last_block_placed) {
+        shortcut = false
+        ii1 = ii
+      }
+      if (target_dict[block] == true){
+
+        //console.log("DOING SHORTCUT!")
+         //console.log("DOING SHORTCUT!")
+        if (shortcut){
+          shortcut = previous_solution.slice(0, ii + 1)
+        } else{
+          var shortcut2 = previous_solution.slice(ii1 + 1, ii - ii1)
+          for (iip in shortcut2){
+            target_dict[shortcut2[iip]] = true;
+
+          }
+        }
+        previous_solution = previous_solution.slice(ii+1, previous_solution.length)
+        break;
+      }
+    }
+    //console.log("AFTER loop")
+    if (shortcut != false && !graph.has_teleports){
+      fullpath = fullpath.concat(shortcut)
+      index += 1
+      cur = [fullpath[fullpath.length -1]]
+      // if (last_block_placed == block_in_question){
+      //   console.log("shortcut")
+      //   console.log(shortcut)
+      //   for (var kkk in shortcut){
+      //     console.log(graph.unkeyify(shortcut[kkk]))
+      //   }
+      //   console.log("temp fullpath")
+      //   console.log(fullpath)
+      // }
+      continue;
+    }
     var pathObj = graph.find_path(blocks, extra_block, cur, target_dict);
+
+    //console.log("pathObj")
+    //console.log(pathObj)
     if (pathObj == null) {
       return {path: null, value: PATH_BLOCKED_CONSTANT, relevant_blocks: {}};
+    }
+
+    if (shortcut2 && !graph.has_teleports){
+      firstObject = pathObj.path[0]
+      for (var k = path_len - 1; k >= 0; k--) {
+        block = path[k];
+        fullpath.push(block);
+      }
+      fullpath = fullpath.concat(shortcut2.slice(shortcut2.indexOf(firstObject), shortcut2.length))
+      index += 1
+      cur = [fullpath[fullpath.length -1]]
+      // if (last_block_placed == block_in_question){
+      //   console.log("shortcut")
+      //   console.log(shortcut)
+      //   for (var kkk in shortcut){
+      //     console.log(graph.unkeyify(shortcut[kkk]))
+      //   }
+      //   console.log("temp fullpath")
+      //   console.log(fullpath)
+      // }
+      continue;
     }
     var out_blocks = null;
 
     var block;
     // blocking these could affect things
+    // only calculate when not brute forcing
     var path_len = pathObj.numel;
     var path = pathObj.path;
     for (var k = path_len - 1; k >= 0; k--) {
@@ -329,14 +471,19 @@ function find_full_path(graph, blocks, reversed){
     }
 
     // push things onto actual path, until we hit a teleport
+    //console.log(graph.teleports)
+    has_teleports = graph.has_teleports
     for (var k = path_len - 1; k >= 0; k--) {
       block = path[k];
-      out_blocks = graph.teleport(block, used_teleports);
-      if (out_blocks != null) {
-        fullpath.push(block);
-        num_teleports_used += 1;
-        cur = out_blocks;
-        break;
+      //console.log(block)
+      if (has_teleports){
+        out_blocks = graph.teleport(block, used_teleports);
+        if (out_blocks != null) {
+          fullpath.push(block);
+          num_teleports_used += 1;
+          cur = out_blocks;
+          break;
+        }
       }
       // if no teleport, and last block of not last leg, skip (to avoid overcount)
       if ((k > 0) || (index == graph.checkpoints.length)) {
@@ -346,10 +493,20 @@ function find_full_path(graph, blocks, reversed){
     if (out_blocks == null) {
       index += 1;
       cur = [block];
+      previous_solution = previous_solution.slice(previous_solution.indexOf(block), previous_solution.length)
     }
   }
 
   var solution_length = fullpath.length - 1 - num_teleports_used;
+  // if (last_block_placed == block_in_question){
+  //   console.log("FINAL FULLPATH")
+  //   //console.log(fullpath)
+  //   for (iii = 0; iii < fullpath.length; iii++){
+  //      console.log(graph.unkeyify(fullpath[iii]))
+  //    }
+  //   console.log("SCORE")
+  //   console.log(fullpath.length)
+  // }
   return {
     path: fullpath,
     value: solution_length,
@@ -357,20 +514,21 @@ function find_full_path(graph, blocks, reversed){
   };
 }
 
-function find_pathery_path(graph, blocks){
+function find_pathery_path(graph, blocks, previous_solution, last_block_placed){
   var relevant_blocks = {};
   var paths = [];
   var values = [];
-
+  //console.log("FIND PATHERY PATH")
+  //console.log(last_block_placed)
   if (graph.has_regular) {
-    solution_green = find_full_path(graph, blocks);
+    solution_green = find_full_path(graph, blocks, false, previous_solution, last_block_placed);
     paths.push(solution_green.path);
     values.push(solution_green.value);
     for (var block in solution_green.relevant_blocks) {relevant_blocks[block] = true;}
   }
 
   if (graph.has_reverse) {
-    solution_red = find_full_path(graph, blocks, true);
+    solution_red = find_full_path(graph, blocks, true, previous_solution, last_block_placed);
     paths.push(solution_red.path);
     values.push(solution_red.value);
     for (var block in solution_red.relevant_blocks) {relevant_blocks[block] = true;}
@@ -382,12 +540,13 @@ function find_pathery_path(graph, blocks){
 }
 
 
-function compute_solution(board, cur_blocks, cb) {
+function compute_solution(board, cur_blocks, previous_solution, cb) {
+  console.log("COMPUTE SOLUTION")
     if (cur_blocks === undefined) {cur_blocks = []}
     var graph = new PatheryGraph(board);
 
     var current_blocks = graph.dictify_blocks(cur_blocks);
-    var solution = find_pathery_path(graph, current_blocks);
+    var solution = find_pathery_path(graph, current_blocks, previous_solution);
 
     if (cb) {cb(solution)}
     return solution;
@@ -395,7 +554,7 @@ function compute_solution(board, cur_blocks, cb) {
 exports.compute_solution= compute_solution;
 
 function compute_value(board, cur_blocks, cb) {
-    var solution = compute_solution(board, cur_blocks, function(solution) {
+    var solution = compute_solution(board, cur_blocks, [], function(solution) {
       if (cb) {cb(solution.values);}
     });
     return solution.values;
@@ -485,8 +644,149 @@ exports.compute_values = compute_values;
 ///////////////////////////////////////////////////////////////////////////////////////////////
 // SOLVER
 ///////////////////////////////////////////////////////////////////////////////////////////////
+function place_greedy(board, cur_blocks, depth, previous_solution, previous_block, blocked_list, graph, cb) {
+  //console.log("PLACE GREEDY!!!" )
+  //console.log("DEPTH: " + depth)
+  if (graph == undefined){
+    var graph = new PatheryGraph(board);
+  } else{
+    graph.used_teleports = {};
+  }
+  if (blocked_list == undefined){
+    blocked_list = []
+  }
+  
+  //console.log("SHOULD BE UNDEFINED");
+  //console.log(best_val);
+  var best_val = 0;
+  var best_blocks = [];
 
-function place_greedy(board, cur_blocks, remaining, cb) {
+  var current_blocks = graph.dictify_blocks(cur_blocks);
+  var solution = find_pathery_path(graph, current_blocks, previous_solution, previous_block)
+  //console.log(solution.paths)
+  //console.log(cur_blocks)
+  if (solution.paths[0] == null){
+    //console.log(previous_block)
+    blocked_list.push(previous_block)
+  }
+  blocked_list = blocked_list.slice(0, blocked_list.length)
+
+  if (depth == 0){
+    return [cur_blocks, solution.value]
+  }
+  var possible_next_moves = Object.keys(solution.relevant_blocks)
+  //console.log(solution.relevant_blocks)
+  //console.log(possible_next_moves)
+  for (var i = 0; i < possible_next_moves.length; i++) {
+    var block = possible_next_moves[i]
+    //console.log()
+    if (blocked_list.indexOf(block) != -1){
+      //console.log("blocked!")
+      //console.log(unkeyed)
+      continue;
+    }
+    unkeyed = graph.unkeyify(block)
+    var x = unkeyed[0];
+    var y = unkeyed[1];
+    if (graph.serial_board[block] != ' ') {
+      //console.log("not empty")
+      continue;
+    }
+    if (depth > 0){
+      // console.log("      ")
+      // console.log("SKIP TEST")
+      var connected_to_something = false
+
+      // console.log([x,y])
+      if (x == 0 || y == 0 || x == graph.n -1 || y == graph.m -1){
+        // console.log("on the border")
+        connected_to_something = true
+      }
+      //console.log(cur_blocks)
+      var has_blocks_dirs = []
+      if (connected_to_something == false){
+        var dirs = graph.possible_neighbors
+        for (var ni = 0, nilength = dirs.length; ni < nilength; ni++) {
+          dir = dirs[ni]
+          var temp_x = x + dir[0]
+          var temp_y = y + dir[1]
+          var neighbor_square = graph.serial_board[graph.keyify_coordinates(temp_x, temp_y)]
+          // not empty, checkpoint a/b/c, finish or start
+          if ([' ','a','b', 'f', 's','c', 'p', 'S', 'd', 'e'].indexOf(neighbor_square) == -1){
+            // console.log("SOMETHING AT")
+            // console.log([temp_x, temp_y])
+            // console.log(graph.serial_board[graph.keyify_coordinates(temp_x, temp_y)])
+            connected_to_something = true
+            has_blocks_dirs.push(graph.determine_ordinal(dir))
+          }
+          if (current_blocks[graph.keyify_coordinates(temp_x, temp_y)]){
+            has_blocks_dirs.push(graph.determine_ordinal(dir))
+            connected_to_something = true
+          }
+
+        }
+      }
+      if (connected_to_something == false){
+        //console.log([x,y])
+        //console.log("SKIPPING")
+        continue
+      }
+
+      //console.log(has_blocks_dirs)
+      if (connected_to_something && has_blocks_dirs.length > 1) {
+
+        //console.log("unkeyed")
+        //console.log(unkeyed)
+        if (has_blocks_dirs.indexOf(1) != -1 && has_blocks_dirs.indexOf(2) != -1){
+          //console.log("1")
+          continue
+        }
+        if (has_blocks_dirs.indexOf(1) != -1 && has_blocks_dirs.indexOf(4) != -1){
+          //console.log("2")
+          continue
+        }
+        if (has_blocks_dirs.indexOf(2) != -1 && has_blocks_dirs.indexOf(3) != -1){
+          // console.log("3")
+          continue
+        }
+        if (has_blocks_dirs.indexOf(3) != -1 && has_blocks_dirs.indexOf(4) != -1){
+          // console.log("4")
+          continue
+        }
+      }
+    }
+    var temp_blocks = cur_blocks.concat([unkeyed])
+    //console.log("TEMPT BLOCKS")
+    //console.log(temp_blocks)
+    //console.log(temp_blocks)
+    //console.log("solution.paths[0]")
+    //console.log(solution.paths[0])
+    var response = place_greedy(board, temp_blocks, depth -1, solution.paths[0], block, blocked_list, graph)
+    //console.log("")
+    //console.log([i,j])
+    //console.log("RESPONSE: " + response)
+    //console.log("")
+    var possible_blocks = response[0]
+    var val = response[1]
+    //console.log(val)
+    if (val > best_val){
+      best_blocks = possible_blocks
+      best_val = val
+      // console.log("________________________________")
+      // console.log("DEPTH: " + depth)
+      // console.log("BEST VAL: " + best_val)
+      // console.log("BEST BLOCKS")
+      // console.log(best_blocks)
+      // console.log("SCORE: " + val)
+    }
+  }
+  if (cb) {cb(best_blocks);}
+  //console.log("DEPTH: " + depth)
+  //console.log("Returning " + [best_blocks, best_val])
+  return [best_blocks, best_val];
+}
+function place_greedy2(board, cur_blocks, remaining, cb) {
+  //console.log("Place greedy 2!!!!!!")
   while (remaining > 0) {
     var best_val= -1;
     var best_block = null;
@@ -496,6 +796,8 @@ function place_greedy(board, cur_blocks, remaining, cb) {
       if ((!val_dict.blocking) && (typeof val_dict.val === 'number') && (val_dict.val > best_val)) {
         best_val = val_dict.val;
         best_block = [val_dict.i, val_dict.j]
+        //console.log("Best Value:" + best_val)
+        //console.log("Best Blocks:" + best_block)
       }
     }
 
@@ -505,8 +807,7 @@ function place_greedy(board, cur_blocks, remaining, cb) {
 
     remaining -= 1;
   }
-  if (cb) {cb(cur_blocks);}
-  return cur_blocks;
+  return [cur_blocks, best_val];
 }
 exports.place_greedy = place_greedy;
 
