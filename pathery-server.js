@@ -24,22 +24,15 @@ var middleware = [
 app.post('/place_greedy', middleware, function(req, res){
   console.log("\nPLACE GREEDY:")
   var t = new Date().getTime();
-  remaining = JSON.parse(req.param('remaining'));
-  if (remaining > 4 ) {
-    remaining = 4
-  }
-  console.log("REMAINING: " + remaining)
-  var result = Analyst.place_greedy(JSON.parse(req.param('board')), JSON.parse(req.param('solution')), remaining);
+  var result = Analyst.place_greedy(JSON.parse(req.param('board')), JSON.parse(req.param('solution')), JSON.parse(req.param('remaining')));
   console.log("ms elapsed: " , new Date().getTime() - t)
-  console.log("FINAL RESULT:" + result[0])
-  console.log("FINAL RESULT SCORE:" + result[1])
-  res.json(result[0]);
+
+  res.json(result);
 });
 
 app.post('/improve_solution', middleware, function(req, res){
   console.log("\nIMPROVE:")
   var t = new Date().getTime();
-
   var result = Analyst.improve_solution(JSON.parse(req.param('board')), JSON.parse(req.param('solution')), {});
 
   console.log("ms elapsed: " , new Date().getTime() - t)
@@ -51,6 +44,7 @@ app.post('/improve_solution', middleware, function(req, res){
 });
 
 app.post('/play_map', middleware, function(req, res){
+  console.log("\nPLACE GREEDY:")
   var t = new Date().getTime();
   var result = Analyst.play_map(JSON.parse(req.param('board')));
   console.log("ms elapsed: " , new Date().getTime() - t)
@@ -59,12 +53,10 @@ app.post('/play_map', middleware, function(req, res){
 });
 
 app.post('/compute_value', middleware, function(req, res){
-  console.log("\nCOMPUTE VALUE CALL:")
-
-  console.log(req.param('board'))
+  //console.log("\nCOMPUTE VALUE:")
   var t = new Date().getTime();
   var result = Analyst.compute_value(JSON.parse(req.param('board')), JSON.parse(req.param('solution')));
-  console.log("ms elapsed: " , new Date().getTime() - t)
+  //console.log("ms elapsed: " , new Date().getTime() - t)
 
   res.json(result);
 

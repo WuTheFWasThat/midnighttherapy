@@ -3,7 +3,7 @@ repr = require('../map_maker/map_repr.js');
 fs = require('fs');
 
 var files = fs.readdirSync('./tests');
-var NUMTIMES_DEFAULT = 200;
+var NUMTIMES_DEFAULT = 20;
 for (var i in files) {
   var filename = files[i];
   var testcase = require('./tests/' + filename);
@@ -23,7 +23,7 @@ for (var i in files) {
   console.log("Test " + filename);
   var t = new Date().getTime();
   for (var i = 0; i < numTimes; i++) {
-    var result = Analyst.place_greedy(board, solution, 3);
+    var result = Analyst.compute_values(board, solution);
   }
 
   var time_elapsed = new Date().getTime() - t;

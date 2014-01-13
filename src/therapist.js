@@ -288,8 +288,6 @@ loadSol = new_loadSol;
 
 var __old_animatePath__ = animatePath;
 function update_animate_path() {
-  animatePath = __old_animatePath__;
-  return
   if (shiftkey_held) {
     animatePath = __old_animatePath__;
   } else {
@@ -311,65 +309,37 @@ var draw_values_in_flight = false;
 var last_compute_values_time = Date.now();
 var compute_values_interval = 500;
 function draw_values() {
-  console.log("draw values")
-  var mapid = get_mapid();
+    var mapid = get_mapid();
 
-  var time = Date.now();
+    var time = Date.now();
 
-  // nullify any other pending request
-  clearTimeout(draw_values_var);
+    // nullify any other pending request
+    clearTimeout(draw_values_var);
 
-  // Don't draw values if compute_values_interval hasn't elapsed since the last request sent
-  if ((draw_values_in_flight) || (time - last_compute_values_time < compute_values_interval)) {
-    //draw_values_var = setTimeout(draw_values, compute_values_interval);
-  } else {
-    draw_values_in_flight = true;
-    solver.compute_values(get_board(mapid), get_solution(mapid), function(result) {
-       draw_values_in_flight = false;
-       last_compute_values_time = time;
-       var value  = result.value;
-       var values_list  = result.values_list;
-       var maxValue = Math.max.apply(Math, values_list.map(function(x) { return (x.hasOwnProperty('val') && !isNaN(x.val) && !x.blocking ? x.val : -1); }));
-       for (var k in values_list) {
-         var values_dict = values_list[k];
-         draw_single_value(mapid, values_dict.i, values_dict.j, values_dict.val, values_dict.blocking, maxValue);
-       }
-     })
-  }
-}
-window.animatePath2 = function(path, map_id){
-  pathString = "f"
-  start= path[0]
-  start = [start[1], start[0] + 1]
-  start = start.toString()
-  for (var i = 0; i < path.length; i++){
-    console.log("hi")
-    if (path[i+1] == undefined){break;}
-    old = [path[i][1], path[i][0]]
-    newBlock = [  path[i+1][1], path[i+1][0]]
-    if (old[0] == newBlock[0] + 1 && old[1] == newBlock[1]){
-      pathString = pathString + '4'
-    } else if (old[0] == newBlock[0] - 1 && old[1] == newBlock[1]){
-      pathString = pathString + '2'
-    } else if (old[0] == newBlock[0] && old[1] == newBlock[1] + 1){
-      pathString = pathString + '1'
-    } else if (old[0] == newBlock[0] && old[1] == newBlock[1] - 1){
-      pathString = pathString + '3'
+    // Don't draw values if compute_values_interval hasn't elapsed since the last request sent
+    if ((draw_values_in_flight) || (time - last_compute_values_time < compute_values_interval)) {
+      draw_values_var = setTimeout(draw_values, compute_values_interval);
+    } else {
+      draw_values_in_flight = true;
+      solver.compute_values(get_board(mapid), get_solution(mapid), function(result) {
+         draw_values_in_flight = false;
+         last_compute_values_time = time;
+         var value  = result.value;
+         var values_list  = result.values_list;
+         var maxValue = Math.max.apply(Math, values_list.map(function(x) { return (x.hasOwnProperty('val') && !isNaN(x.val) && !x.blocking ? x.val : -1); }));
+         for (var k in values_list) {
+           var values_dict = values_list[k];
+           draw_single_value(mapid, values_dict.i, values_dict.j, values_dict.val, values_dict.blocking, maxValue);
+         }
+       })
     }
-  }
-  console.log("pathString")
-  console.log(pathString)
-  console.log('start')
-  console.log(start)
-  animatePath(pathString, map_id,start, 0);
 }
+
 var showing_values = false;
 function refresh_score() {
-  //return
   try { // for mapeditor race condition
     var mapid = get_mapid();
     var sol = get_solution(mapid);
-    console.log("refresh score");
     solver.compute_value(get_board(mapid), sol, function(values) {
       var sum = get_score_total(values);
       var updated = solution_storage.update_best(mapid, sol, sum);
@@ -387,7 +357,6 @@ function refresh_score() {
 };
 
 function draw_single_value(mapid, i, j, value, blocking, maxValue) {
-    //console.log("DRW")
     var elt = $('#child_' + mapid + '\\,' + (i+1) + '\\,' + j);
     var css = {'text-align': 'center',
   		     'cursor': 'default',
@@ -416,7 +385,7 @@ function draw_single_value(mapid, i, j, value, blocking, maxValue) {
       css.color = 'gray';
     }
     elt.css(css);
-    elt.text(i + ',' + j);
+    elt.text(value);
 }
 
 function refresh_all() {
@@ -615,6 +584,9 @@ if (!supports_HTML5_Storage()) {
 }  else {
   solution_storage = new HTML5_SolutionStorage();
 }
+
+var phil_link = "http://forums.pathery.com/showthread.php?tid=50"
+add_message("<a href='" + phil_link + "'>Wu's philosophy on the assist</a>")
 
 // TODO: auto-save best
 // TODO: clear solutions for past maps?
@@ -1026,7 +998,7 @@ register_hotkey(GO_KEY, function(e) {
   var mapid = get_mapid();
   send_solution(mapid);
   update_scores_page();
-  //setTimeout(update_scores_page, 300);
+  setTimeout(update_scores_page, 300);
 });
 
 register_hotkey(RESET_KEY, function(e) {
@@ -1138,7 +1110,7 @@ function initialize_toolbar() {
     $('#playableMapDisplay').css('float', 'left');
 
     $(window).click(function() {
-      //refresh_all();
+      refresh_all();
       bind_block_events();
       setTimeout(bind_block_events, new_map_timeout); // this is apparently not enough...
     });
@@ -1257,6 +1229,8 @@ function initialize_toolbar() {
 
 
     button_toolbar.append(chat_frame);
+
+    $.getScript(mt_url + '/src/chat.js');
 
     $("<link/>", { rel: "stylesheet", type: "text/css",
        href: mt_url + '/src/chat.css'
