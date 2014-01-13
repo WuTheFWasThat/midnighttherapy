@@ -66,14 +66,31 @@ You'll then see the name appear in a list, where you can Load or Delete it.
 If you want your solution saving to persist, you'll need a browser that supports HTML5 storage!
 If your browser doesn't support HTML5 local storage, you really should upgrade it...
 
-### HOTKEY ###
+### HOTKEYS ###
 
+I provide a number of hotkeys to make playing easier and faster:
 
 | Hotkey        | Action                           |
 | ------------- |:-------------------------------- |
-| F             | Solve (hold shift to animate)      |
+| 1-5           | Switch between maps              |
+| G             | Go! (hold shift to animate)      |
+| R             | Reset                            |
+| L             | Load best solution               |
+| S             | Save solution                    |
+| M             | Toggle mute                      |
+| V             | Toggle values                    |
+| W             | Wall (paint)                     |
+| E             | Erase (paint)                    |
+| X             | Toggle block                     |
+| Z             | Undo                             |
+| Y             | Redo                             |
+| Shift+Click   | Draw line from most recent block |
 
+### OTHER ###
 
+- As you might have noticed, you can customize your block and wall images.
+- Score auto-submit
+- Automatic tracking of best score
 
 ## SERVERSIDE PATHING ##
 
@@ -97,10 +114,33 @@ Next, add my client to the browser window.
 
 into the Javascript console.  Again, you can make this easier using something like Tampermonkey/Greasemonkey (a slight modification to monkey-script.js will work), or a bookmarklet.
 
+<!--
+### SERVER API ###
+
+I'll get to this sometime...
+-->
+
+## KNOWN ISSUES: ##
+
+- After erasing a block, you can't shift click to it
+
+- Sometimes you can get into a state where clicking a block puts it somewhere else... (unclear how to reproduce)
+
+- Improve (I) seems messed up, caused decreased score on a seeing double
+
+- Display with green/red path is messed up on UGLI-pathery. (Red start looks like it's green, and red/green only block pictures are swapped?)
+
+<!--
+None, at the moment.  Let me know if you find any!
+-->
 
 ## FUTURE WORK: ##
 
-- Partial-Path caching
+- Disable new day alert, auto refresh
+
+- Disable achievement earn alert
+
+- Cleanup of old saved solutions
 
 - Notifications when scores are beat?
 
@@ -109,6 +149,8 @@ into the Javascript console.  Again, you can make this easier using something li
 - More customization? e.g. shown values colors, etc.
 
 - An API to support solvers that actually suggest (potentially major) changes, takes suggestions, etc. (and an accompanying prototype)
+
+- Make the it faster! (currently does ~1000 full UC calculations per second on my Macbook Air, in Node.js (which is single threaded))
 
 - Make painting/erasing atomic for undo?
 

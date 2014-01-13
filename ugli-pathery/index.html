@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+
+<html xml:lang ="en" lang ="en">
+<head>
+
+<meta http-equiv ="Content-Type " content ="text/html; charset=UTF-8"/>
+
+<title> Pathery </title>
+
+<link href ="css/page.css" rel ="stylesheet" type ="text/css"/>
+<link href ='css/maps.css' rel ='stylesheet' type ='text/css'/>
+ <link rel ="image_src" type =" image/png " href ="/images/linkdsp.png"/>
+<link href ="css/stats.css" rel ="stylesheet" type ="text/css"/>
+
+<style>
+*.unselectable {
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+</style>
+
+<meta name =' Description ' content =' Path lengthening competition inspired by Tower Defense mazing concepts '>
+
+<script src =" js/jquery.min.js"> </script>
+<script src =" js/mapspecs.js"> </script>
+
+<script>
+var pathery_ugli = true;
+var mt_local_testing = true;
+var mt_url = "../";
+var Therapist = {}
+var Analyst = {}
+</script>
+<script src ="../src/therapist.js "> </script>
+<script src ="../src/analyst.js "> </script>
+
+</head>
+
+<body>
+
+<div id="topbar">
+  <div id="topbarContent">
+  </div>
+</div>
+
+<ul id="messages">
+</ul>
+
+<select id="maptype_list"> </select>
+
+<div class ="unselectable">
+
+  <div id ="yms" class =' shown-maps'>
+   <div class =' wrapper '>
+   <div style =' text-align: center; '>
+
+   <div style =' display:inline-block;margin: 0 auto;text-align: left; '>
+     <div id ='innerMapDsp_0'> </div>
+   </div>
+   </div>
+
+  </div>
+  </div>
+</div>
+
+<script>
+  function get_param(name) {
+    var results = new RegExp('[\\?&]' + name + '=([^&#]*)').exec(window.location.href);
+    return (results == null ? null : (results[1] || 0));
+  }
+  var maptype = get_param('maptype') || 'simple';
+
+  $(document).ready(function() {
+    $.post('/get_map_types', function(maptypes) {
+      for (var category in maptypes) {
+        $('#maptype_list').append( $('<optgroup>').attr('label',"-- " + category + " --"))
+        for (var type in maptypes[category]) {
+          var option = $('<option>').text(maptypes[category][type]).attr('value', type).appendTo($('#maptype_list'))
+          if (type === maptype) {option.attr('selected', 'selected')}
+        }
+      }
+
+      $('select').on('change', function() {
+        var link = window.location.href.split('?')[0] + '?maptype=' +(this.value);
+        window.location.href = link;
+      });
+
+    });
+
+    function add_message(message) {
+      $('#messages').append($('<li>').append(message));
+    }
+
+    var mapcode = get_param('mapcode');
+    if (mapcode == null) {
+      $.post('/generate_map', {type: maptype}, function(result) {
+        // console.log(result)
+        console.log(result.code);
+        var maplink = window.location.href.split('?')[0] + '?mapcode=' +encodeURIComponent(result.code);
+        console.log(maplink)
+        add_message($('<a>').attr('href', maplink).text('Shareable link'));
+        displayMap(result, 0, 'innerMapDsp_0', false, '.');
+      });
+    } else {
+      mapcode=decodeURIComponent(mapcode);
+      // remove line breaks
+      mapcode = mapcode.replace( /(\r\n|\n|\r)/gm,"")
+      console.log(mapcode);
+      $.post('/generate_map', {code: mapcode}, function(result) {
+        // console.log(result)
+        displayMap(result, 0, 'innerMapDsp_0', false, '.');
+      });
+    }
+    var values_on = get_param('values');
+    if (values_on) {
+      Therapist.toggle_values();
+    }
+  })
+</script>
+
+<!--
+<div id ="copy">
+Copyright &copy; 2011-2013 pathery.com
+</div>
+-->
+
+<br />
+
+<div style =' visibility:hidden;display:none '>
+
+<img src =' images/MedalGoldCAR.png ' alt =''>
+<img src =' images/MedalSilverCAR.png ' alt =''>
+<img src =' images/paths/Path1-1.png ' alt =''>
+<img src =' images/paths/Path1-2.png ' alt =''>
+<img src =' images/paths/Path1-3.png ' alt =''>
+<img src =' images/paths/Path1-4.png ' alt =''>
+<img src =' images/paths/Path2-1.png ' alt =''>
+<img src =' images/paths/Path2-2.png ' alt =''>
+<img src =' images/paths/Path2-3.png ' alt =''>
+<img src =' images/paths/Path2-4.png ' alt =''>
+<img src =' images/OverlayTileFaceted50.png ' alt =''>
+<img src =' images/OverlayTileFaceted30.png ' alt =''>
+<img src =' images/OverlayTileFaceted10.png ' alt =''>
+<img src =' images/OverlayTileFaceted20.png ' alt =''>
+<img src =' images/OverlayStart2.png ' alt =''>
+<img src =' images/OverlayA50.png ' alt =''>
+<img src =' images/OverlayB50.png ' alt =''>
+<img src =' images/OverlayC50.png ' alt =''>
+<img src =' images/TeleportOutW.png ' alt =''>
+<img src =' images/TeleportInW.png ' alt =''>
+</div>
+
+</body>
+
+</html>
+
+

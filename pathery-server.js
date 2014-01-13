@@ -25,8 +25,8 @@ app.post('/place_greedy', middleware, function(req, res){
   console.log("\nPLACE GREEDY:")
   var t = new Date().getTime();
   remaining = JSON.parse(req.param('remaining'));
-  if (remaining > 7 ) {
-    remaining = 7
+  if (remaining > 4 ) {
+    remaining = 4
   }
   console.log("REMAINING: " + remaining)
   var result = Analyst.place_greedy(JSON.parse(req.param('board')), JSON.parse(req.param('solution')), remaining);
@@ -59,8 +59,9 @@ app.post('/play_map', middleware, function(req, res){
 });
 
 app.post('/compute_value', middleware, function(req, res){
-  //console.log("\nCOMPUTE VALUE CALL:")
+  console.log("\nCOMPUTE VALUE CALL:")
 
+  console.log(req.param('board'))
   var t = new Date().getTime();
   var result = Analyst.compute_value(JSON.parse(req.param('board')), JSON.parse(req.param('solution')));
   console.log("ms elapsed: " , new Date().getTime() - t)
