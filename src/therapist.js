@@ -901,8 +901,8 @@ function bind_block_events() {
     if (erasekey_held) {erase_block(this);}
   });
 
-  $('.playable > div').mouseenter(function(e) { cur_block = this; })
-  $('.playable > div').mouseleave(function(e) { cur_block = null; })
+  $('.playable > div').mouseenter(function(e) { cur_block = this; console.log('cur block set')})
+  $('.playable > div').mouseleave(function(e) { cur_block = null; console.log('cur block unset')})
 
   $('.playable > div').click(function(ev) {
     var block = get_block_from_obj(this);
@@ -923,7 +923,6 @@ function bind_block_events() {
     }
   });
 }
-bind_block_events();
 
 function is_block_there(mapid, block) {
   var id = id_from_block(mapid, block);
@@ -1022,14 +1021,17 @@ register_hotkey(TOGGLE_MUTE_KEY, setMute);
 register_hotkey(TOGGLE_VALUES_KEY, toggle_values);
 
 register_hotkey(PAINT_BLOCK_KEY, function(e) {
+console.log('paint block', cur_block)
     if (cur_block) {paint_block(cur_block)}
 });
 
 register_hotkey(ERASE_KEY, function(e) {
+console.log('erase block', cur_block)
     if (cur_block) {erase_block(cur_block)}
 });
 
 register_hotkey(TOGGLE_BLOCK_KEY, function(e) {
+console.log('toggle block', cur_block)
     if (cur_block) {toggle_block(cur_block)}
 });
 
@@ -1111,10 +1113,11 @@ function initialize_toolbar() {
 
     $(window).click(function() {
       refresh_all();
-      bind_block_events();
-      setTimeout(bind_block_events, new_map_timeout); // this is apparently not enough...
     });
+
+    setTimeout(bind_block_events, new_map_timeout); // this is apparently not enough...
   } else {
+    bind_block_events();
     $('#difficulties').parent().css('margin-left', toolbar_width + 'px');
     //$('#difficulties').parent().prepend(button_toolbar);
     $('#difficulties').after(button_toolbar);
