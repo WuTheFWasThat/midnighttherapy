@@ -27,7 +27,7 @@ var start_assist = function() {
     ///////////////////////////////////////
 
     function get_analyst(cb) {
-      $.getScript(mt_url + '/src/analyst.js', cb)
+      $.getScript(mt_url + 'src/analyst.js', cb)
     }
 
     ///////////////////////////////////////
@@ -36,7 +36,7 @@ var start_assist = function() {
 
     // SHARED WITH PATHERY-CLIENT
     function get_therapist(cb) {
-      $.getScript(mt_url + '/src/therapist.js', cb)
+      $.getScript(mt_url + 'src/therapist.js', cb)
     }
 
     function start_up() {

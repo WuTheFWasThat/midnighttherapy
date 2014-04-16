@@ -1233,10 +1233,10 @@ function initialize_toolbar() {
 
     button_toolbar.append(chat_frame);
 
-    $.getScript(mt_url + '/src/chat.js');
+    $.getScript(mt_url + 'src/chat.js');
 
     $("<link/>", { rel: "stylesheet", type: "text/css",
-       href: mt_url + '/src/chat.css'
+       href: mt_url + 'src/chat.css'
     }).appendTo("head");
   }
 
