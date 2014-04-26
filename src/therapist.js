@@ -1303,7 +1303,7 @@ $(document).ready(function() {
   }
 
   topbar.prepend(
-    $('<a>').attr('href','//patherymaps1-2222.terminal.com/ugli-pathery/').addClass('nav').text('Playground').css('color', 'green')
+    $('<a>').attr('href','//pathery-maps.terminal.com/ugli-pathery/').addClass('nav').text('Playground').css('color', 'green')
   ).prepend(
     $('<a>').attr('href','//blue.pathery.net/home').addClass('nav').text('Blue home').css('color', 'blue')
   ).prepend(

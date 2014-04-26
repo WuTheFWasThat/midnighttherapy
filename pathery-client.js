@@ -1,11 +1,18 @@
 // NOTE: set mt_local_testing to use local version
 
+if (typeof mt_local_testing === 'undefined') {
+  var mt_url = 'https://rawgithub.com/WuTheFWasThat/midnighttherapy/master/'
+  //var mt_url = 'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/'
+} else {
+  var mt_url = mt_url || 'http://127.0.0.1:2222/';
+}
+
 // globals all mentioned here
 var Analyst  = {};
-Analyst.server = 'http://127.0.0.1:2222',
+Analyst.server = mt_url;
 Analyst.post = function(path, data, cb) {
   $.ajax({
-    url: Analyst.server + '/' + path,
+    url: Analyst.server + path,
     type: 'POST',
     data: data,
     dataType: 'json',
@@ -44,13 +51,6 @@ Analyst.improve_solution = function(board, solution, cb) {
 }
 
 var Therapist  = {};
-
-if (typeof mt_local_testing === 'undefined') {
-  var mt_url = 'https://rawgithub.com/WuTheFWasThat/midnighttherapy/master/'
-  //var mt_url = 'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/'
-} else {
-  var mt_url = 'http://127.0.0.1:2222/';
-}
 
 (function() {
   // SHARED WITH PATHERY-FULL

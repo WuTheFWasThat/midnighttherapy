@@ -27,7 +27,7 @@ var main = function() {
       mapStr += '[/code]\n';
 
       var shortener_url = 'https://www.googleapis.com/urlshortener/v1/url'
-      var url = 'http://patherymaps1-2222.terminal.com/ugli-pathery/index.html?mapcode=' + map.toMapCode();
+      var url = 'http://pathery-maps.terminal.com/ugli-pathery/index.html?mapcode=' + map.toMapCode();
 
       var response = $.ajax({
         type: "POST",
