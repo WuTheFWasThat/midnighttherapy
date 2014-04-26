@@ -348,9 +348,10 @@ function parseMapCode(mapcode) {
   }
 
   var currIdx = -1;
-  var body_split = body.split('.').slice(0, -1);
+  var body_split = body.split('.');
   for (var k = 0; k < body_split.length; k++) {
     var item = body_split[k];
+    if (!item) {continue;}
     currIdx++;
     currIdx += parseInt(item.slice(0,-1));
     var type = item[item.length - 1];
