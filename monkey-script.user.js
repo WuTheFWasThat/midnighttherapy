@@ -21,4 +21,6 @@
 $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-full.js')
 
 // ALTERNATIVELY, IF YOU ARE RUNNING A SERVER:
-// $.getScript('https://raw.github.com/WuTheFWasThat/midnighttherapy/master/pathery-client.js')
+//mt_local_testing = true;
+//mt_url='http://127.0.0.1:2222/'  // OR WHATEVER YOUR SERVER IS
+//$.getScript(mt_url + 'pathery-client.js');
