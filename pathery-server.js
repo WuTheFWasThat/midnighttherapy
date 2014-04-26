@@ -157,6 +157,10 @@ app.post('/get_map_types', middleware, function(req, res){
   res.json(result);
 });
 
+app.get('/', middleware, function(req, res) {
+  res.redirect('/ugli-pathery');
+})
+
 
 app.use(express.static(__dirname));
 
