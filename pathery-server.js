@@ -13,8 +13,11 @@ app.configure(function() {
   app.use(app.router);
 });
 
-
 var middleware = [
+  function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    next();
+  }
 ];
 
 app.post('/place_greedy', middleware, function(req, res){
