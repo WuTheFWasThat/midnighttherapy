@@ -901,8 +901,8 @@ function bind_block_events() {
     if (erasekey_held) {erase_block(this);}
   });
 
-  $('.playable > div').mouseenter(function(e) { cur_block = this; console.log('cur block set')})
-  $('.playable > div').mouseleave(function(e) { cur_block = null; console.log('cur block unset')})
+  $('.playable > div').mouseenter(function(e) { cur_block = this; /*console.log('cur block set')*/})
+  $('.playable > div').mouseleave(function(e) { cur_block = null; /*console.log('cur block unset')*/})
 
   $('.playable > div').click(function(ev) {
     var block = get_block_from_obj(this);
