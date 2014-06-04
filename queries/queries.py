@@ -6,8 +6,8 @@ import datetime
 from subprocess import call
 
 
-domain = 'http://beta.pathery.net';
-domain = 'http://blue.pathery.net';
+#domain = 'http://beta.pathery.net';
+#domain = 'http://blue.pathery.net';
 domain = 'http://www.pathery.com';
 
 clear_cache = False
@@ -96,6 +96,18 @@ def get_map_type(mapid):
     return str(maptype)
   except:
     return None
+
+def get_map_rank(maptype):
+  if maptype == 'Simple':
+    return maptype
+  elif maptype == 'Normal':
+    return maptype
+  elif (maptype == 'Complex') or (maptype == 'Reverse Order'):
+    return 'Complex/RO'
+  elif (maptype == 'Ultra Complex'):
+    return maptype
+  else:
+    return '4th map'
 
 ###############################
 # various helper functions
@@ -306,18 +318,25 @@ def find_win_types(user):
   userid = user_id_map[user]
   mapid = get_todays_mapids()[3]
   type_count = {}
+  rank_count = {}
   total = 0
   while mapid > -1:
     if find_max_user(mapid) == userid:
       maptype = get_map_type(mapid)
+      maprank = get_map_rank(maptype)
       total += 1
       if maptype in type_count:
         type_count[maptype] += 1
       else:
         type_count[maptype] = 1
+      if maprank in rank_count:
+        rank_count[maprank] += 1
+      else:
+        rank_count[maprank] = 1
       print '--------'
       print 'total', total
-      print type_count
+      print 'breakdown', type_count
+      print 'summary', rank_count
     mapid -= 1
 
 def find_winners(maptype = 'All', options = {}):
