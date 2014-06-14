@@ -870,39 +870,38 @@ function paint_line_to(to_block, mapid) {
 };
 
 var cur_block;
-function bind_block_events() {
-  $('.playable > div').unbind();
 
-  function get_block_from_obj(block_obj) {
-    var id = $(block_obj).attr('id');
-    var first_comma_index = id.indexOf(',');
+function get_block_from_obj(block_obj) {
+  var id = $(block_obj).attr('id');
+  var first_comma_index = id.indexOf(',');
 
-    var mapid = parseInt(id.slice(0, first_comma_index));
-    if (is_mapeditor && (mapid == 0)) {return;} // mapeditor's uneditable map
-    // if (mapid !== exports.mapid ) {console.log('BUG FOUND!! NONMATCHING IDS: ' + mapid + ', ' + exports.mapid); return;}
+  var mapid = parseInt(id.slice(0, first_comma_index));
+  if (is_mapeditor && (mapid == 0)) {return;} // mapeditor's uneditable map
+  // if (mapid !== exports.mapid ) {console.log('BUG FOUND!! NONMATCHING IDS: ' + mapid + ', ' + exports.mapid); return;}
 
-    var block = block_from_block_string(id.slice(first_comma_index+1));
-    return block;
-  }
+  var block = block_from_block_string(id.slice(first_comma_index+1));
+  return block;
+}
 
-  $('.playable > div').mousemove(function(e) {
-    var block = get_block_from_obj(this);
-    if (!block) {return;}
-    var is_there = this.cv; // note: can be undefined
-
+document.addEventListener('mousemove', function(e){
+  var elem = e.target || e.srcElement;
+  var block = $(elem).closest('.playable > div');
+  cur_block = block[0];
+  if (cur_block) {
     // Only attempt to add/remove blocks if you're not at the tile corner.
-    var x_offset = (e.pageX - $(this).offset().left) / $(this).width();
-    var y_offset = (e.pageY - $(this).offset().top) / $(this).height();
+    var x_offset = (e.pageX - block.offset().left) / block.width();
+    var y_offset = (e.pageY - block.offset().top) / block.height();
     var on_corner = ((x_offset < 0.2 || x_offset > 0.8) &&
                    (y_offset < 0.2 || y_offset > 0.8)) ;
     if (on_corner) {return;}
 
-    if (paintkey_held) {paint_block(this);}
-    if (erasekey_held) {erase_block(this);}
-  });
+    if (paintkey_held) {paint_block(cur_block);}
+    if (erasekey_held) {erase_block(cur_block);}
+  }
+}, true);
 
-  $('.playable > div').mouseenter(function(e) { cur_block = this; /*console.log('cur block set')*/})
-  $('.playable > div').mouseleave(function(e) { cur_block = null; /*console.log('cur block unset')*/})
+function bind_block_events() {
+  $('.playable > div').unbind();
 
   $('.playable > div').click(function(ev) {
     var block = get_block_from_obj(this);
