@@ -4,8 +4,7 @@
 var Analyst  = {};
 var Therapist  = {};
 if (typeof mt_local_testing === 'undefined') {
-  var mt_url = 'https://rawgithub.com/WuTheFWasThat/midnighttherapy/master/'
-  //var mt_url = 'https://raw.github.com/WuTheFWasThat/midnighttherapy/master/'
+  var mt_url = 'https://pathery-code.terminal.com/'
 } else {
   var mt_url = 'http://127.0.0.1:2222/';
 }
