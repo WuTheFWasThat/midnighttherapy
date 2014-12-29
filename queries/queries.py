@@ -42,6 +42,10 @@ map_types = [
 f = open('queries/user_id_map.json')
 user_id_map = json.loads(f.read())
 
+id_user_map = {}
+for i in user_id_map:
+  id_user_map[user_id_map[i]] = i
+
 ###########################
 # PRINT UTILS
 ###########################
@@ -204,6 +208,15 @@ def find_user_score(mapid, userid):
   res = find_user_helper(mapid, userid)
   return None if (res is None) else int(res[1][u'moves'])
 
+def find_user_time(mapid, userid):
+  res = find_user_helper(mapid, userid)
+  if res is None:
+    time = None
+  else:
+    time_arr = [int(x) for x in str(res[1][u'cdate']).split(' ')[1].split(':')]
+    time = time_arr[0] * 60 * 60 + time_arr[1] * 60 + time_arr[2]
+  return time
+
 def find_user_points(mapid, userid):
   res = find_user_helper(mapid, userid)
   return None if (res is None) else int(res[1][u'points'])
@@ -342,12 +355,12 @@ def find_win_types(user):
 def find_winners(maptype = 'All', options = {}):
   mapid = get_todays_mapids()[3]
   if 'top' not in options:
-    options['top'] = 10
+    options['top'] = 30
   winners = {}
   while mapid > -1:
     thismaptype = get_map_type(mapid)
     if (thismaptype == maptype) or (maptype == 'All'):
-      winner = find_max_display(mapid)
+      winner = find_max_user(mapid)
       if winner in winners:
         winners[winner] += 1
       else:
@@ -361,7 +374,7 @@ def find_winners(maptype = 'All', options = {}):
       print 'Leaderboard:', mapid
       for i in range(min(len(sorted_winners), options['top'])):
         (count, winner) = sorted_winners[i]
-        print winner.ljust(20), ':', count
+        print id_user_map.get(winner, 'anon:%s' % str(winner)).ljust(21), ':', count
       print
     mapid -= 1
 
@@ -402,13 +415,20 @@ def print_user_history(user, options = {}):
       date = datetime.datetime.now()
     else:
       date = first_pathery_date
+
+  on_time_count = 0
+  days = 0
   while True:
     mapids = get_mapids(date)
-    print isodate(date)
+    on_time = False
+    message = ''
     for i in range(0,4):
       mapid = mapids[i]
       score = find_user_score(mapid, userid)
+      time = find_user_time(mapid, userid)
       if score is not None:
+        if time < 60 * 10:
+          on_time = True
         maxscore = find_max_score(mapid)
         maptype = get_map_type(mapid)
         won = False
@@ -418,10 +438,18 @@ def print_user_history(user, options = {}):
           verb = 'tied on'
         else:
           verb = 'attempted'
-        message = '    ' + ' '.join([user, verb.ljust(9), maptype.ljust(20)])
+        message += '    ' + ' '.join([user, verb.ljust(9), maptype.ljust(20)])
         if won:
           message += ' and won!'
-        print message
+        message += '\n'
+
+    if on_time:
+      message += 'Was on time!  '
+      on_time_count += 1
+    days += 1
+    message += 'On time %s times out of %s so far! ' % (str(on_time_count), str(days))
+    message += '\n'
+    print message
     if options['reverse']:
       date -= datetime.timedelta(days=1)
     else:
@@ -599,6 +627,25 @@ def graph_win_times(options = {}):
   ax3.set_ylim(ymin=0)#,ymax=8*60)
   plt.show()
 
+def get_normal_complex_diffs(options = {}):
+  averages = [ [] for i in range(0, 3) ]
+  day = 0
+
+  #date = first_pathery_date
+  date = datetime.datetime.now() - datetime.timedelta(days=1000)
+  today = datetime.datetime.now()
+  best = 0
+  while date < today:
+
+    mapids = get_mapids(today)
+    normal_s = find_max_score(mapids[1])
+    complex_s = find_max_score(mapids[2])
+    if (normal_s - complex_s > best) and get_map_type(mapids[2]) == 'Complex':
+      print 'diff', normal_s - complex_s
+      print 'mapids', today, mapids[1], mapids[2], normal_s, complex_s
+      best = normal_s - complex_s
+    today -= datetime.timedelta(days=1)
+
 #graph_win_times()
 #find_missed_maps('wu')
 #get_score_distribution('Complex')
@@ -609,6 +656,7 @@ def graph_win_times(options = {}):
 #find_win_types('yeuo')
 #find_win_types('wu')
 #find_winners('Ultra Complex')
+#find_winners('Teleport Madness')
 #find_winners()
 
 #group_wins(['wu', 'blue', 'dewax',  'uuu'])
@@ -616,6 +664,7 @@ def graph_win_times(options = {}):
 
 #print_user_history('wu', {'reverse': False, 'firstdate': datetime.datetime(2012, 12, 11)})
 #print_user_history('wu', {'reverse': True})
+print_user_history('uuu', {'reverse': True})
 #print_user_history('vzl', {'reverse': True})
 #print_history()
 

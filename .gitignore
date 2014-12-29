@@ -1,4 +1,5 @@
 map_maker/out.txt
 node_modules
 .*
+*.pyc
 queries/cached_queries
