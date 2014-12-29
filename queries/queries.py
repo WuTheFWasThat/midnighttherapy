@@ -418,6 +418,7 @@ def print_user_history(user, options = {}):
 
   on_time_count = 0
   days = 0
+  wins = 0
   while True:
     mapids = get_mapids(date)
     on_time = False
@@ -435,6 +436,7 @@ def print_user_history(user, options = {}):
         if maxscore == score:
           if find_max_user(mapid) == userid:
             won = True
+            wins += 1
           verb = 'tied on'
         else:
           verb = 'attempted'
@@ -447,7 +449,13 @@ def print_user_history(user, options = {}):
       message += 'Was on time!  '
       on_time_count += 1
     days += 1
-    message += 'On time %s times out of %s so far! ' % (str(on_time_count), str(days))
+
+    def str_frac(num, den):
+      return "%s/%s = %s%%" % (str(num), str(den), "NaN" if den == 0 else str((0.0 + num)/den))
+
+    message += 'On time %s so far! ' % str_frac(on_time_count, days)
+    message += '\n'
+    message += 'Won %s so far! ' % str_frac(wins, on_time_count * 4)
     message += '\n'
     print message
     if options['reverse']:
@@ -662,10 +670,9 @@ def get_normal_complex_diffs(options = {}):
 #group_wins(['wu', 'blue', 'dewax',  'uuu'])
 #group_wins(['wu', 'george', 'joy', 'alex', 'hamrick'])
 
-#print_user_history('wu', {'reverse': False, 'firstdate': datetime.datetime(2012, 12, 11)})
-#print_user_history('wu', {'reverse': True})
-print_user_history('uuu', {'reverse': True})
-#print_user_history('vzl', {'reverse': True})
+user = 'jason'
+#print_user_history(user, {'reverse': False, 'firstdate': datetime.datetime(2012, 12, 11)})
+print_user_history(user, {'reverse': True})
 #print_history()
 
 #get_uc_history({'reverse': True, 'top': 3});
