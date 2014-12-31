@@ -46,6 +46,9 @@ id_user_map = {}
 for i in user_id_map:
   id_user_map[user_id_map[i]] = i
 
+def user_string_from_id(id):
+  return id_user_map.get(id, 'anon:%s' % str(id))
+
 ###########################
 # PRINT UTILS
 ###########################
@@ -161,8 +164,7 @@ def find_nth_user(mapid, n = 1):
   return None if (res is None) else int(res[u'ID'])
 
 def find_nth_display(mapid, n = 1):
-  res = find_nth_helper(mapid, n)
-  return None if (res is None) else res[u'display']
+  return user_string_from_id(find_nth_user(mapid, n))
 
 def find_nth_time(mapid, n = 1):
   res = find_nth_helper(mapid, n)
@@ -301,13 +303,13 @@ def find_sweeps():
   date = datetime.datetime.now()
   while True:
     mapids = get_mapids(date)
-    potential_sweeper = find_max_display(mapids[0])
+    potential_sweeper = find_max_user(mapids[0])
     for i in range(1,4):
-      if (potential_sweeper != find_max_display(mapids[i])):
+      if (potential_sweeper != find_max_user(mapids[i])):
         potential_sweeper = None
         break
     if potential_sweeper is not None:
-      print potential_sweeper.ljust(20), 'swept on day', isodate(date)
+      print user_string_from_id(potential_sweeper).ljust(20), 'swept on day', isodate(date)
     date -= datetime.timedelta(days=1)
 
 def find_win_amounts(user):
@@ -374,7 +376,7 @@ def find_winners(maptype = 'All', options = {}):
       print 'Leaderboard:', mapid
       for i in range(min(len(sorted_winners), options['top'])):
         (count, winner) = sorted_winners[i]
-        print id_user_map.get(winner, 'anon:%s' % str(winner)).ljust(21), ':', count
+        print user_string_from_id(winner).ljust(21), ':', count
       print
     mapid -= 1
 
@@ -658,7 +660,7 @@ def get_normal_complex_diffs(options = {}):
 #find_missed_maps('wu')
 #get_score_distribution('Complex')
 #get_rank_distribution(['wu', 'blue', 'dewax', 'vzl', 'uuu', 'sid'], 10)
-#find_sweeps()
+find_sweeps()
 #find_win_amounts('blue')
 #find_win_types('george')
 #find_win_types('yeuo')
@@ -670,9 +672,9 @@ def get_normal_complex_diffs(options = {}):
 #group_wins(['wu', 'blue', 'dewax',  'uuu'])
 #group_wins(['wu', 'george', 'joy', 'alex', 'hamrick'])
 
-user = 'jason'
+user = 'vzl'
 #print_user_history(user, {'reverse': False, 'firstdate': datetime.datetime(2012, 12, 11)})
-print_user_history(user, {'reverse': True})
+#print_user_history(user, {'reverse': True})
 #print_history()
 
 #get_uc_history({'reverse': True, 'top': 3});
