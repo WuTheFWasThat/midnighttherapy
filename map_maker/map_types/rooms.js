@@ -8,7 +8,7 @@ exports.name = 'Rooms'
 exports.generate = function() {
   var num_w = 4, num_h = 4;
 
-  var room_w = 5, room_h = 5;
+  var room_w = 4, room_h = 4;
 
   var m = (room_w+1) * num_w - 1;
   var n = (room_h+1) * num_h - 1
@@ -20,46 +20,69 @@ exports.generate = function() {
   for (var k =1; k <  num_h; k++) {
     map.set(tiles.EMPTY, util.range(0, m), (room_h+1) * k - 1);
   }
+  //Tune some parameters
+  map.walls = 16;
 
+  var numExtraRocks = util.getRandomInt(13, 20);
+  map.placeRandomly(tiles.ROCK, numExtraRocks);
+
+  // 64% 1 opening, 32% 2 openings, 4% 0
   for (var k =1; k <  num_w; k++) {
     for (var j = 0; j < num_h; j++) {
+      var p = Math.random();
+      var set_1 = false;
+      var set_2 = false;
+      if (p < 0.32) {
+        set_1 = true;
+      } else if (p < 0.64) {
+        set_2 = true;
+      } else if (p < 0.96) {
+        set_1 = true;
+        set_2 = true;
+      }
+
+      if (set_1) {
       map.set(tiles.DEFAULT, (room_w+1) * k - 1, (room_h+1)*j + 2);
+      map.set(tiles.DEFAULT, (room_w+1) * k - 2, (room_h+1)*j + 2);
+      map.set(tiles.DEFAULT, (room_w+1) * k , (room_h+1)*j + 2);
+      }
+      if (set_2) {
+      map.set(tiles.DEFAULT, (room_w+1) * k - 1, (room_h+1)*j + 1);
+      map.set(tiles.DEFAULT, (room_w+1) * k - 2, (room_h+1)*j + 1);
+      map.set(tiles.DEFAULT, (room_w+1) * k , (room_h+1)*j + 1);
+      }
     }
   }
   for (var k =1; k <  num_h; k++) {
     for (var j = 0; j < num_w; j++) {
+      var p = Math.random();
+      var set_1 = false;
+      var set_2 = false;
+      if (p < 0.32) {
+        set_1 = true;
+      } else if (p < 0.64) {
+        set_2 = true;
+      } else if (p < 0.96) {
+        set_1 = true;
+        set_2 = true;
+      }
+
+      if (set_1) {
+      map.set(tiles.DEFAULT, (room_w+1)*j + 2, (room_h+1) * k);
       map.set(tiles.DEFAULT, (room_w+1)*j + 2, (room_h+1) * k - 1);
-    }
-  }
-
-  //Tune some parameters
-  map.walls = 20;
-
-  // Don't place rocks where they can block walls.
-  // Assumes room_w = room_h = 5
-  var eq = function(a, b) {
-    return (a[0] == b[0]) && (a[1] == b[1]);
-  }
-  var notOK = [[2,4],[2,5],[2,0],[4,2],[5,2],[0,2]];
-
-  var condition = function(map, i, j) {
-    i = i % 6;
-    j = j % 6;
-    var check = [i,j];
-    for (var k = 0; k < notOK.length; k++) {
-      if (eq(check, notOK[k])) {
-        return false;
+      map.set(tiles.DEFAULT, (room_w+1)*j + 2, (room_h+1) * k - 2);
+      }
+      if (set_2) {
+      map.set(tiles.DEFAULT, (room_w+1)*j + 1, (room_h+1) * k);
+      map.set(tiles.DEFAULT, (room_w+1)*j + 1, (room_h+1) * k - 1);
+      map.set(tiles.DEFAULT, (room_w+1)*j + 1, (room_h+1) * k - 2);
       }
     }
+  }
 
-    return true;
-  };
-
-  var numExtraRocks = util.getRandomInt(13, 20);
-  map.placeRandomly(tiles.ROCK, numExtraRocks, {condition: condition});
 
   var numCheckpoints = 2;
-  var numTeleports = 3;
+  var numTeleports = 2;
   for (var i = 0; i < numCheckpoints; i++) {
     map.placeRandomly(tiles.CHECKPOINTS[i]);
   }
