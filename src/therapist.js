@@ -1232,7 +1232,7 @@ function initialize_toolbar() {
     //button_toolbar.append($('<div>').text('Chat').css({'text-align':'center', 'background-color':'black', 'width':'100%', 'margin-top':'20px'}))
 
     chat_frame =
-      $('<div>').addClass('chatContainer2').attr('id','chatArea');
+      $('<div>').addClass('chatContainer2').attr('id','chatArea')
         .append($('<div>').attr('id','chatContainer'))
         .append($('<form>').attr({'id':'sendChat', 'onsubmit':'return false'})
           .append($('<input>').prop('type', 'hidden').attr({ 'name':'stuff','value':'0'}))
