@@ -6,8 +6,8 @@ import datetime
 from subprocess import call
 
 
-#domain = 'http://beta.pathery.net';
-#domain = 'http://blue.pathery.net';
+# domain = 'http://beta.pathery.net';
+# domain = 'http://blue.pathery.net';
 domain = 'http://www.pathery.com';
 
 clear_cache = False
@@ -17,7 +17,7 @@ if clear_cache:
   call(['rm', '-rf', cache_location])
   call(['mkdir', '-p', cache_location])
 
-map_types = [
+ALL_MAP_TYPES = [
   'Simple',
   'Normal',
   'Complex',
@@ -300,6 +300,7 @@ def get_rank_distribution(users, max_care_about = 10):
     mapid -= 1
 
 def find_sweeps():
+  sweepers = {}
   date = datetime.datetime.now()
   while True:
     mapids = get_mapids(date)
@@ -309,7 +310,11 @@ def find_sweeps():
         potential_sweeper = None
         break
     if potential_sweeper is not None:
-      print user_string_from_id(potential_sweeper).ljust(20), 'swept on day', isodate(date)
+      user = user_string_from_id(potential_sweeper)
+      print user.ljust(20), 'swept on day', isodate(date)
+      sweepers[user] = sweepers.get(user, 0) + 1
+      print_leaderboard(sweepers)
+      print
     date -= datetime.timedelta(days=1)
 
 def find_win_amounts(user):
@@ -354,30 +359,64 @@ def find_win_types(user):
       print 'summary', rank_count
     mapid -= 1
 
-def find_winners(maptype = 'All', options = {}):
-  mapid = get_todays_mapids()[3]
+# takes a dictionary of the form {user: count} and prints it sorted
+def print_leaderboard(d, options={}):
   if 'top' not in options:
     options['top'] = 30
+
+  l = []
+  for user in d:
+    l.append((d[user], user))
+  l.sort((lambda x,y:  y[0]-x[0]))
+
+  for i in range(min(len(l), options['top'])):
+    (count, user) = l[i]
+    print user.ljust(21), ':', count
+  print
+
+
+# TODO: refactor to use find_winners_by_type
+def find_winners(maptypes = None, options = {}):
+  if maptypes is None:
+    maptypes = ALL_MAP_TYPES
+
+  maptypedict = {}
+  if type(maptypes) == str:
+    maptypedict[maptypes] = True
+  else:
+    for maptype in maptypes:
+      maptypedict[maptype] = True
+
+  mapid = get_todays_mapids()[3]
   winners = {}
   while mapid > -1:
     thismaptype = get_map_type(mapid)
-    if (thismaptype == maptype) or (maptype == 'All'):
-      winner = find_max_user(mapid)
-      if winner in winners:
-        winners[winner] += 1
-      else:
-        winners[winner] = 1
+    if thismaptype in maptypedict:
+      winner = find_max_display(mapid)
+      print 'winner', winner, thismaptype
+      winners[winner] = winners.get(winner, 0) + 1
 
-      sorted_winners = []
-      for winner in winners:
-        sorted_winners.append((winners[winner], winner))
-      sorted_winners.sort((lambda x,y:  y[0]-x[0]))
+      # print 'Leaderboard:', mapid
+      # print_leaderboard(winners, options)
+    mapid -= 1
 
-      print 'Leaderboard:', mapid
-      for i in range(min(len(sorted_winners), options['top'])):
-        (count, winner) = sorted_winners[i]
-        print user_string_from_id(winner).ljust(21), ':', count
+def find_winners_by_type(options = {}):
+  mapid = get_todays_mapids()[3]
+  winners = {}
+  while mapid > -1:
+    print 'mapid', mapid
+    maptype = get_map_type(mapid)
+    if maptype not in winners:
+      winners[maptype] = {}
+    winner = find_max_display(mapid)
+    winners[maptype][winner] = winners[maptype].get(winner, 0) + 1
+
+    print '--------'
+    for maptype in winners:
+      print 'Leaderboard for %s:' % maptype
+      print_leaderboard(winners[maptype], options)
       print
+    print '--------'
     mapid -= 1
 
 # stats on a group of people winning
@@ -658,16 +697,19 @@ def get_normal_complex_diffs(options = {}):
 
 #graph_win_times()
 #find_missed_maps('wu')
-#get_score_distribution('Complex')
+#get_score_distribution('Ultra Complex')
 #get_rank_distribution(['wu', 'blue', 'dewax', 'vzl', 'uuu', 'sid'], 10)
-find_sweeps()
+#find_sweeps()
 #find_win_amounts('blue')
 #find_win_types('george')
 #find_win_types('yeuo')
 #find_win_types('wu')
+#find_win_types('uuu')
 #find_winners('Ultra Complex')
 #find_winners('Teleport Madness')
-#find_winners()
+#find_winners('Unlimited')
+find_winners(['Complex', 'Reverse Order'])
+#find_winners_by_type()
 
 #group_wins(['wu', 'blue', 'dewax',  'uuu'])
 #group_wins(['wu', 'george', 'joy', 'alex', 'hamrick'])
