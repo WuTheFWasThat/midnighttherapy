@@ -396,8 +396,8 @@ def find_winners(maptypes = None, options = {}):
       print 'winner', winner, thismaptype
       winners[winner] = winners.get(winner, 0) + 1
 
-      # print 'Leaderboard:', mapid
-      # print_leaderboard(winners, options)
+      print 'Leaderboard:', mapid
+      print_leaderboard(winners, options)
     mapid -= 1
 
 def find_winners_by_type(options = {}):
@@ -628,6 +628,38 @@ def count_uc_ties(users = None, misses_allowed = float("Infinity"), options = {}
     else:
       mapid += 1
 
+def graph_win_amounts(users = [], options = {}):
+  import numpy as np
+  import matplotlib.pyplot as plt
+
+  wins_so_far = {}
+  for user in users:
+      wins_so_far[user_id_map[user]] = 0
+
+  mapid = options.get('first_map', 0)
+  last_mapid = get_todays_mapids()[3]
+
+  wins_over_time = [ [] for i in range(len(users)) ]
+  mapids = []
+  starting = False
+  while mapid < last_mapid:
+    winner = find_max_user(mapid)
+    if winner in wins_so_far:
+        wins_so_far[winner] += 1
+        starting = True
+    if starting:
+        for i, user in enumerate(users):
+            wins_over_time[i].append(wins_so_far[user_id_map[user]])
+        mapids.append(mapid)
+    mapid += 1
+
+  for i, user in enumerate(users):
+      plt.plot(mapids, wins_over_time[i], label=user, linewidth=2)
+  plt.xlabel('mapid')
+  plt.ylabel('wins')
+  plt.legend(loc=2)
+  plt.show()
+
 def graph_win_times(options = {}):
   import numpy as np
   import matplotlib.pyplot as plt
@@ -695,6 +727,10 @@ def get_normal_complex_diffs(options = {}):
       best = normal_s - complex_s
     today -= datetime.timedelta(days=1)
 
+# graph_win_amounts(['blue', 'uuu', 'wu', 'hroll', 'radivel', 'dewax', 'vzl', 'salubrious', 'doth', 'snap', 'splax'], {'first_map': 0})
+# graph_win_amounts(['blue', 'uuu', 'wu', 'hroll', 'dewax', 'vzl', 'salubrious', 'doth'], {'first_map': 1500})
+# graph_win_amounts(['blue', 'uuu', 'wu', 'hroll', 'dewax', 'vzl', 'salubrious', 'doth', 'zirikki', 'sirknighting', 'jason', 'baz', 'yeuo', 'sid', 'johnnie', 'tricky', 'heaven', 'jimp'], {'first_map': 1500})
+graph_win_amounts(['blue', 'uuu', 'wu', 'hroll', 'salubrious', 'doth', 'zirikki', 'sirknighting', 'yeuo', 'sid'], {'first_map': 1500})
 #graph_win_times()
 #find_missed_maps('wu')
 #get_score_distribution('Ultra Complex')
@@ -705,14 +741,15 @@ def get_normal_complex_diffs(options = {}):
 #find_win_types('yeuo')
 #find_win_types('wu')
 #find_win_types('uuu')
+
 #find_winners('Ultra Complex')
 #find_winners('Teleport Madness')
 #find_winners('Unlimited')
-find_winners(['Complex', 'Reverse Order'])
+#find_winners(['Complex', 'Reverse Order'])
+
 #find_winners_by_type()
 
-#group_wins(['wu', 'blue', 'dewax',  'uuu'])
-#group_wins(['wu', 'george', 'joy', 'alex', 'hamrick'])
+#group_wins(['wu', 'blue', 'george',  'uuu'])
 
 user = 'vzl'
 #print_user_history(user, {'reverse': False, 'firstdate': datetime.datetime(2012, 12, 11)})
