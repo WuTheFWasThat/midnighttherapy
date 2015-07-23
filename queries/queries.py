@@ -317,6 +317,40 @@ def find_sweeps():
       print
     date -= datetime.timedelta(days=1)
 
+def find_sweep_stoppers(user=None):
+  if user is not None:
+    userid = user_id_map[user]
+
+  def collect_counts(arr):
+    last = None
+    count = 0
+    result = []
+
+    for i in sorted(arr):
+      if i == last:
+        count += 1
+      else:
+        if count > 0:
+          result.append((count, last))
+        last = i
+        count = 1
+    if count > 0:
+      result.append((count, last))
+    return result
+
+
+  date = datetime.datetime.now()
+  while True:
+    mapids = get_mapids(date)
+    winners = [find_max_user(mapids[i]) for i in range(4)]
+    counted = list(reversed(sorted(collect_counts(winners))))
+    if counted[0][0] == 3:
+      winner = user_string_from_id(counted[0][1])
+      stopper = user_string_from_id(counted[1][1])
+      if winner == user or user == None:
+        print winner.ljust(20), 'got 3 wins on day ', isodate(date), ' (stopped by ', stopper, ')'
+    date -= datetime.timedelta(days=1)
+
 def find_win_amounts(user):
   userid = user_id_map[user]
   date = datetime.datetime.now()
@@ -353,6 +387,8 @@ def find_win_types(user):
         rank_count[maprank] += 1
       else:
         rank_count[maprank] = 1
+      print '--------'
+      print 'Won:', mapid, maptype
       print '--------'
       print 'total', total
       print 'breakdown', type_count
@@ -730,13 +766,14 @@ def get_normal_complex_diffs(options = {}):
 # graph_win_amounts(['blue', 'uuu', 'wu', 'hroll', 'radivel', 'dewax', 'vzl', 'salubrious', 'doth', 'snap', 'splax'], {'first_map': 0})
 # graph_win_amounts(['blue', 'uuu', 'wu', 'hroll', 'dewax', 'vzl', 'salubrious', 'doth'], {'first_map': 1500})
 # graph_win_amounts(['blue', 'uuu', 'wu', 'hroll', 'dewax', 'vzl', 'salubrious', 'doth', 'zirikki', 'sirknighting', 'jason', 'baz', 'yeuo', 'sid', 'johnnie', 'tricky', 'heaven', 'jimp'], {'first_map': 1500})
-graph_win_amounts(['blue', 'uuu', 'wu', 'hroll', 'salubrious', 'doth', 'zirikki', 'sirknighting', 'yeuo', 'sid'], {'first_map': 1500})
+#graph_win_amounts(['blue', 'uuu', 'wu', 'hroll', 'salubrious', 'doth', 'zirikki', 'sirknighting', 'yeuo', 'sid'], {'first_map': 6000})
 #graph_win_times()
 #find_missed_maps('wu')
 #get_score_distribution('Ultra Complex')
 #get_rank_distribution(['wu', 'blue', 'dewax', 'vzl', 'uuu', 'sid'], 10)
 #find_sweeps()
-#find_win_amounts('blue')
+find_sweep_stoppers()
+#find_win_amounts('george')
 #find_win_types('george')
 #find_win_types('yeuo')
 #find_win_types('wu')
