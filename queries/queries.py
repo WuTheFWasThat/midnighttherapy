@@ -170,9 +170,8 @@ def find_nth_time(mapid, n = 1):
   res = find_nth_helper(mapid, n)
   if res is None:
     return None
-  time = res[u'cdate'].split(' ')[1].split(':')
-  seconds = int(time[0]) * 60 * 60 + int(time[1]) * 60 + int(time[2])
-  return seconds
+  time = res[u'cdate']
+  return time
 
 # get mapid's best's info
 
@@ -190,6 +189,35 @@ def find_max_display(mapid):
 
 def find_fastest_time(mapid):
   return find_nth_time(mapid, 1);
+
+def time_to_seconds(strtime):
+  arr = strtime.split(' ')[1].split(':')
+  if strtime is None:
+      return None
+
+  seconds = int(arr[0]) * 60 * 60 + int(arr[1]) * 60 + int(arr[2])
+  return seconds
+
+def time_to_datetime(strtime):
+  parts = strtime.split(' ')
+  d = map(int, parts[0].split('-'))
+  t = map(int, parts[1].split(':'))
+  dt = datetime.datetime(d[0], d[1], d[2], t[0], t[1], t[2])
+  return dt
+
+def find_time_taken(mapid, maptype):
+  strtime = find_fastest_time(mapid)
+  if strtime is None:
+      return None
+
+  dt = time_to_datetime(strtime)
+  if maptype == 'Ultra Complex':
+      # hack to move start time to monday
+      dt = dt + datetime.timedelta(hours = 12)
+      days = dt.date().weekday()
+      return dt - datetime.datetime(dt.year, dt.month, dt.day) + datetime.timedelta(days = days)
+  else:
+      return dt - datetime.datetime(dt.year, dt.month, dt.day)
 
 # find a give users' performance on a given map
 def find_user_helper(mapid, userid):
@@ -244,12 +272,33 @@ def get_num_ties(mapid):
 def find_missed_maps(user, include_unattempted = True):
   userid = user_id_map[user]
   mapid = get_todays_mapids()[3]
+
+  unattempted_start = None
+  tied_streak_start = None
+
   while mapid > -1:
     user_score = find_user_score(mapid, userid)
     max_score = find_max_score(mapid)
     map_type = get_map_type(mapid)
-    if (user_score != max_score) and (include_unattempted or (user_score is not None)):
-      print mapid, 'unmaxed:', map_type, user_score, max_score
+
+    if user_score is None:
+        if unattempted_start is None:
+              unattempted_start = mapid
+    else:
+        if unattempted_start is not None:
+            if include_unattempted:
+                print 'unattempted:', unattempted_start, '-', mapid
+            unattempted_start = None
+
+        if user_score == max_score:
+            if tied_streak_start is None:
+                tied_streak_start = mapid
+        else:
+            if tied_streak_start is not None:
+                print 'tied:', tied_streak_start, '-', mapid, '#maps: ', (mapid - tied_streak_start + 1)
+                tied_streak_start = None
+            print 'unmaxed:', mapid, map_type, user_score, '<', max_score
+
     mapid -= 1
 
 # get score distribution
@@ -602,34 +651,72 @@ def get_stats(user, options = {}):
     else:
       mapid += 1
 
-def get_uc_history(options = {}):
+def get_maptype_history(maptype, options = {}):
   if 'reverse' not in options:
     options['reverse'] = False
 
   if options['reverse']:
     mapid = get_todays_mapids()[4]
   else:
-    mapid = 2996
+    mapid = 0
+    if maptype == 'Ultra Complex':
+      mapid = 2996
 
   ntop = options['top'] if ('top' in options) else 1
 
   mazes = 0
-  firstline = ' | '.join([x.ljust(8) for x in ['#', 'Mapid','Moves', '#Ties']]) + ' | ' \
-      + ' | '.join([str(x).ljust(25) for x in range(1, ntop+1)])
+
+  headers = [('#', 5), ('Mapid', 6), ('Moves', 5), ('#Ties', 4), ('Time', 20)]
+
+  firstline = ' | '.join([x.rjust(y) for (x, y) in headers]) + ' | ' \
+      + ' | '.join([str(x).rjust(25) for x in range(1, ntop+1)])
   print firstline
   print '=' * len(firstline)
   while mapid >= 0:
-    if get_map_type(mapid) == 'Ultra Complex':
+    if get_map_type(mapid) == maptype:
       maxscore = find_max_score(mapid)
       top = [find_nth_display(mapid, i) for i in range(1, ntop+1)]
       mazes += 1
       nties = get_num_ties(mapid)
-      print ' | '.join([str(x).ljust(8) for x in [mazes, mapid, maxscore, nties]]) + ' | ' \
-          + ' | '.join([x.ljust(25) for x in top])
+      time = find_time_taken(mapid, maptype)
+      print ' | '.join([str(x).rjust(y[1]) for (x, y) in zip([mazes, mapid, maxscore, nties, time], headers)]) + ' | ' \
+          + ' | '.join([x.rjust(25) for x in top])
     if options['reverse']:
       mapid -= 1
     else:
       mapid += 1
+
+def get_fastest_ever():
+  mapid = get_todays_mapids()[4]
+  ntop = 1
+
+  headers = [('Map type', 20), ('Mapid', 6), ('Time', 20), ('Winner', 25)]
+
+  fastest = {}
+
+  while mapid >= 0:
+    maptype = get_map_type(mapid)
+    if maptype not in ALL_MAP_TYPES:
+        mapid -= 1
+        continue
+    top = find_max_display(mapid)
+    time = find_time_taken(mapid, maptype)
+
+    best = fastest.get(maptype)
+
+    if (time is not None) and (best == None or best[1] > time):
+        fastest[maptype] = (mapid, time, top)
+    mapid -= 1
+
+  firstline = ' | '.join([x.rjust(y) for (x, y) in headers])
+  print firstline
+  print '=' * len(firstline)
+  results = []
+  for (maptype, best) in fastest.iteritems():
+      results.append([maptype] + list(best))
+  results.sort(key=lambda x: x[2])
+  for result in results:
+      print ' | '.join([str(x).rjust(y[1]) for (x, y) in zip(result, headers)])
 
 def count_uc_ties(users = None, misses_allowed = float("Infinity"), options = {}):
   if 'reverse' not in options:
@@ -723,7 +810,7 @@ def graph_win_times(options = {}):
 
     mapids = get_mapids(date)
     for i in range(0,3):
-      t = find_fastest_time(mapids[i])
+      t = time_to_seconds(find_fastest_time(mapids[i]))
       times[i][day % options['ndays']] = t
       if day >= options['ndays']-1:
         averages[i].append(average(times[i]))
@@ -768,11 +855,11 @@ def get_normal_complex_diffs(options = {}):
 # graph_win_amounts(['blue', 'uuu', 'wu', 'hroll', 'dewax', 'vzl', 'salubrious', 'doth', 'zirikki', 'sirknighting', 'jason', 'baz', 'yeuo', 'sid', 'johnnie', 'tricky', 'heaven', 'jimp'], {'first_map': 1500})
 #graph_win_amounts(['blue', 'uuu', 'wu', 'hroll', 'salubrious', 'doth', 'zirikki', 'sirknighting', 'yeuo', 'sid'], {'first_map': 6000})
 #graph_win_times()
-#find_missed_maps('wu')
+find_missed_maps('wu')
 #get_score_distribution('Ultra Complex')
 #get_rank_distribution(['wu', 'blue', 'dewax', 'vzl', 'uuu', 'sid'], 10)
 #find_sweeps()
-find_sweep_stoppers()
+#find_sweep_stoppers()
 #find_win_amounts('george')
 #find_win_types('george')
 #find_win_types('yeuo')
@@ -793,8 +880,9 @@ user = 'vzl'
 #print_user_history(user, {'reverse': True})
 #print_history()
 
-#get_uc_history({'reverse': True, 'top': 3});
-#get_uc_history({'reverse': False, 'top': 3});
+#get_maptype_history('Ultra Complex', {'reverse': True, 'top': 3});
+#get_maptype_history('Thirty', {'reverse': True, 'top': 3});
+#get_fastest_ever();
 #count_uc_ties();
 
 #get_stats('wu', {'reverse': False, 'firstmap': 3257}) # streak
