@@ -5,6 +5,9 @@ import datetime
 
 from subprocess import call
 
+import numpy as np
+import matplotlib.pyplot as plt
+
 
 # domain = 'http://beta.pathery.net';
 # domain = 'http://blue.pathery.net';
@@ -301,11 +304,29 @@ def find_missed_maps(user, include_unattempted = True):
 
     mapid -= 1
 
+def get_extremal_total_days(maptype = None):
+  date = datetime.datetime.now()
+  maxtotal = 0
+  mintotal = 1000
+  while True:
+    mapids = get_mapids(date)[:4]
+    maps = [(get_map_type(mapid), find_max_score(mapid)) for mapid in mapids]
+    total = sum(score for (type, score) in maps)
+    if total > maxtotal:
+        print 'max ever: ', total
+        print maps
+        maxtotal = total
+    if total < mintotal:
+        print 'min ever: ', total
+        print maps
+        mintotal = total
+
+    date -= datetime.timedelta(days=1)
+
 # get score distribution
 def get_score_distribution(maptype = None):
   mapid = get_todays_mapids()[3] + 1
-  score_dist = {}
-  score_array = [0] * 1000
+  scores = []
 
   max_ever = None
   min_ever = None
@@ -325,14 +346,9 @@ def get_score_distribution(maptype = None):
     if score is None:
       continue
     score = int(score)
-
-    score_array[score] += 1
-    if score in score_dist:
-      score_dist[score] += 1
-    else:
-      score_dist[score] = 1
-    #print score_dist
-    #print score_array
+    scores.append(score)
+  plt.hist(scores)
+  plt.show()
 
 # get the distribution of ranks for a user
 def get_rank_distribution(users, max_care_about = 10):
@@ -352,10 +368,10 @@ def find_sweeps():
   sweepers = {}
   date = datetime.datetime.now()
   while True:
-    mapids = get_mapids(date)
+    mapids = get_mapids(date)[:4]
     potential_sweeper = find_max_user(mapids[0])
-    for i in range(1,4):
-      if (potential_sweeper != find_max_user(mapids[i])):
+    for mapid in mapids:
+      if (potential_sweeper != find_max_user(mapid)):
         potential_sweeper = None
         break
     if potential_sweeper is not None:
@@ -390,8 +406,8 @@ def find_sweep_stoppers(user=None):
 
   date = datetime.datetime.now()
   while True:
-    mapids = get_mapids(date)
-    winners = [find_max_user(mapids[i]) for i in range(4)]
+    mapids = get_mapids(date)[:4]
+    winners = [find_max_user(mapid) for mapid in mapids]
     counted = list(reversed(sorted(collect_counts(winners))))
     if counted[0][0] == 3:
       winner = user_string_from_id(counted[0][1])
@@ -406,10 +422,10 @@ def find_win_amounts(user):
   counts = [0] * 4
 
   while True:
-    mapids = get_mapids(date)
+    mapids = get_mapids(date)[:4]
     nwins = 0
-    for i in range(0,4):
-      if find_max_user(mapids[i]) == userid:
+    for mapid in mapids:
+      if find_max_user(mapid) == userid:
         nwins += 1
     if nwins > 0:
       counts[nwins -1] += 1
@@ -511,7 +527,7 @@ def group_wins(group):
   num = 0
   den = 0
   while True:
-    mapids = get_mapids(date);
+    mapids = get_mapids(date)
     winners = []
     count = 0
     for i in range(4):
@@ -752,9 +768,6 @@ def count_uc_ties(users = None, misses_allowed = float("Infinity"), options = {}
       mapid += 1
 
 def graph_win_amounts(users = [], options = {}):
-  import numpy as np
-  import matplotlib.pyplot as plt
-
   wins_so_far = {}
   for user in users:
       wins_so_far[user_id_map[user]] = 0
@@ -766,15 +779,18 @@ def graph_win_amounts(users = [], options = {}):
   mapids = []
   starting = False
   while mapid < last_mapid:
-    winner = find_max_user(mapid)
-    if winner in wins_so_far:
-        wins_so_far[winner] += 1
-        starting = True
-    if starting:
-        for i, user in enumerate(users):
-            wins_over_time[i].append(wins_so_far[user_id_map[user]])
-        mapids.append(mapid)
-    mapid += 1
+      # if get_map_type(mapid) == 'Simple' or get_map_type(mapid) == 'Normal':
+      #     mapid += 1
+      #     continue
+      winner = find_max_user(mapid)
+      if winner in wins_so_far:
+          wins_so_far[winner] += 1
+          starting = True
+      if starting:
+          for i, user in enumerate(users):
+              wins_over_time[i].append(wins_so_far[user_id_map[user]])
+          mapids.append(mapid)
+      mapid += 1
 
   for i, user in enumerate(users):
       plt.plot(mapids, wins_over_time[i], label=user, linewidth=2)
@@ -784,9 +800,6 @@ def graph_win_amounts(users = [], options = {}):
   plt.show()
 
 def graph_win_times(options = {}):
-  import numpy as np
-  import matplotlib.pyplot as plt
-
   # number of days to do moving average over
   if 'ndays' not in options:
     options['ndays'] = 50
@@ -850,18 +863,20 @@ def get_normal_complex_diffs(options = {}):
       best = normal_s - complex_s
     today -= datetime.timedelta(days=1)
 
+#get_extremal_total_days()
 # graph_win_amounts(['blue', 'uuu', 'wu', 'hroll', 'radivel', 'dewax', 'vzl', 'salubrious', 'doth', 'snap', 'splax'], {'first_map': 0})
 # graph_win_amounts(['blue', 'uuu', 'wu', 'hroll', 'dewax', 'vzl', 'salubrious', 'doth'], {'first_map': 1500})
 # graph_win_amounts(['blue', 'uuu', 'wu', 'hroll', 'dewax', 'vzl', 'salubrious', 'doth', 'zirikki', 'sirknighting', 'jason', 'baz', 'yeuo', 'sid', 'johnnie', 'tricky', 'heaven', 'jimp'], {'first_map': 1500})
 #graph_win_amounts(['blue', 'uuu', 'wu', 'hroll', 'salubrious', 'doth', 'zirikki', 'sirknighting', 'yeuo', 'sid'], {'first_map': 6000})
+# graph_win_amounts(['blue', 'uuu', 'wu', 'hroll', 'salubrious', 'doth', 'zirikki', 'sirknighting', 'yeuo', 'sid'], {'first_map': 1500} )
 #graph_win_times()
-find_missed_maps('wu')
-#get_score_distribution('Ultra Complex')
+#find_missed_maps('wu')
+#get_score_distribution('Thirty Too')
 #get_rank_distribution(['wu', 'blue', 'dewax', 'vzl', 'uuu', 'sid'], 10)
 #find_sweeps()
 #find_sweep_stoppers()
 #find_win_amounts('george')
-#find_win_types('george')
+#find_win_types('sir')
 #find_win_types('yeuo')
 #find_win_types('wu')
 #find_win_types('uuu')
@@ -875,15 +890,15 @@ find_missed_maps('wu')
 
 #group_wins(['wu', 'blue', 'george',  'uuu'])
 
-user = 'vzl'
+#user = 'vzl'
 #print_user_history(user, {'reverse': False, 'firstdate': datetime.datetime(2012, 12, 11)})
 #print_user_history(user, {'reverse': True})
 #print_history()
 
-#get_maptype_history('Ultra Complex', {'reverse': True, 'top': 3});
-#get_maptype_history('Thirty', {'reverse': True, 'top': 3});
-#get_fastest_ever();
-#count_uc_ties();
+#get_maptype_history('Ultra Complex', {'reverse': True, 'top': 3})
+#get_maptype_history('Thirty', {'reverse': True, 'top': 3})
+#get_fastest_ever()
+#count_uc_ties()
 
 #get_stats('wu', {'reverse': False, 'firstmap': 3257}) # streak
 #get_stats('wu', {'reverse': False, 'firstmap': 2580})
