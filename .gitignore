@@ -1,5 +1,6 @@
 map_maker/out.txt
 node_modules
-.*
 *.pyc
+*.sw*
+.idea
 queries/cached_queries
