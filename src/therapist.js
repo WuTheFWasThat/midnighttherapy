@@ -15,7 +15,7 @@
 var is_mapeditor = ($('#playableMapDisplay').length > 0)
 var is_ugli = (typeof pathery_ugli != 'undefined');
 var is_main = (!is_ugli) && (!is_mapeditor);
-var chat_frame=null;
+
 function loadScripts(array,callback){
   var loader = function(src,handler){
     var script = document.createElement("script");
@@ -942,16 +942,7 @@ function click_block(mapid, block)  {
   var id = id_from_block(mapid, block);
   $("#" + id).click();
 }
-function toggle_chat(){
-	if(chat_frame){
-		if(document.getElementById('chatArea').style.display!='none'){
-			document.getElementById('chatArea').style.display='none';
-		}
-		else{
-			document.getElementById('chatArea').style.display='block';	
-		}
-	}
-}
+
 ////////////////////////////////////////////
 // HOTKEYS
 ////////////////////////////////////////////
@@ -972,7 +963,7 @@ var MAP_SWITCH_KEY_1      = '1'
   , TOGGLE_BLOCK_KEY      = 'X'
   , PAINT_BLOCK_KEY       = 'W'
   , ERASE_KEY             = 'E'
-  , TOGGLE_CHAT_KEY	  = 'C'
+  , TOGGLE_CHAT_KEY       = 'C'
 ;
 
 var hotkeys_list = [
@@ -989,7 +980,7 @@ var hotkeys_list = [
     {key: PAINT_BLOCK_KEY                          , action: 'Wall (paint)'               },
     {key: ERASE_KEY                                , action: 'Erase (paint)'              },
     {key: 'Shift+Click'                            , action: 'Draw line to'               },
-    {key: TOGGLE_CHAT_KEY 			   , action: 'Toggle Chat'		  }
+    {key: TOGGLE_CHAT_KEY                          , action: 'Toggle chat'                },
 ]
 
 
@@ -1053,9 +1044,15 @@ register_hotkey(UNDO_KEY, function(e) {
     undo_move_history(get_mapid());
 });
 
-register_hotkey(TOGGLE_CHAT_KEY, function(e){
-	toggle_chat();
+register_hotkey(TOGGLE_CHAT_KEY, function() {
+  $('#chatArea').toggle();
+  if ($('#chatArea').is(":visible")) {
+    localStorage.removeItem('hideChatArea');
+  } else {
+    localStorage['hideChatArea'] = true;
+  }
 });
+
 var shiftkey_held = false;
 var controlkey_held = false;
 var paintkey_held = false;
@@ -1231,8 +1228,8 @@ function initialize_toolbar() {
   if (!is_ugli) {
     //button_toolbar.append($('<div>').text('Chat').css({'text-align':'center', 'background-color':'black', 'width':'100%', 'margin-top':'20px'}))
 
-    chat_frame =
-      $('<div>').addClass('chatContainer2').attr('id','chatArea')
+    var chat_frame =
+      $('<div>').addClass('chatContainer2').attr('id', 'chatArea')
         .append($('<div>').attr('id','chatContainer'))
         .append($('<form>').attr({'id':'sendChat', 'onsubmit':'return false'})
           .append($('<input>').prop('type', 'hidden').attr({ 'name':'stuff','value':'0'}))
@@ -1243,6 +1240,9 @@ function initialize_toolbar() {
         'width' : toolbar_width - 2
      });
 
+    if (localStorage['hideChatArea']) {
+      chat_frame.css('display', 'none');
+    }
 
     button_toolbar.append(chat_frame);
 
