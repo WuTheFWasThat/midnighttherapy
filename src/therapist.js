@@ -964,6 +964,7 @@ var MAP_SWITCH_KEY_1      = '1'
   , PAINT_BLOCK_KEY       = 'W'
   , ERASE_KEY             = 'E'
   , TOGGLE_CHAT_KEY       = 'C'
+  , SHOW_TOOLBAR_KEY      = 'T'
 ;
 
 var hotkeys_list = [
@@ -1305,7 +1306,13 @@ $(document).ready(function() {
   });
   get_mapid();
 
-  initialize_toolbar();
+  if (localStorage['hideToolbarInitially']) {
+    register_hotkey(SHOW_TOOLBAR_KEY, function() {
+      initialize_toolbar();
+    });
+  } else {
+    initialize_toolbar();
+  }
 
   refresh_all();
 
