@@ -6,51 +6,51 @@
 
 (function(exports) {
 
-ROCK_1             = 'r';
-ROCK_2             = 'R';  // never used?
-ROCK_3             = 'q';  // used in seeing double, same as rock?
+var ROCK_1             = 'r';
+var ROCK_2             = 'R';  // never used?
+var ROCK_3             = 'q';  // used in seeing double, same as rock?
 
-PATCH              = 'p';  // can't place blocks, but path can pass
+var PATCH              = 'p';  // can't place blocks, but path can pass
 
-GREEN_THROUGH_ONLY = 'X';  // colored green, blocks red
-RED_THROUGH_ONLY   = 'x';  // colored red, blocks green
+var GREEN_THROUGH_ONLY = 'X';  // colored green, blocks red
+var RED_THROUGH_ONLY   = 'x';  // colored red, blocks green
 
-GREEN_START        = 's';
-RED_START          = 'S';
+var GREEN_START        = 's';
+var RED_START          = 'S';
 
-FINISH             = 'f';
+var FINISH             = 'f';
 
-CHECKPOINT_1       = 'a';
-CHECKPOINT_2       = 'b';
-CHECKPOINT_3       = 'c';
-CHECKPOINT_4       = 'd';
-CHECKPOINT_5       = 'e';
-CHECKPOINTS        = [CHECKPOINT_1, CHECKPOINT_2, CHECKPOINT_3, CHECKPOINT_4, CHECKPOINT_5];
+var CHECKPOINT_1       = 'a';
+var CHECKPOINT_2       = 'b';
+var CHECKPOINT_3       = 'c';
+var CHECKPOINT_4       = 'd';
+var CHECKPOINT_5       = 'e';
+var CHECKPOINTS        = [CHECKPOINT_1, CHECKPOINT_2, CHECKPOINT_3, CHECKPOINT_4, CHECKPOINT_5];
 
 // dark blue
-TELE_IN_1          = 't';
-TELE_OUT_1         = 'u';
+var TELE_IN_1          = 't';
+var TELE_OUT_1         = 'u';
 // green
-TELE_IN_2          = 'm';
-TELE_OUT_2         = 'n';
+var TELE_IN_2          = 'm';
+var TELE_OUT_2         = 'n';
 // red
-TELE_IN_3          = 'g';
-TELE_OUT_3         = 'h';
+var TELE_IN_3          = 'g';
+var TELE_OUT_3         = 'h';
 // light blue
-TELE_IN_4          = 'i';
-TELE_OUT_4         = 'j';
+var TELE_IN_4          = 'i';
+var TELE_OUT_4         = 'j';
 // light green
-TELE_IN_5          = 'k';
-TELE_OUT_5         = 'l';
+var TELE_IN_5          = 'k';
+var TELE_OUT_5         = 'l';
 
-teleports_map = {};
+var teleports_map = {};
 teleports_map[TELE_IN_1] = TELE_OUT_1;
 teleports_map[TELE_IN_2] = TELE_OUT_2;
 teleports_map[TELE_IN_3] = TELE_OUT_3;
 teleports_map[TELE_IN_4] = TELE_OUT_4;
 teleports_map[TELE_IN_5] = TELE_OUT_5;
 
-PATH_BLOCKED_CONSTANT = NaN; // TODO: use this
+var PATH_BLOCKED_CONSTANT = NaN; // TODO: use this
 
 function PatheryGraph(board) {
 
@@ -73,7 +73,7 @@ function PatheryGraph(board) {
         if (this.boardstuff.hasOwnProperty(stuff)) {
           this.boardstuff[stuff].push(key);
         } else {
-          this.boardstuff[stuff] = [key]
+          this.boardstuff[stuff] = [key];
         }
       }
     }
@@ -99,7 +99,7 @@ function PatheryGraph(board) {
   this.finishes = this.boardstuff[FINISH]; // list of keyified finishes
 
   this.teleports = {};
-  for (teleport_key in teleports_map) {
+  for (var teleport_key in teleports_map) {
     // TODO: NOT TRUE IN GENERAL!!!
     var teleport_ins = this.boardstuff[teleport_key];
     if (! teleport_ins) {continue;}
@@ -128,7 +128,7 @@ function PatheryGraph(board) {
 
         // fill edge with rocks so we don't need this check?
         if (((0 <= xp) && (xp < this.n)) && ((0 <= yp) && (yp < this.m))) {
-          val = this.board[xp][yp];
+          var val = this.board[xp][yp];
           if (val == ROCK_1) {continue;}
           if (val == ROCK_2) {continue;}
           if (val == ROCK_3) {continue;}
@@ -143,20 +143,20 @@ function PatheryGraph(board) {
 
 PatheryGraph.prototype.keyify_coordinates = function(x, y) {
   return x * this.m + y;
-}
+};
 
 PatheryGraph.prototype.keyify = function(block) {
   return this.keyify_coordinates(block[0] , block[1]);
-}
+};
 
 PatheryGraph.prototype.unkeyify = function(blockkey) {
   return [Math.floor(blockkey / this.m), blockkey % this.m];
-}
+};
 
 PatheryGraph.prototype.snapify = function(keyed) {
   var unkeyed = this.unkeyify(keyed);
   return [unkeyed[1], unkeyed[0] + 1];
-}
+};
 
 PatheryGraph.prototype.path_dir = function(oldkey, newkey) {
   var diff = newkey - oldkey;
@@ -172,7 +172,7 @@ PatheryGraph.prototype.path_dir = function(oldkey, newkey) {
     default:
       throw new Error("unexpected value in pathing");
   }
-}
+};
 
 PatheryGraph.prototype.dictify_blocks = function(blocks_list) {
   var blocks_dict = {};
@@ -180,7 +180,7 @@ PatheryGraph.prototype.dictify_blocks = function(blocks_list) {
     blocks_dict[this.keyify(blocks_list[i])] = true;
   }
   return blocks_dict;
-}
+};
 
 PatheryGraph.prototype.listify_blocks = function(blocks_dict) {
   var blocks_list = [];
@@ -188,18 +188,18 @@ PatheryGraph.prototype.listify_blocks = function(blocks_dict) {
     blocks_list.push(this.unkeyify(block));
   }
   return blocks_list;
-}
+};
 
 PatheryGraph.prototype.teleport = function(block, used_teleports) {
   var stuff = this.serial_board[block];
   if ( teleports_map[stuff] ) {
     if (!(used_teleports[stuff])) {
       used_teleports[stuff] = true;
-      return this.teleports[block]
+      return this.teleports[block];
     }
   }
   return null;
-}
+};
 
 // var BFS_queue = new Int32Array(graph.m * graph.n); // new Array(...)
 var BFS_queue = new Int32Array(1000); // new Array(...)
@@ -277,7 +277,7 @@ PatheryGraph.prototype.find_path = function(
     }
   }
   return null;
-}
+};
 
 function find_full_path(graph, blocks, reversed){
   var used_teleports = {};
@@ -301,7 +301,7 @@ function find_full_path(graph, blocks, reversed){
   var relevant_blocks = {}; // The set of blocks which blocking may help
 
   while (index < graph.checkpoints.length  + 1) {
-    var target_dict = {}
+    var target_dict = {};
     if (index == graph.checkpoints.length) {
       var targets = graph.finishes;
     } else if (reversed)  {

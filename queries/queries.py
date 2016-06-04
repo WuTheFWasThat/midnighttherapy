@@ -8,7 +8,6 @@ from subprocess import call
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 # domain = 'http://beta.pathery.net';
 # domain = 'http://blue.pathery.net';
 domain = 'http://www.pathery.com';
@@ -17,8 +16,8 @@ clear_cache = False
 
 cache_location = 'queries/cached_queries'
 if clear_cache:
-  call(['rm', '-rf', cache_location])
-  call(['mkdir', '-p', cache_location])
+    call(['rm', '-rf', cache_location])
+    call(['mkdir', '-p', cache_location])
 
 ALL_MAP_TYPES = [
   'Simple',
@@ -323,6 +322,7 @@ def get_extremal_total_days(maptype = None):
 
     date -= datetime.timedelta(days=1)
 
+
 # get score distribution
 def get_score_distribution(maptype = None):
   mapid = get_todays_mapids()[3] + 1
@@ -331,6 +331,7 @@ def get_score_distribution(maptype = None):
   max_ever = None
   min_ever = None
   while mapid > -1:
+
     mapid -= 1
     if (maptype is not None) and (maptype != get_map_type(mapid)):
       continue

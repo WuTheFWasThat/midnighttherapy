@@ -3,6 +3,7 @@
 /////////////////////////////////////////////////////
 
 var express = require('express');
+
 var Analyst = require('./src/analyst.js');
 
 var app = express();
