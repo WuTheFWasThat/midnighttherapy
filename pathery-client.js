@@ -1,4 +1,4 @@
-/*global mt_url, $, $, mt_local_testing */
+/*global $, mt_local_testing */
 
 // NOTE: set mt_local_testing to use local version
 
@@ -18,7 +18,7 @@ Analyst.post = function(path, data, cb) {
     type: 'POST',
     data: data,
     dataType: 'json',
-    success: cb
+    success: cb,
   });
 };
 
@@ -63,7 +63,7 @@ var Therapist  = {};
   function start_up() {
     Therapist.toggle_values();  // note: must happen before scripts load for this to update button properly
 
-    Therapist.register_hotkey('F', function(e) { // override existing GO
+    Therapist.register_hotkey('F', function(/*e*/) { // override existing GO
       var mapid = Therapist.get_mapid();
       var walls_left = Therapist.walls_remaining(mapid);
 
@@ -78,9 +78,8 @@ var Therapist  = {};
       });
     });
 
-    Therapist.register_hotkey('I', function(e) {
+    Therapist.register_hotkey('I', function(/*e*/) {
       var mapid = Therapist.get_mapid();
-      var walls_left = Therapist.walls_remaining(mapid);
       Analyst.improve_solution(Therapist.get_board(mapid), Therapist.get_solution(mapid), function(result) {
         Therapist.load_solution(mapid, result);
         Therapist.send_solution(mapid);
