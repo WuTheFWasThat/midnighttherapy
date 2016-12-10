@@ -36,7 +36,7 @@
 
       var postDate = new Date();
       postDate.setTime(postDate.getTime() + chat.secondsSince * 1000);
-      var timestamp = postDate.format("ddd h:MM:ss TT");
+      var timestamp = postDate + ''; //.format("ddd h:MM:ss TT");
 
       if (!chat.message) return;
 
