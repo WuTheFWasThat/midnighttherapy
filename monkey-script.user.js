@@ -21,7 +21,7 @@
 
 
 // IF YOU'RE NOT RUNNING A SERVER:
-$.getScript('https://pathery-code.terminal.com/pathery-full.js')
+$.getScript('https://raw.githubusercontent.com/WuTheFWasThat/midnighttherapy/master/pathery-full.js');
 
 // ALTERNATIVELY, IF YOU ARE RUNNING A SERVER:
 //mt_local_testing = true;

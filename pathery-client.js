@@ -4,7 +4,7 @@
 
 var mt_url;
 if (typeof mt_local_testing === 'undefined') {
-  mt_url = 'https://pathery-code.terminal.com/';
+  mt_url = 'https://raw.githubusercontent.com/WuTheFWasThat/midnighttherapy/master/';
 } else {
   mt_url = mt_url || 'http://127.0.0.1:2222/';
 }

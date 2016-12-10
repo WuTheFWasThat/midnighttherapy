@@ -3,10 +3,11 @@
 // globals all mentioned here
 var Analyst  = {};
 var Therapist  = {};
+var mt_url;
 if (typeof mt_local_testing === 'undefined') {
-  var mt_url = 'https://pathery-code.terminal.com/'
+  mt_url = 'https://raw.githubusercontent.com/WuTheFWasThat/midnighttherapy/master/';
 } else {
-  var mt_url = 'http://127.0.0.1:2222/';
+  mt_url = 'http://127.0.0.1:2222/';
 }
 
 var start_assist = function() {

@@ -22,19 +22,19 @@ This project is an extension to the Pathery website (www.pathery.com).  It does 
 ### GREASEMONKEY ###
 
 1. Install [Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=en) *(Chrome)* or [Greasemonkey](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/) *(Firefox)*
-2. Click [this link](https://pathery-code.terminal.com/monkey-script.user.js).
+2. Click [this link](https://raw.githubusercontent.com/WuTheFWasThat/midnighttherapy/master/monkey-script.user.js).
 
 ### BOOKMARKLET ###
 
 If you can't or don't want to use Greasemonkey, use a bookmarklet.  That is, create a bookmark with the address:
 
-`javascript: $.getScript('https://pathery-code.terminal.com/pathery-full.js')`
+`javascript: $.getScript('https://raw.githubusercontent.com/WuTheFWasThat/midnighttherapy/master/pathery-full.js')`
 
 ### CONSOLE ###
 
 If all else fails, you can access the script by pasting
 
-`$.getScript('https://pathery-code.terminal.com/pathery-full.js')`
+`$.getScript('https://raw.githubusercontent.com/WuTheFWasThat/midnighttherapy/master/pathery-full.js')`
 
 into the Javascript console.
 
@@ -110,7 +110,7 @@ Next, add my client to the browser window.
 1. Go to Pathery
 2. Paste
 
-`$.getScript('https://pathery-code.terminal.com/pathery-client.js')`
+`$.getScript('https://raw.githubusercontent.com/WuTheFWasThat/midnighttherapy/master/pathery-client.js')`
 
 into the Javascript console.  Again, you can make this easier using something like Tampermonkey/Greasemonkey (a slight modification to monkey-script.js will work), or a bookmarklet.
 
@@ -156,15 +156,7 @@ None, at the moment.  Let me know if you find any!
 
 ## CONTACT: ##
 
-Suggestions and feedback are welcome.  If you can't catch me in the Pathery chat, there's a mailing list for updates and discussions:
-
-  midnight-therapy@zeromailer.com
-
-To join it:
-
-  https://www.zeromailer.com/join/midnight-therapy
+Suggestions and feedback are welcome.  If you can't catch me in the Pathery chat, just make a github issue.
 
 Feel free to contribute, of course :)
-
-Thanks to those who already have: BlueRaja, HRoll, Joy, skishore, wuthefwasthat
 
