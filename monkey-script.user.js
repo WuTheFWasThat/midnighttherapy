@@ -21,17 +21,16 @@
 
 
 // IF YOU'RE NOT RUNNING A SERVER:
-$.ajax({
-  url: 'https://raw.githubusercontent.com/WuTheFWasThat/midnighttherapy/master/pathery-full.js',
-  type: 'GET',
-  success: function(data) { eval(data); },
-});
+var url = 'https://raw.githubusercontent.com/WuTheFWasThat/midnighttherapy/master/pathery-full.js';
 
 // ALTERNATIVELY, IF YOU ARE RUNNING A SERVER:
 //mt_local_testing = true;
 //mt_url='http://127.0.0.1:2222/'  // OR WHATEVER YOUR SERVER IS
-//$.ajax({
-//  url: mt_url + 'pathery-client.js',
-//  type: 'GET',
-//  success: function(data) { eval(data); },
-//});
+//var url = mt_url + 'pathery-client.js'
+
+$.ajax({
+  url: url,
+  type: 'GET',
+  dataType: 'text',
+  success: function(data) { eval(data); },
+});

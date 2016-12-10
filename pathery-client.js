@@ -60,6 +60,7 @@ var Therapist  = {};
     $.ajax({
       url: mt_url + 'src/therapist.js',
       type: 'GET',
+      dataType: 'text',
       success: function(data) { eval(data); cb();},
     });
   }

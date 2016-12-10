@@ -30,6 +30,7 @@ var start_assist = function() {
       $.ajax({
         url: mt_url + 'src/analyst.js',
         type: 'GET',
+        dataType: 'text',
         success: function(data) { eval(data); cb();},
       });
     }
@@ -43,6 +44,7 @@ var start_assist = function() {
       $.ajax({
         url: mt_url + 'src/therapist.js',
         type: 'GET',
+        dataType: 'text',
         success: function(data) { eval(data); cb();},
       });
     }

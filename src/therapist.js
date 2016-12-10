@@ -5,7 +5,9 @@
 // The therapist is an intermediary between the client and analyst.
 // It provides hotkeys, saving/loading of solutions, etc. and only runs in the browser
 
+console.log('got therapist file');
 (function(exports, solver) {
+console.log('running thep init file');
 
 ////////////////////////////////////////////////////////////
 // LOAD SCRIPTS
@@ -1251,18 +1253,20 @@ function initialize_toolbar() {
     $.ajax({
       url: mt_url + 'src/chat.js',
       type: 'GET',
+      dataType: 'text',
       success: function(data) { eval(data); },
     });
 
     $.ajax({
-       url: mt_url + 'src/chat.css',
-       type: 'GET',
-       success: function(data) {
-         var style = document.createElement('style');
-         style.type = 'text/css';
-         style.innerHTML = data;
-         document.getElementsByTagName('head')[0].appendChild(style);
-       },
+      url: mt_url + 'src/chat.css',
+      type: 'GET',
+      dataType: 'text',
+      success: function(data) {
+        var style = document.createElement('style');
+        style.type = 'text/css';
+        style.innerHTML = data;
+        document.getElementsByTagName('head')[0].appendChild(style);
+      },
     });
   }
 
