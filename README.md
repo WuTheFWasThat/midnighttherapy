@@ -28,13 +28,13 @@ This project is an extension to the Pathery website (www.pathery.com).  It does 
 
 If you can't or don't want to use Greasemonkey, use a bookmarklet.  That is, create a bookmark with the address:
 
-`javascript: $.getScript('https://raw.githubusercontent.com/WuTheFWasThat/midnighttherapy/master/pathery-full.js')`
+`javascript: $.ajax(url: 'https://raw.githubusercontent.com/WuTheFWasThat/midnighttherapy/master/pathery-full.js', type: 'GET', success: function(data) { eval(data); })`
 
 ### CONSOLE ###
 
 If all else fails, you can access the script by pasting
 
-`$.getScript('https://raw.githubusercontent.com/WuTheFWasThat/midnighttherapy/master/pathery-full.js')`
+`$.ajax(url: 'https://raw.githubusercontent.com/WuTheFWasThat/midnighttherapy/master/pathery-full.js', type: 'GET', success: function(data) { eval(data); })`
 
 into the Javascript console.
 
@@ -110,7 +110,7 @@ Next, add my client to the browser window.
 1. Go to Pathery
 2. Paste
 
-`$.getScript('https://raw.githubusercontent.com/WuTheFWasThat/midnighttherapy/master/pathery-client.js')`
+`$.ajax(url: 'https://raw.githubusercontent.com/WuTheFWasThat/midnighttherapy/master/pathery-client.js', type: 'GET', success: function(data) { eval(data); })`
 
 into the Javascript console.  Again, you can make this easier using something like Tampermonkey/Greasemonkey (a slight modification to monkey-script.js will work), or a bookmarklet.
 

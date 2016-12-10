@@ -27,7 +27,11 @@ var start_assist = function() {
     ///////////////////////////////////////
 
     function get_analyst(cb) {
-      $.getScript(mt_url + 'src/analyst.js', cb)
+      $.ajax({
+        url: mt_url + 'src/analyst.js',
+        type: 'GET',
+        success: function(data) { eval(data); cb();},
+      });
     }
 
     ///////////////////////////////////////
@@ -36,7 +40,11 @@ var start_assist = function() {
 
     // SHARED WITH PATHERY-CLIENT
     function get_therapist(cb) {
-      $.getScript(mt_url + 'src/therapist.js', cb)
+      $.ajax({
+        url: mt_url + 'src/therapist.js',
+        type: 'GET',
+        success: function(data) { eval(data); cb();},
+      });
     }
 
     function start_up() {

@@ -57,7 +57,11 @@ var Therapist  = {};
 (function() {
   // SHARED WITH PATHERY-FULL
   function get_therapist(cb) {
-    $.getScript(mt_url + 'src/therapist.js', cb);
+    $.ajax({
+      url: mt_url + 'src/therapist.js',
+      type: 'GET',
+      success: function(data) { eval(data); cb();},
+    });
   }
 
   function start_up() {

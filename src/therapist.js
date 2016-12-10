@@ -1247,11 +1247,22 @@ function initialize_toolbar() {
 
     button_toolbar.append(chat_frame);
 
-    $.getScript(mt_url + 'src/chat.js');
+    $.ajax({
+      url: mt_url + 'src/chat.js',
+      type: 'GET',
+      success: function(data) { eval(data); },
+    });
 
-    $("<link/>", { rel: "stylesheet", type: "text/css",
-       href: mt_url + 'src/chat.css'
-    }).appendTo("head");
+    $.ajax({
+       url: mt_url + 'src/chat.css',
+       type: 'GET',
+       success: function(data) {
+         var style = document.createElement('style');
+         style.type = 'text/css';
+         style.innerHTML = data;
+         document.getElementsByTagName('head')[0].appendChild(style);
+       },
+    });
   }
 
   if (is_main) {
