@@ -12,19 +12,19 @@
 ////////////////////////////////////////////////////////////
 // CREDIT TO:  http://stackoverflow.com/questions/1866717/document-createelementscript-adding-two-scripts-with-one-callback
 
-var is_mapeditor = ($('#playableMapDisplay').length > 0)
+var is_mapeditor = ($('#playableMapDisplay').length > 0);
 var is_ugli = (typeof pathery_ugli != 'undefined');
 var is_main = (!is_ugli) && (!is_mapeditor);
 
 function loadScripts(array,callback){
   var loader = function(src,handler){
-    var script = document.createElement("script");
+    var script = document.createElement('script');
     script.src = src;
     script.onload = script.onreadystatechange = function(){
     script.onreadystatechange = script.onload = null;
       handler();
     }
-    var head = document.getElementsByTagName("head")[0];
+    var head = document.getElementsByTagName('head')[0];
     (head || document.body).appendChild( script );
   };
   (function(){
@@ -59,8 +59,8 @@ $(document).ready(function() {
     if (link.text() == 'Achievements') {
       user_id = parseInt(link.attr('href').split('=')[1])
     }
-  })
-})
+  });
+});
 
 exports.mapid = null;
 
@@ -114,60 +114,62 @@ function get_code(mapid) {
 exports.get_code = get_code;
 
 function parse_board(code) {
-    var head = code.split(':')[0];
-    var body = code.split(':')[1];
+  var head = code.split(':')[0];
+  var body = code.split(':')[1];
 
-    var head = head.split('.');
-    var dims = head[0].split('x');
-    var width = parseInt(dims[0]);
-    var height = parseInt(dims[1]);
+  var head = head.split('.');
+  var dims = head[0].split('x');
+  var width = parseInt(dims[0]);
+  var height = parseInt(dims[1]);
 
-    if (head[1][0] != 'c') {console.log('head[1][0] was ' + head[1][0] + ' expected c');}
-    var targets = parseInt(head[1].slice(1));
+  if (head[1][0] != 'c') {console.log('head[1][0] was ' + head[1][0] + ' expected c');}
+  var targets = parseInt(head[1].slice(1));
 
-    if (head[2][0] != 'r') {console.log('head[2][0] was ' + head[2][0] + ' expected r');}
+  if (head[2][0] != 'r') {console.log('head[2][0] was ' + head[2][0] + ' expected r');}
 
-    if (head[3][0] != 'w') {console.log('head[3][0] was ' + head[3][0] + ' expected w');}
-    var walls_remaining = parseInt(head[3].slice(1));
+  if (head[3][0] != 'w') {console.log('head[3][0] was ' + head[3][0] + ' expected w');}
+  var walls_remaining = parseInt(head[3].slice(1));
 
-    if (head[4][0] != 't') {console.log('head[4][0] was ' + head[4][0] + ' expected t');}
-    var teleports = parseInt(head[4].slice(1))
+  if (head[4][0] != 't') {console.log('head[4][0] was ' + head[4][0] + ' expected t');}
+  var teleports = parseInt(head[4].slice(1))
 
-    var data = new Array();
-    for (i = 0; i < height; i++) {
-        var row = new Array();
-        for (j = 0; j < width; j++) {
-            row[j] = ' ';
-        }
-        data[i] = row;
-    }
+  var data = new Array();
+  var i, j;
+  for (i = 0; i < height; i++) {
+      var row = new Array();
+      for (j = 0; j < width; j++) {
+          row[j] = ' ';
+      }
+      data[i] = row;
+  }
 
-    var i = -1;
-    var j = width - 1;
-    var body_split = body.split('.').slice(0, -1);
+  var i = -1;
+  var j = width - 1;
+  var body_split = body.split('.').slice(0, -1);
 
-    for (var k = 0; k < body_split.length; k++) {
-        var item = body_split[k];
-        for (var l = 0; l < parseInt(item.slice(0, -1)) + 1; l++) {
-            j += 1;
-            if (j >= width) {
-                j = 0;
-                i += 1;
-            }
-        }
-        var type = item[item.length - 1];
-        data[i][j] = type;
-    }
+  for (var k = 0; k < body_split.length; k++) {
+      var item = body_split[k];
+      for (var l = 0; l < parseInt(item.slice(0, -1)) + 1; l++) {
+          j += 1;
+          if (j >= width) {
+              j = 0;
+              i += 1;
+          }
+      }
+      var type = item[item.length - 1];
+      data[i][j] = type;
+  }
 
-    //var board = [];
-    //for (var i in data) {
-    //  board.push(data[i].join(''));
-    //}
-    //return board
+  //var board = [];
+  //for (var i in data) {
+  //  board.push(data[i].join(''));
+  //}
+  //return board
 
-    return {board: data,
-            walls_remaining: walls_remaining
-    };
+  return {
+    board: data,
+    walls_remaining: walls_remaining,
+  };
 }
 exports.parse_board = parse_board;
 
@@ -252,11 +254,11 @@ var __old_updateDsp__ = updateDsp;
 updateDsp = function(mapid, element, data) {
   if (element == 'dspCount') {return;}
   __old_updateDsp__.apply(this, arguments);
-}
+};
 
 // disable flashing of stuff
 var __old_flashelement__ = flashelement;
-flashelement = function() {}
+flashelement = function() {};
 
 // CUSTOM COUNTDOWN TIMER
 //if (typeof countdownInt !== 'undefined') {
@@ -271,18 +273,17 @@ flashelement = function() {}
 //}
 
 function reset_map(mapid) {
-    var old_solution = get_solution(mapid);
-    add_move_to_history(mapid, new ChangeBoardMove(mapid, old_solution, []))
-    clearwalls(exports.mapid);
+  var old_solution = get_solution(mapid);
+  add_move_to_history(mapid, new ChangeBoardMove(mapid, old_solution, []));
+  clearwalls(exports.mapid);
 	refresh_score();
 }
 resetwalls = reset_map; // override snap's function!
 
 var __old_loadSol__ = loadSol;
-function new_loadSol(solution, numMoves)
-{
-    __old_loadSol__(solution, numMoves);
-	refresh_score();
+function new_loadSol(solution, numMoves) {
+  __old_loadSol__(solution, numMoves);
+  refresh_score();
 }
 loadSol = new_loadSol;
 
@@ -351,7 +352,7 @@ function refresh_score() {
       }
 
       write_score_value(values);
-    })
+    });
     if (showing_values) { draw_values(); }
   } catch (e) {return console.log('In mapeditor?  failed to refresh score', e);}
 };
@@ -1265,9 +1266,9 @@ function initialize_toolbar() {
     });
   }
 
-  if (is_main) {
-    $('#countdown').css({'position': 'static', 'display': 'inline-block'}).appendTo($('#mt_left_bar'))
-  }
+  // if (is_main) {
+  //   $('#countdown').css({'position': 'static', 'display': 'inline-block'}).appendTo($('#mt_left_bar'));
+  // }
 }
 
 
@@ -1329,8 +1330,8 @@ $(document).ready(function() {
 
   var topbar = $('#topbarContent');
   if (!is_ugli)  {
-    $(topbar.children()[3]).remove()
-    $(topbar.children()[0]).remove()
+    $(topbar.children()[3]).remove();
+    $(topbar.children()[0]).remove();
   }
 
   topbar.prepend(
@@ -1341,8 +1342,8 @@ $(document).ready(function() {
     $('<a>').attr('href','//beta.pathery.net/home').addClass('nav').text('Beta home').css('color', 'red')
   ).prepend(
     $('<a>').attr('href','//www.pathery.com/home' ).addClass('nav').text('Pathery home')
-  )
-})
+  );
+});
 
 
 })(typeof exports === "undefined" ? Therapist : module.exports, Analyst)
