@@ -114,7 +114,7 @@ var Analyst = {}
             dataType: 'json',
             success: function(googlData) {
                 var newUrl = googlData.id;
-                add_message($('<a>').attr('href', newUrl).text('Shareable link'));
+                add_message($('<input>').attr('value', newUrl).attr('type', 'text').attr('readonly', 'true'));
             }
           });
         });
