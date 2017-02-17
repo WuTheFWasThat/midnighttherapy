@@ -23,7 +23,7 @@
     }
   ],
   "scripts": {
-    "start": "nodemon ./pathery-server --watch src"
+    "start": "node ./pathery-server"
   },
   "main": "./pathery-server",
   "repository": {

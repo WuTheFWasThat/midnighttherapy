@@ -177,4 +177,4 @@ app.get('/', middleware, function(req, res) {
 
 app.use(express.static(__dirname));
 
-app.listen(2222);
+app.listen(process.env.PORT || 2222);
