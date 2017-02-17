@@ -1339,8 +1339,8 @@ $(document).ready(function() {
   }
 
   topbar.prepend(
-    //   $('<a>').attr('href','//pathery-maps.terminal.com/ugli-pathery/').addClass('nav').text('Playground').css('color', 'green')
-    // ).   prepend(
+    $('<a>').attr('href','//pathery-playground.herokuapp.com/ugli-pathery/').addClass('nav').text('Playground').css('color', 'green')
+  ).prepend(
     $('<a>').attr('href','//blue.pathery.net/home').addClass('nav').text('Blue home').css('color', 'blue')
   ).prepend(
     $('<a>').attr('href','//beta.pathery.net/home').addClass('nav').text('Beta home').css('color', 'red')
