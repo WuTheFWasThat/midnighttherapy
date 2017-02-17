@@ -9,7 +9,7 @@
 
 <link href ="css/page.css" rel ="stylesheet" type ="text/css"/>
 <link href ='css/maps.css' rel ='stylesheet' type ='text/css'/>
- <link rel ="image_src" type =" image/png " href ="/images/linkdsp.png"/>
+<link href ="/images/linkdsp.png"/ rel="image_src" type =" image/png " >
 <link href ="css/stats.css" rel ="stylesheet" type ="text/css"/>
 
 <style>
@@ -46,6 +46,9 @@ var Analyst = {}
   </div>
 </div>
 
+<button id="shareButton">
+  Get shareable link
+</button>
 <ul id="messages">
 </ul>
 
@@ -101,7 +104,21 @@ var Analyst = {}
         console.log(result.code);
         var maplink = window.location.href.split('?')[0] + '?mapcode=' +encodeURIComponent(result.code);
         console.log(maplink)
-        add_message($('<a>').attr('href', maplink).text('Shareable link'));
+        $('#shareButton').one('click', function() {
+          console.log('yay');
+          $.ajax({
+            url: 'https://www.googleapis.com/urlshortener/v1/url?key=AIzaSyBWpxje7cBY7oDnFmiIdQYD3Uhe99_gEw8',
+            type: 'POST',
+            data: '{"longUrl": "' + maplink + '"}',
+            contentType: 'application/json',
+            dataType: 'json',
+            success: function(googlData) {
+                var newUrl = googlData.id;
+                add_message($('<a>').attr('href', newUrl).text('Shareable link'));
+            }
+          });
+        });
+
         displayMap(result, 0, 'innerMapDsp_0', false, '.');
       });
     } else {
