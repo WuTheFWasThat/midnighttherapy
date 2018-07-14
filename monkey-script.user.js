@@ -3,18 +3,18 @@
 // @namespace  http://use.i.E.your.homepage/
 // @version    0.1
 // @description  Assistance for playing Pathery
-// @match      http://www.pathery.com/home
-// @match      http://www.pathery.com/mapeditor*
-// @match      http://www.pathery.com/scores*
-// @match      http://www.pathery.com/
-// @match      http://beta.pathery.net/home
-// @match      http://beta.pathery.net/mapeditor*
-// @match      http://beta.pathery.net/scores*
-// @match      http://beta.pathery.net/
-// @match      http://blue.pathery.net/home
-// @match      http://blue.pathery.net/mapeditor*
-// @match      http://blue.pathery.net/scores*
-// @match      http://blue.pathery.net/
+// @match      https://www.pathery.com/home
+// @match      https://www.pathery.com/mapeditor*
+// @match      https://www.pathery.com/scores*
+// @match      https://www.pathery.com/
+// @match      https://beta.pathery.net/home
+// @match      https://beta.pathery.net/mapeditor*
+// @match      https://beta.pathery.net/scores*
+// @match      https://beta.pathery.net/
+// @match      https://blue.pathery.net/home
+// @match      https://blue.pathery.net/mapeditor*
+// @match      https://blue.pathery.net/scores*
+// @match      https://blue.pathery.net/
 // @copyright  2012+, You
 // @grant      none
 // ==/UserScript==
