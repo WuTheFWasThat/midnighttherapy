@@ -11,10 +11,18 @@
 // @match      https://beta.pathery.net/mapeditor*
 // @match      https://beta.pathery.net/scores*
 // @match      https://beta.pathery.net/
+// @match      http://beta.pathery.net/home
+// @match      http://beta.pathery.net/mapeditor*
+// @match      http://beta.pathery.net/scores*
+// @match      http://beta.pathery.net/
 // @match      https://blue.pathery.net/home
 // @match      https://blue.pathery.net/mapeditor*
 // @match      https://blue.pathery.net/scores*
 // @match      https://blue.pathery.net/
+// @match      http://blue.pathery.net/home
+// @match      http://blue.pathery.net/mapeditor*
+// @match      http://blue.pathery.net/scores*
+// @match      http://blue.pathery.net/
 // @copyright  2012+, You
 // @grant      none
 // ==/UserScript==
