@@ -341,7 +341,7 @@ function draw_values() {
 
 var showing_values = false;
 function refresh_score() {
-  //try { // for mapeditor race condition
+  try { // for mapeditor race condition
     var mapid = get_mapid();
     var sol = get_solution(mapid);
     solver.compute_value(get_board(mapid), sol, function(values) {
@@ -357,7 +357,7 @@ function refresh_score() {
       write_score_value(values);
     });
     if (showing_values) { draw_values(); }
-  //} catch (e) {return console.log('In mapeditor?  failed to refresh score', e);}
+  } catch (e) {return console.log('In mapeditor?  failed to refresh score', e);}
 };
 
 function draw_single_value(mapid, i, j, value, blocking, maxValue) {
