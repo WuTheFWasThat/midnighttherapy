@@ -78,8 +78,8 @@ function add_message(msg) {
 
 // from my representation of block to pathery's 'mapid,x,y' representation
 function id_from_block(mapid, block) {
-  var x = block[0] + 1;
-  var y = block[1] + 1;
+  var x = block[0];
+  var y = block[1];
   var id = mapid + '\\,' + x + '\\,' + y;
   return id;
 }
