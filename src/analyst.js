@@ -8,7 +8,7 @@
 
 var ROCK_1             = 'r1';
 var ROCK_2             = 'r2';  // never used?
-var ROCK_3             = 'q1';  // used in seeing double, same as rock?
+var ROCK_3             = 'r3';  // used in seeing double, same as rock?
 
 var PATCH              = 'p1';  // can't place blocks, but path can pass
 
