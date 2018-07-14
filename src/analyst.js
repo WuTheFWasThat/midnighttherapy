@@ -20,6 +20,18 @@ var RED_START          = 's2';
 
 var FINISH             = 'f1';
 
+// Checkpoints are c+number, and can be unlimited now.
+
+// Takes in the 1-indexed checkpoint number and returns the checkpoint name.
+// Example: 3 -> 'c3'
+function getCheckpointName(n) {
+  return 'c'+n;
+}
+
+// Arbitrary max num of checkpoints.
+MAX_CHECKPOINT_NUM = 100000
+
+// The CHECKPOINT variables are saved for now for the map_maker files.
 var CHECKPOINT_1       = 'c1';
 var CHECKPOINT_2       = 'c2';
 var CHECKPOINT_3       = 'c3';
@@ -27,6 +39,30 @@ var CHECKPOINT_4       = 'c4';
 var CHECKPOINT_5       = 'c5';
 var CHECKPOINTS        = [CHECKPOINT_1, CHECKPOINT_2, CHECKPOINT_3, CHECKPOINT_4, CHECKPOINT_5];
 
+
+// Teleports are t+number and u+number for in and out, and can be unlimited now.
+
+var TELE_IN_PATTERN = /^t[0-9]+$/
+var TELE_OUT_PATTERN = /^u[0-9]+$/
+
+// Tests if the given string is a code for a teleport in.
+function isTeleIn(s) {
+  return !!s.match(TELE_IN_PATTERN)
+}
+
+// Tests if the given string is a code for a teleport out.
+function isTeleOut(s) {
+  return !!s.match(TELE_OUT_PATTERN)
+}
+
+// Returns the corresponding teleport out for the given teleport in.
+// Example: 't3' -> 'u3'
+// Currently doesn't do any validation.
+function getTeleOutForTeleIn(s) {
+  return 'u' + s.slice(1);
+}
+
+// The TELE_IN, TELE_OUT variables are saved for now for the map_maker files.
 // dark blue
 var TELE_IN_1          = 't1';
 var TELE_OUT_1         = 'u1';
@@ -45,13 +81,6 @@ var TELE_OUT_5         = 'u5';
 
 var NOTURN             = 'z5';
 
-var teleports_map = {};
-teleports_map[TELE_IN_1] = TELE_OUT_1;
-teleports_map[TELE_IN_2] = TELE_OUT_2;
-teleports_map[TELE_IN_3] = TELE_OUT_3;
-teleports_map[TELE_IN_4] = TELE_OUT_4;
-teleports_map[TELE_IN_5] = TELE_OUT_5;
-
 var PATH_BLOCKED_CONSTANT = NaN; // TODO: use this
 
 function PatheryGraph(board) {
@@ -62,6 +91,11 @@ function PatheryGraph(board) {
 
   this.serial_board = []; // same as board, but uses keyified index
   this.boardstuff = {}; // reverse of serial board.  val -> list of keyified blocks
+
+  // A map of teleport in names that are present in the maze.
+  // Every key in it is expected to have a value of 1.
+  var teleport_in_set = {};
+
 
   // Note that these lists start from top-left and go right, then down
   // In particular, starts and finishes are ordered top to bottom
@@ -76,6 +110,10 @@ function PatheryGraph(board) {
           this.boardstuff[stuff].push(key);
         } else {
           this.boardstuff[stuff] = [key];
+          // Update set of teleports
+          if (isTeleIn(stuff)) {
+            teleport_in_set[stuff] = 1;
+          }
         }
       }
     }
@@ -89,9 +127,8 @@ function PatheryGraph(board) {
 
   this.checkpoints = []; // list of lists of intermediate targets, including starts and ends, all keyified
 
-  var checkpoint_types = [CHECKPOINT_1, CHECKPOINT_2, CHECKPOINT_3, CHECKPOINT_4, CHECKPOINT_5];
-  for (var i = 0; i < 5; i++) {
-    var checkpoint_type = checkpoint_types[i];
+  for (var i = 1; i <= MAX_CHECKPOINT_NUM; i++) {
+    var checkpoint_type = getCheckpointName(i)
     if (!(this.boardstuff.hasOwnProperty(checkpoint_type))) {
       break;
     }
@@ -100,12 +137,15 @@ function PatheryGraph(board) {
 
   this.finishes = this.boardstuff[FINISH]; // list of keyified finishes
 
+  // A map of int -> int[].
+  // The key is a keyified indexed of a square of a teleport in, and
+  // the corresponding value is the list of all possible corresponding
+  // teleport outs.
   this.teleports = {};
-  for (var teleport_key in teleports_map) {
+  for (var teleport_key in teleport_in_set) {
     // TODO: NOT TRUE IN GENERAL!!!
     var teleport_ins = this.boardstuff[teleport_key];
-    if (! teleport_ins) {continue;}
-    var teleport_outs = this.boardstuff[teleports_map[teleport_key]];
+    var teleport_outs = this.boardstuff[getTeleOutForTeleIn(teleport_key)];
 
     for (var i = 0; i < teleport_ins.length; i++) {
       this.teleports[teleport_ins[i]] = teleport_outs;
@@ -194,7 +234,7 @@ PatheryGraph.prototype.listify_blocks = function(blocks_dict) {
 
 PatheryGraph.prototype.teleport = function(block, used_teleports) {
   var stuff = this.serial_board[block];
-  if ( teleports_map[stuff] ) {
+  if ( isTeleIn(stuff) ) {
     if (!(used_teleports[stuff])) {
       used_teleports[stuff] = true;
       return this.teleports[block];
