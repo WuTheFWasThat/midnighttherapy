@@ -79,7 +79,7 @@ function add_message(msg) {
 // from my representation of block to pathery's 'mapid,x,y' representation
 function id_from_block(mapid, block) {
   var x = block[0] + 1;
-  var y = block[1];
+  var y = block[1] + 1;
   var id = mapid + '\\,' + x + '\\,' + y;
   return id;
 }
@@ -87,7 +87,7 @@ function id_from_block(mapid, block) {
 // from pathery's representation to my representation of block
 function block_from_block_string(block_string) {
   var string_coordinates = block_string.split(',');
-  var x = parseInt(string_coordinates[0]) - 1;
+  var x = parseInt(string_coordinates[0]);
   var y = parseInt(string_coordinates[1]);
   var block = [x, y];
   return block;
@@ -120,20 +120,20 @@ function parse_board(code) {
   var body = code.split(':')[1];
 
   var head = head.split('.');
-  var dims = head[0].split('x');
-  var width = parseInt(dims[0]);
-  var height = parseInt(dims[1]);
+  //var dims = head[0].split('x');
+  var width = parseInt(head[0]);
+  var height = parseInt(head[1]);
 
-  if (head[1][0] != 'c') {console.log('head[1][0] was ' + head[1][0] + ' expected c');}
-  var targets = parseInt(head[1].slice(1));
+//  if (head[1][0] != 'c') {console.log('head[1][0] was ' + head[1][0] + ' expected c');}
+//  var targets = parseInt(head[1].slice(1));
 
-  if (head[2][0] != 'r') {console.log('head[2][0] was ' + head[2][0] + ' expected r');}
+//  if (head[2][0] != 'r') {console.log('head[2][0] was ' + head[2][0] + ' expected r');}
 
-  if (head[3][0] != 'w') {console.log('head[3][0] was ' + head[3][0] + ' expected w');}
-  var walls_remaining = parseInt(head[3].slice(1));
+//  if (head[3][0] != 'w') {console.log('head[3][0] was ' + head[3][0] + ' expected w');}
+  var walls_remaining = parseInt(head[2]);
 
-  if (head[4][0] != 't') {console.log('head[4][0] was ' + head[4][0] + ' expected t');}
-  var teleports = parseInt(head[4].slice(1))
+//  if (head[4][0] != 't') {console.log('head[4][0] was ' + head[4][0] + ' expected t');}
+//  var teleports = parseInt(head[4].slice(1))
 
   var data = new Array();
   var i, j;
@@ -150,15 +150,16 @@ function parse_board(code) {
   var body_split = body.split('.').slice(0, -1);
 
   for (var k = 0; k < body_split.length; k++) {
-      var item = body_split[k];
-      for (var l = 0; l < parseInt(item.slice(0, -1)) + 1; l++) {
+      var item = body_split[k].split(',');
+      if (item[0] == "") { item[0] = "0" }
+      for (var l = 0; l < parseInt(item[0]) + 1; l++) {
           j += 1;
           if (j >= width) {
               j = 0;
               i += 1;
           }
       }
-      var type = item[item.length - 1];
+      var type = item[1];
       data[i][j] = type;
   }
 
@@ -282,12 +283,12 @@ function reset_map(mapid) {
 }
 resetwalls = reset_map; // override snap's function!
 
-var __old_loadSol__ = loadSol;
+var __old_loadSol__ = requestSol;
 function new_loadSol(solution, numMoves) {
   __old_loadSol__(solution, numMoves);
   refresh_score();
 }
-loadSol = new_loadSol;
+requestSol = new_loadSol;
 
 var __old_animatePath__ = animatePath;
 function update_animate_path() {
@@ -340,7 +341,7 @@ function draw_values() {
 
 var showing_values = false;
 function refresh_score() {
-  try { // for mapeditor race condition
+  //try { // for mapeditor race condition
     var mapid = get_mapid();
     var sol = get_solution(mapid);
     solver.compute_value(get_board(mapid), sol, function(values) {
@@ -356,11 +357,11 @@ function refresh_score() {
       write_score_value(values);
     });
     if (showing_values) { draw_values(); }
-  } catch (e) {return console.log('In mapeditor?  failed to refresh score', e);}
+  //} catch (e) {return console.log('In mapeditor?  failed to refresh score', e);}
 };
 
 function draw_single_value(mapid, i, j, value, blocking, maxValue) {
-    var elt = $('#child_' + mapid + '\\,' + (i+1) + '\\,' + j);
+    var elt = $('#child_' + mapid + '\\,' + i + '\\,' + j);
     var css = {'text-align': 'center',
   		     'cursor': 'default',
   			 'font-weight': 'normal'

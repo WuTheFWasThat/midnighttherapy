@@ -6,42 +6,44 @@
 
 (function(exports) {
 
-var ROCK_1             = 'r';
-var ROCK_2             = 'R';  // never used?
-var ROCK_3             = 'q';  // used in seeing double, same as rock?
+var ROCK_1             = 'r1';
+var ROCK_2             = 'r2';  // never used?
+var ROCK_3             = 'q1';  // used in seeing double, same as rock?
 
-var PATCH              = 'p';  // can't place blocks, but path can pass
+var PATCH              = 'p1';  // can't place blocks, but path can pass
 
-var GREEN_THROUGH_ONLY = 'X';  // colored green, blocks red
-var RED_THROUGH_ONLY   = 'x';  // colored red, blocks green
+var GREEN_THROUGH_ONLY = 'x2';  // colored green, blocks red
+var RED_THROUGH_ONLY   = 'x1';  // colored red, blocks green
 
-var GREEN_START        = 's';
-var RED_START          = 'S';
+var GREEN_START        = 's1';
+var RED_START          = 's2';
 
-var FINISH             = 'f';
+var FINISH             = 'f1';
 
-var CHECKPOINT_1       = 'a';
-var CHECKPOINT_2       = 'b';
-var CHECKPOINT_3       = 'c';
-var CHECKPOINT_4       = 'd';
-var CHECKPOINT_5       = 'e';
+var CHECKPOINT_1       = 'c1';
+var CHECKPOINT_2       = 'c2';
+var CHECKPOINT_3       = 'c3';
+var CHECKPOINT_4       = 'c4';
+var CHECKPOINT_5       = 'c5';
 var CHECKPOINTS        = [CHECKPOINT_1, CHECKPOINT_2, CHECKPOINT_3, CHECKPOINT_4, CHECKPOINT_5];
 
 // dark blue
-var TELE_IN_1          = 't';
-var TELE_OUT_1         = 'u';
+var TELE_IN_1          = 't1';
+var TELE_OUT_1         = 'u1';
 // green
-var TELE_IN_2          = 'm';
-var TELE_OUT_2         = 'n';
+var TELE_IN_2          = 't2';
+var TELE_OUT_2         = 'u2';
 // red
-var TELE_IN_3          = 'g';
-var TELE_OUT_3         = 'h';
+var TELE_IN_3          = 't3';
+var TELE_OUT_3         = 'u3';
 // light blue
-var TELE_IN_4          = 'i';
-var TELE_OUT_4         = 'j';
+var TELE_IN_4          = 't4';
+var TELE_OUT_4         = 'u4';
 // light green
-var TELE_IN_5          = 'k';
-var TELE_OUT_5         = 'l';
+var TELE_IN_5          = 't5';
+var TELE_OUT_5         = 'u5';
+
+var NOTURN             = 'z5';
 
 var teleports_map = {};
 teleports_map[TELE_IN_1] = TELE_OUT_1;
