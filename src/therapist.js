@@ -1097,7 +1097,7 @@ function initialize_toolbar() {
 
   var button_toolbar = $('<div>').attr('id',"mt_left_bar").css({
     'position' : 'absolute',
-    'left' : '20px',
+    'left' : '5px',
     'width' : toolbar_width,
     'z-index' : '41',
     'text-align' : 'center',
@@ -1134,7 +1134,12 @@ function initialize_toolbar() {
     setTimeout(bind_block_events, new_map_timeout); // this is apparently not enough...
   } else {
     bind_block_events();
-    $('#difficulties').parent().css('margin-left', toolbar_width + 'px');
+    $('#difficulties').parent().addClass('pathery-assist-wrapper');
+    var wrapper_style = document.createElement('style');
+    wrapper_style.textContent = '@media screen and (max-width: ' + (toolbar_width*2 + 980) +
+        'px) { .pathery-assist-wrapper { margin-left:' + toolbar_width + 'px; }}';
+    document.head.appendChild(wrapper_style);
+    // $('#difficulties').parent().css('margin-left', toolbar_width + 'px');
     //$('#difficulties').parent().prepend(button_toolbar);
     $('#difficulties').after(button_toolbar);
   }
