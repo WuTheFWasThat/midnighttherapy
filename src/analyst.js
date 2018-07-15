@@ -92,6 +92,8 @@ function PatheryGraph(board) {
   this.serial_board = []; // same as board, but uses keyified index
   this.boardstuff = {}; // reverse of serial board.  val -> list of keyified blocks
 
+  this.has_ice = false; // Set to true if there is an ice block in the maze.
+
   // A map of teleport in names that are present in the maze.
   // Every key in it is expected to have a value of 1.
   var teleport_in_set = {};
@@ -113,6 +115,10 @@ function PatheryGraph(board) {
           // Update set of teleports
           if (isTeleIn(stuff)) {
             teleport_in_set[stuff] = 1;
+          }
+          // Update if there's ice.
+          if (stuff === NOTURN) {
+            this.has_ice = true;
           }
         }
       }
@@ -201,16 +207,21 @@ PatheryGraph.prototype.snapify = function(keyed) {
 };
 
 PatheryGraph.prototype.path_dir = function(oldkey, newkey) {
+  return this.path_dir_num(oldkey, newkey)+'';
+};
+
+// The 1-indexed path direction from oldkey to newkey.
+PatheryGraph.prototype.path_dir_num = function(oldkey, newkey) {
   var diff = newkey - oldkey;
   switch(diff) {
     case -this.m:
-      return '1'; // up
+      return 1; // up
     case 1:
-      return '2'; // right
+      return 2; // right
     case this.m:
-      return '3'; // down
+      return 3; // down
     case -1:
-      return '4'; // left
+      return 4; // left
     default:
       throw new Error("unexpected value in pathing");
   }
@@ -243,14 +254,20 @@ PatheryGraph.prototype.teleport = function(block, used_teleports) {
   return null;
 };
 
+// Constants related to bitmasking.
+var NUM_KEY_BITS = 12; // bits for the index/key of square
+var NUM_DIRECTION_BITS = 3; // bits for the direction
+var NUM_TOTAL_BITS = 30;
+var BFS_pm_mask_incr = 1 << (NUM_KEY_BITS+NUM_DIRECTION_BITS); // Since values go from 0 to 2499 (up to 12 bits [4096 = 2^12]), the other bits can be the mask
+var BFS_pm_mask_limit = 1 << NUM_TOTAL_BITS; // reset the table every 2^15 times it's used
+var BFS_key_bitmask = (1 << NUM_KEY_BITS) - 1;
+var BFS_pm_bitmask = BFS_pm_mask_limit - BFS_pm_mask_incr;
+
 // var BFS_queue = new Int32Array(graph.m * graph.n); // new Array(...)
 var BFS_queue = new Int32Array(1000); // new Array(...)
 var find_path_ret_val = new Int32Array(2500); // Can probably make this smaller (3/4 * 2500)
-var BFS_parent_map = new Int32Array(2500);
-var BFS_pm_mask = 0; // Used to read old values in the parent map as cleared
-var BFS_pm_mask_incr = 1 << 12; // Since values go from 0 to 2499 (up to 12 bits [4096 = 2^12]), the other bits can be the mask
-var BFS_pm_mask_limit = 1 << 30; // reset the table every 2^18 times it's used
-var BFS_pm_bitmask = (1 << 30) - (1 << 12);
+var BFS_parent_map = new Int32Array(1 << (NUM_KEY_BITS+NUM_DIRECTION_BITS));
+var BFS_pm_mask = 0; // Used to read old values in the parent map as cleared. Incremented on every path call.
 
 // Returns: Object with fields
 // path: (typed) array of block keys in path
@@ -258,6 +275,101 @@ var BFS_pm_bitmask = (1 << 30) - (1 << 12);
 // Note: the elements should be accessed backwards, from numel-1 to 0.
 // If no path found, instead returns null.
 PatheryGraph.prototype.find_path = function(
+             blocks, // currently placed blocks
+             extra_block, // unpassable square (used for green or red only)
+             sources, // list of source vertices, in order of priority
+             targets // set of target vertices
+            ) {
+  if (!this.has_ice) {
+    return this.find_path_no_ice(blocks, extra_block, sources, targets);
+  }
+  // parent_map = {}; // keyified index ->  parent key (or -1 if was source, and undefined if not yet reached)
+  // parent_map: array w/ keyified index -> BFS_pm_mask + parent key (or -1 if was source).
+  // values with the wrong BFS_pm_mask are not yet reached
+  var parent_map = BFS_parent_map;
+  BFS_pm_mask += BFS_pm_mask_incr;
+  // clean the BFS map? it happens not very often though
+  if (BFS_pm_mask >= BFS_pm_mask_limit) {
+    BFS_pm_mask = BFS_pm_mask_incr;
+    for (var i = 0; i < parent_map.length; i++) {
+      parent_map[i] = 0;
+    }
+  }
+
+  // A parent map specifically for the ice tiles, reinitialized on every path call (for now).
+  // The key is (direction)(index key), concatenated bitwise,
+  // and the correpsonding value is the index key of the parent (no direction).
+  // var ice_parent_map = {};
+
+  var queue = BFS_queue;
+  var queue_start = 0,
+      queue_end = 0;
+
+  for (var k in sources) {
+    var source = sources[k];
+    queue[queue_end++] = source;
+    parent_map[source] = BFS_pm_mask-1;
+  }
+
+  // Values in the bfs queue are a direction plus a key. The direction is only populated
+  // when the corresponding square is an ice block.
+  while (queue_start != queue_end) {
+    var u_dir_key = queue[queue_start++];
+    var prev_direction = u_dir_key >> NUM_KEY_BITS;
+    var u = u_dir_key & BFS_key_bitmask;
+
+    var neighbors = this.neighbors[u];
+    var is_current_tile_ice = this.serial_board[u] === NOTURN;
+    if (is_current_tile_ice) {
+    }
+    for (var i = 0; i < neighbors.length; i++) {
+      var v = neighbors[i];
+
+      var is_next_tile_ice = this.serial_board[v] === NOTURN;
+      var direction = is_next_tile_ice ? this.path_dir_num(u, v) : 0;
+      var v_direction_and_key = (direction << NUM_KEY_BITS)+v;
+
+      var is_tile_searched = (BFS_pm_bitmask & (parent_map[v_direction_and_key]+1)) == BFS_pm_mask;
+
+      // already found this square+direction.
+      // if (parent_map.hasOwnProperty(v)) { continue;}
+      if (is_tile_searched) { continue; }
+
+      if (is_current_tile_ice) {
+        // If the current tile is ice, make sure we're sliding the right way.
+        if (prev_direction !== this.path_dir_num(u, v)) { continue; }
+      }
+
+      if (blocks[v]) {continue;}
+
+      // impassable square
+      if (this.serial_board[v] === extra_block) {continue;}
+
+      parent_map[v_direction_and_key] = BFS_pm_mask + u_dir_key;
+
+      // found target!
+      if (targets[v]) {
+        var path = find_path_ret_val;
+        var idx = 0;
+        // Traverse through path backwards. curr holds the current direction/key, but initially doesn't
+        // have a direction (since a target square can't be an ice square).
+        var curr = v;
+        while (curr !== -1) {
+          path[idx++] = curr & BFS_key_bitmask;
+          curr = parent_map[curr] - BFS_pm_mask;
+        }
+        return {'path': path, 'numel': idx};
+      }
+
+      // add to queue
+      queue[queue_end++] = v_direction_and_key;
+    }
+  }
+  return null;
+};
+
+// Same as find_path, but optimized for when there is no ice.
+PatheryGraph.prototype.find_path_no_ice = function(
              blocks, // currently placed blocks
              extra_block, // unpassable square (used for green or red only)
              sources, // list of source vertices, in order of priority
