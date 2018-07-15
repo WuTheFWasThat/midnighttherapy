@@ -937,7 +937,8 @@ function click_block_untriggered(mapid, block)  {
   var block_div = $("#" + id);
   // Only click the block if it's clickable (e.g. not a transporter/pre-placed block/checkpoint etc).
   // TODO: this stops being true for clickable blocks after placement and erase
-  if (!block_div.hasClass('o')) { return; }
+  // The class for this changed from 'o' to 'o1'. Going to try removing the check completely for now.
+  // if (!block_div.hasClass('o1')) { return; }
   grid_click(block_div[0]);
 }
 

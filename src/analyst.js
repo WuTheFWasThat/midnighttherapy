@@ -320,8 +320,7 @@ PatheryGraph.prototype.find_path = function(
 
     var neighbors = this.neighbors[u];
     var is_current_tile_ice = this.serial_board[u] === NOTURN;
-    if (is_current_tile_ice) {
-    }
+
     for (var i = 0; i < neighbors.length; i++) {
       var v = neighbors[i];
 
