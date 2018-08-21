@@ -36,9 +36,10 @@ var url = 'https://raw.githubusercontent.com/WuTheFWasThat/midnighttherapy/maste
 //mt_url='http://127.0.0.1:2222/'  // OR WHATEVER YOUR SERVER IS
 //var url = mt_url + 'pathery-client.js'
 
-$.ajax({
-  url: url,
-  type: 'GET',
-  dataType: 'text',
-  success: function(data) { eval(data); },
-});
+var xhr = new XMLHttpRequest();
+xhr.open('GET', url);
+xhr.onload = function() {
+    if (xhr.status === 200) { eval(xhr.responseText); }
+    else { alert('Request failed.  Returned status of ' + xhr.status); }
+};
+xhr.send();
