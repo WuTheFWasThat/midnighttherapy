@@ -39,7 +39,10 @@ var url = 'https://raw.githubusercontent.com/WuTheFWasThat/midnighttherapy/maste
 var xhr = new XMLHttpRequest();
 xhr.open('GET', url);
 xhr.onload = function() {
-    if (xhr.status === 200) { eval(xhr.responseText); }
-    else { alert('Request failed.  Returned status of ' + xhr.status); }
+    if (xhr.status === 200) { 
+        var child = document.createElement('script');
+        child.text = xhr.responseText
+        document.head.appendChild(child);
+    } else { alert('Request failed.  Returned status of ' + xhr.status); }
 };
 xhr.send();
